@@ -5,4 +5,4 @@
 [![Travis (.org)](https://img.shields.io/travis/sdss/lvmecp)](https://travis-ci.org/sdss/lvmecp)
 [![codecov](https://codecov.io/gh/sdss/lvmecp/branch/main/graph/badge.svg)](https://codecov.io/gh/sdss/lvmecp)
 
-osures of lvm in sdss.
+SDSS-V LVMi Enclosure Control Package
