@@ -36,6 +36,8 @@ python = "^3.7"
 sdss-tree = ">=2.15.2"
 sdss-access = ">=0.2.3"
 sdsstools = ">=0.4.0"
+click = "^8.0.1"
+sdss-clu = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=7.11.0"
