@@ -24,7 +24,6 @@ from clu.device import Device
 
 from sdsstools import read_yaml_file
 
-from lvmecp.exceptions import PlcControllerError
 
 __all__ = ["PlcController"]
 

@@ -11,7 +11,8 @@ __all__ = [
     "TestController"
 ]
 
-from .controller import PlcController, TestController
+from .controller import PlcController
+from .testcontroller import TestController
 
 
 

@@ -19,7 +19,7 @@ import click
 from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
-from lvmecp.plc.controller import PlcController
+from lvmecp.controller.testcontroller import TestController
 from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
@@ -43,7 +43,7 @@ class LvmecpBaseActor(BaseActor):
     def __init__(
         self,
         *args,
-        controllers: tuple[PlcController, ...] = (),
+        controllers: tuple[TestController, ...] = (),
         **kwargs,
     ):
 
@@ -111,7 +111,7 @@ class LvmecpBaseActor(BaseActor):
 
         if "controllers" in instance.config:
             controllers = (
-                PlcController(
+                TestController(
                     ctrname,
                     ctr["host"],
                     ctr["port"],
