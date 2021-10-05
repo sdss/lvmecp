@@ -14,7 +14,7 @@ import datetime
 from clu.command import Command
 
 from lvmecp.controller.testcontroller import TestController
-from lvmecp.controller.pcs import pcs as pcs
+from lvmecp.controller.pcs import pcs
 from lvmecp.exceptions import LvmecpError
 
 from . import parser
