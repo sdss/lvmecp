@@ -19,31 +19,30 @@ import click
 from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
+from lvmecp.controller.controller import PlcController
 from lvmecp.controller.testcontroller import TestController
 from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
 
 
-__all__ = ["LvmecpBaseActor","LvmecpActor"]
+__all__ = ["LvmecpActor"]
 
-class LvmecpBaseActor(BaseActor):
-    """Lvmecp controller base actor.
-    
-    This class is intended to be subclassed with a specific actor class (normally
-    ``AMQPActor`` or ``LegacyActor``).
+class LvmecpActor(AMQPActor):
+    """Lvmecp controller actor.
+
     Parameters
     ----------
     controllers
         The list of `.PlcController` instances to manage.
     """
     
-    #parser: ClassVar[click.Group] = lvmecp_command_parser
+    parser = lvmecp_command_parser
 
     def __init__(
         self,
         *args,
-        controllers: tuple[TestController, ...] = (),
+        controllers: tuple[PlcController, TestController, ...] = (),
         **kwargs,
     ):
 
@@ -55,75 +54,45 @@ class LvmecpBaseActor(BaseActor):
 
         self.version = __version__
 
-        self._fetch_log_jobs = []
-        self._status_jobs = []
 
     async def start(self):
         """Start the actor and connect the controllers."""
-
-        connect_timeout = self.config["timeouts"]["controller_connect"]
-
-        for controller in self.controllers.values():
-            try:
-                await asyncio.wait_for(controller.start(), timeout=connect_timeout)
-            except asyncio.TimeoutError:
-                warnings.warn(
-                    f"Timeout out connecting to {controller.name!r}.",
-                    LvmecpUserWarning,
-                )
-
         await super().start()
 
-        self._fetch_log_jobs = [
-            asyncio.create_task(self._fetch_log(controller))
-            for controller in self.controllers.values()
-        ]
-
-        self._status_jobs = [
-            asyncio.create_task(self._report_status(controller))
-            for controller in self.controllers.values()
-        ]
-
     async def stop(self):
-        with suppress(asyncio.CancelledError):
-            for task in self._fetch_log_jobs:
-                task.cancel()
-                await task
-
-        for controller in self.controllers.values():
-            await controller.stop()
-
+        """Stop the actor and disconnect the controllers."""
         return await super().stop()
 
     @classmethod
     def from_config(cls, config, *args, **kwargs):
         """Creates an actor from a configuration file."""
 
-        if config is None:
-            if cls.BASE_CONFIG is None:
-                raise RuntimeError("The class does not have a base configuration.")
-            config = cls.BASE_CONFIG
+        instance = super(LvmecpActor, cls).from_config(config, *args, **kwargs)
 
-        instance = super(LvmecpBaseActor, cls).from_config(config, *args, **kwargs)
-
-        assert isinstance(instance, LvmecpBaseActor)
+        assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
-        if "controllers" in instance.config:
+        if "simulator" in instance.config["devices"]["controllers"]:
             controllers = (
                 TestController(
                     ctrname,
                     ctr["host"],
                     ctr["port"],
                 )
-                for (ctrname, ctr) in instance.config["controllers"].items()
+                for (ctrname, ctr) in instance.config["devices"]["controllers"]["simulator"].items()
             )
             instance.controllers = {c.name: c for c in controllers}
+
+        if "plc_controllers" in instance.config["devices"]["controllers"]:
+            controllers = (
+                PlcController(
+                    ctrname,
+                    ctr["host"],
+                    ctr["port"],
+                )
+                for (ctrname, ctr) in instance.config["devices"]["controllers"]["plc_controllers"].items()
+            )
+            instance.controllers.update({c.name: c for c in controllers})
             instance.parser_args = [instance.controllers]  # Need to refresh this
 
         return instance
-        
-class LvmecpActor(LvmecpBaseActor, AMQPActor):
-    """Lvmecp actor based on the AMQP protocol"""
-
-    pass
