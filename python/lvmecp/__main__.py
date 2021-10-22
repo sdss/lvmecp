@@ -1,46 +1,60 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 #
-# @Author: José Sánchez-Gallego
-# @Date: Dec 1, 2017
-# @Filename: cli.py
-# @License: BSD 3-Clause
-# @Copyright: José Sánchez-Gallego
+# @Author: Mingyeong Yang (mingyeong@khu.ac.kr)
+# @Date: 2021-10-03
+# @Filename: __main__.py
+# @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
-import argparse
 import os
-import sys
 
-from lvmecp.main import math
+import click
+from click_default_group import DefaultGroup
+from clu.tools import cli_coro
 
+from sdsstools.daemonizer import DaemonGroup
 
-def main():
-
-    # An example of how to write a command line parser that works with the
-    # main.math function. For more details on how to use argparse, start with
-    # this tutorial: http://bit.ly/2SGDf7h
-
-    parser = argparse.ArgumentParser(
-        prog=os.path.basename(sys.argv[0]),
-        description='Performs an arithmetic operation.')
-
-    parser.add_argument('VALUE1', type=float, help='The first operand')
-    parser.add_argument('OPERATOR', type=str, help='The operator [+, -, *, /]')
-    parser.add_argument('VALUE2', type=float, help='The second operand')
-
-    parser.add_argument('-v', '--verbose', action='store_true', default=False,
-                        help='sets verbose mode')
-
-    args = parser.parse_args()
-
-    result = math(args.VALUE1, args.VALUE2, arith_operator=args.OPERATOR)
-
-    if args.verbose:
-        print('{} {} {} = {}'.format(args.VALUE1, args.OPERATOR, args.VALUE2, result))
-    else:
-        print(result)
+from lvmecp.actor.actor import LvmecpActor as ECPActorInstance
 
 
-if __name__ == '__main__':
+@click.group(cls=DefaultGroup, default="actor", default_if_no_args=True)
+@click.option(
+    "-c",
+    "--config",
+    "config_file",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Path to the user configuration file.",
+)
+@click.option(
+    "-v",
+    "--verbose",
+    count=True,
+    help="Debug mode. Use additional v for more details.",
+)
+@click.pass_context
+def lvmecp(ctx, config_file, verbose):
+    """ECP controller"""
 
-    main()
+    ctx.obj = {"verbose": verbose, "config_file": config_file}
+
+
+@lvmecp.group(cls=DaemonGroup, prog="nps_actor", workdir=os.getcwd())
+@click.pass_context
+@cli_coro
+async def actor(ctx):
+    """Runs the actor."""
+    default_config_file = os.path.join(os.path.dirname(__file__), "etc/lvmecp.yml")
+    config_file = ctx.obj["config_file"] or default_config_file
+
+    lvmnps_obj = ECPActorInstance.from_config(config_file)
+
+    if ctx.obj["verbose"]:
+        lvmnps_obj.log.fh.setLevel(0)
+        lvmnps_obj.log.sh.setLevel(0)
+
+    await lvmnps_obj.start()
+    await lvmnps_obj.run_forever()
+
+
+if __name__ == "__main__":
+    lvmecp()

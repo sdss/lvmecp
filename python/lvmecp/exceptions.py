@@ -19,7 +19,7 @@ class LvmecpError(Exception):
         message = 'There has been an error' \
             if not message else message
 
-        super(LvmecpError, self).__init__(message)
+        super(LvmecpError, self).__init__(message)   
 
 
 class LvmecpNotImplemented(LvmecpError):
