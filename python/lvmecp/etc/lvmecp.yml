@@ -3,7 +3,7 @@
 devices:
     controllers:
         simulator:
-            testcontroller:
+            controller:
                 host: 163.180.145.123
                 port: 502
         #plc_controllers:

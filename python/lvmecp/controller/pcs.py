@@ -15,8 +15,7 @@ class pcs():
     """PLC Control Software"""
     def __init__(self):
         self.PLC = dict()                           # PLC dictionary
-        self.PLC['PLC'] = TestController(name="simulator", host="163.180.145.123", port=502)
-        self.PLC['PLC'].TCP_add(ip="163.180.145.123", port=502)
+        self.PLC['PLC'] = PlcController(name="simulator", host="163.180.145.123", port=502)
         self.PLC['PLC'].TCP_sock()
         
         #Define all plc variables from ./var/plc_var.py
@@ -26,6 +25,7 @@ class pcs():
         #Define DCS var
         self.DCS = dict()
         self.DCS['Dome_is_mov'] = False         # Dome is moving
+    
 
 #Define DCS commands
     #Close DCS

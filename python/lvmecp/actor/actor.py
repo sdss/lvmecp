@@ -74,7 +74,7 @@ class LvmecpActor(AMQPActor):
 
         if "simulator" in instance.config["devices"]["controllers"]:
             controllers = (
-                TestController(
+                PlcController(
                     ctrname,
                     ctr["host"],
                     ctr["port"],
