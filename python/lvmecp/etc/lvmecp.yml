@@ -4,7 +4,7 @@ devices:
     controllers:
         simulator:
             testcontroller:
-                host: 127.0.0.1
+                host: 163.180.145.123
                 port: 502
         #plc_controllers:
         #    plc1:

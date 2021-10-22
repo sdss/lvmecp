@@ -83,16 +83,16 @@ class LvmecpActor(AMQPActor):
             )
             instance.controllers = {c.name: c for c in controllers}
 
-        if "plc_controllers" in instance.config["devices"]["controllers"]:
-            controllers = (
-                PlcController(
-                    ctrname,
-                    ctr["host"],
-                    ctr["port"],
-                )
-                for (ctrname, ctr) in instance.config["devices"]["controllers"]["plc_controllers"].items()
-            )
-            instance.controllers.update({c.name: c for c in controllers})
+        #if "plc_controllers" in instance.config["devices"]["controllers"]:
+        #    controllers = (
+        #        PlcController(
+        #            ctrname,
+        #            ctr["host"],
+        #            ctr["port"],
+        #        )
+        #        for (ctrname, ctr) in instance.config["devices"]["controllers"]["plc_controllers"].items()
+        #    )
+        #    instance.controllers.update({c.name: c for c in controllers})
             instance.parser_args = [instance.controllers]  # Need to refresh this
 
         return instance

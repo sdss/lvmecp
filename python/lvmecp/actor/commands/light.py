@@ -22,6 +22,7 @@ from . import parser
 
 __all__ = ["light"]
 
+p = pcs()
 
 @parser.group()
 def light(*args):
@@ -32,19 +33,21 @@ def light(*args):
 @light.command()
 def move(command: Command, controllers: dict[str, TestController]):
     """on or off the enclosure light"""
-    pcs.DCS_update()
+    p.DCS_update()
 
     command.info(text="move the light")
-    pcs.HL()
+    p.HL()
 
     return
 
 @light.command()
 def status(command: Command, controllers: dict[str, TestController]):
     """return the status of light"""
-    pcs.DCS_update()
+    p.DCS_update()
 
     command.info(text="what status the light is")
-    pcs.HL_stat()
+    #status = {}
+    #status['STATUS'] = p.HL_stat()
+    #command.info(text = status)
 
-    return 
+    return command.finish()

@@ -64,10 +64,6 @@ class TestController():
         self.TCPSock.settimeout(7)
         try:
             self.TCPSock.connect(self.Tcpaddr)
-            current_time = dt.datetime.now()
-            print(
-                "host: %s after connection               : %s", self.port, current_time
-            )
         except socket.error as msg:
             print("Message", msg)
             R1 = ''
@@ -88,10 +84,6 @@ class TestController():
 
     #def send tcp packet
     def TCP_send(self, *argv):
-        current_time = dt.datetime.now()
-        print(
-                "host: %s when send command              : %s", self.port, current_time
-            )
         message = None
         if len(argv) == 3:
             # Build message
