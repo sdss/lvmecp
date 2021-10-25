@@ -7,17 +7,21 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 import sys
+import asyncio
 from .controller import PlcController
-from .testcontroller import TestController
 from .plc_var_test import *                    # Import plc variables
 
-class pcs():
+class PCS():
     """PLC Control Software"""
     def __init__(self):
+        #self.name = name
+        #self.host = host
+        #self.port = port
+
         self.PLC = dict()                           # PLC dictionary
-        self.PLC['PLC'] = PlcController(name="simulator", host="163.180.145.123", port=502)
-        self.PLC['PLC'].TCP_sock()
-        
+        #self.PLC['PLC'] = PlcController(name=self.name, host=self.host,port=self.port)
+        self.PLC['PLC'] = PlcController(name="simulator", host="163.180.145.123",port=502)
+
         #Define all plc variables from ./var/plc_var.py
         for element in plc_var_list:            # Append to dictionary every plc readable variable in plc_var
             self.PLC[element] = None            # Initialize variable with none
@@ -25,24 +29,29 @@ class pcs():
         #Define DCS var
         self.DCS = dict()
         self.DCS['Dome_is_mov'] = False         # Dome is moving
-    
 
-#Define DCS commands
-    #Close DCS
-    def close(self):
-        self.PLC['PLC'].close()                                                                                         # Close plc socket
-        sys.exit()                                                                                                      # Issue exit status to python
+    async def open(self):
+        """open TCP socket connection with PLCs"""
+        await self.PLC['PLC'].TCP_sock()
+
+    async def close(self):
+        """close TCP socket connection with PLCs"""
+        await self.PLC['PLC'].close()              # Close plc socket
+
+
+#Define PCS commands                                                                                                    # Issue exit status to python
     #High lights
-    def HL(self):
-        lights = not (self.PLC['High_lights'] or self.PLC['Low_lights'])                                                # Check if both lights are off
-        if lights:                                                                                                      # If lights are off
-            self.PLC['PLC'].TCP_send(plc_var_talk['Tggl_lights'][0], plc_var_talk['Tggl_lights'][1], 0xff00)            # Turn on lights PLC
-            return 'Lights turned on'
-        else:                                                                                                           # Else
-            self.PLC['PLC'].TCP_send(plc_var_talk['Tggl_lights'][0], plc_var_talk['Tggl_lights'][1], 0x0000)            # Turn off lights PLC
-            return 'Lights turned off'
+    async def HL_ON(self):
+        """Turn on/off the light"""
+        await self.PLC['PLC'].TCP_send(plc_var_talk['Tggl_lights'][0], plc_var_talk['Tggl_lights'][1], 0xff00)
+
+    async def HL_OFF(self):
+        """Turn on/off the light"""
+        await self.PLC['PLC'].TCP_send(plc_var_talk['Tggl_lights'][0], plc_var_talk['Tggl_lights'][1], 0x0000)
+    
     #High light status
-    def HL_stat(self):
+    async def HL_stat(self):
+        """return the status of lights"""
         out = dict()
         for element in self.PLC:
             if 'LIGHTS' in element.upper():                                                                             # If lights is in key
@@ -50,13 +59,13 @@ class pcs():
         return out
 
     #Define dome enable
-    def Dome_enb(self):
-        self.PLC['PLC'].TCP_send(plc_var_talk['Dome_enb_mov'][0], plc_var_talk['Dome_enb_mov'][1], 0xff00)              # Enable dome
+    async def Dome_enb(self):
+        await self.PLC['PLC'].TCP_send(plc_var_talk['Dome_enb_mov'][0], plc_var_talk['Dome_enb_mov'][1], 0xff00)              # Enable dome
     #Define dome disable
-    def Dome_dis(self):
-        self.PLC['PLC'].TCP_send(plc_var_talk['Dome_enb_mov'][0], plc_var_talk['Dome_enb_mov'][1], 0x0000)              # Disable move
+    async def Dome_dis(self):
+        await self.PLC['PLC'].TCP_send(plc_var_talk['Dome_enb_mov'][0], plc_var_talk['Dome_enb_mov'][1], 0x0000)              # Disable move
     #Define dome status
-    def Dome_stat(self):
+    async def Dome_stat(self):
         out = dict()
         for element in self.PLC:
             if 'DOME' in element.upper():                                                                               # If Dome is in key
@@ -71,6 +80,64 @@ class pcs():
         self.Dome_enb()                                                                                                 # Enable move
         self.PLC['PLC'].TCP_send(plc_var_talk['Dome_new_pos'][0], plc_var_talk['Dome_new_pos'][1], new_pos)             # Send new position to PLC
         self.DCS['Dome_is_mov'] = True                                                                                  # Set dom is moving bit to true 
+
+    #Define platform position
+    def Platform_stat(self):                                                                                            # Shows if platform is down
+        return f"Platform not down: {not self.PLC['plat_not_dwn']}"
+
+    #Define Windscreen enable
+    def Screen_enb(self):
+        self.PLC['PLC'].TCP_send(plc_var_talk['WS_enable'][0],plc_var_talk['WS_enable'][1],0xff00)                      # Send WS enable bit (1) to PLC
+
+    #Define Windscreen disable
+    def Screen_dis(self):
+        self.PLC['PLC'].TCP_send(plc_var_talk['WS_enable'][0],plc_var_talk['WS_enable'][1],0x0000)                     # Send WS disable bit (0) to PLC
+        self.PLC['PLC'].TCP_send(plc_var_talk['WS_to_top'][0],plc_var_talk['WS_to_top'][1],0x0000)
+        self.PLC['PLC'].TCP_send(plc_var_talk['WS_to_btm'][0],plc_var_talk['WS_to_btm'][1],0x0000)
+
+    #Define Windscreen to upper position
+    def Screen_up(self):
+        self.Screen_enb()                                                                                               # Send WS enable to PLC
+        self.PLC['PLC'].TCP_send(plc_var_talk['WS_to_top'][0],plc_var_talk['WS_to_top'][1],0xff00)                      # Send WS to upper position
+
+    #Define Windscreen to lower position
+    def Screen_down(self):
+        self.Screen_enb()                                                                                               # Send WS enable to PLC
+        self.PLC['PLC'].TCP_send(plc_var_talk['WS_to_btm'][0],plc_var_talk['WS_to_btm'][1],0xff00)                      # Send WS to lower position
+    
+    #Define Screen status
+    def Screen_stat(self):
+        out = dict()
+        for element in self.PLC:
+            if 'WS' in element.upper():                                                                                 # If Dome is in var key
+                out[element] = self.PLC[element]                                                                        # Add element to key
+        return out
+
+    #Define Shutter enable
+    def Shutter_enb(self):
+        self.PLC['PLC'].TCP_send(plc_var_talk['Shut_enable'][0],plc_var_talk['Shut_enable'][1],0xff00)                  # Send 1 to shutter enable bit
+
+    #Define Shutter disable
+    def Shutter_dis(self):
+        self.PLC['PLC'].TCP_send(plc_var_talk['Shut_enable'][0],plc_var_talk['Shut_enable'][1],0x0000)                  # Send 0 to shutter enable bit
+    
+    #Define Shutter open
+    def Shutter_open(self):
+        self.Shutter_enb()                                                                                              # Send shutter enable
+        self.PLC['PLC'].TCP_send(plc_var_talk['Shut_open'][0],plc_var_talk['Shut_open'][1],0xff00)                      # Send shutter open
+
+    #Define Shutter open
+    def Shutter_close(self):
+        self.Shutter_enb()                                                                                              # Send shutter enable
+        self.PLC['PLC'].TCP_send(plc_var_talk['Shut_close'][0],plc_var_talk['Shut_close'][1],0xff00)                    # Send shutter close
+
+    #Define Shutter status
+    def Shutter_status(self):
+        out = dict()
+        for element in self.PLC:
+            if 'Shut' in element.upper():                                                                               # If shut is in var key
+                out[element] = self.PLC[element]                                                                        # Add element to key
+        return out                                                                                                      # return parameters
 
     #Define DCS update
     def DCS_update(self):

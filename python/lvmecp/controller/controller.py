@@ -50,19 +50,20 @@ class PlcController():
         # connection
         current_time = datetime.datetime.now()
         print(
-            "host: %s before connection              : %s", self.port, current_time
+            f"host: {self.port} before connection   : {current_time}"
             )
         self.reader, self.writer = await asyncio.open_connection(
             self.host, self.port
             )
         current_time = datetime.datetime.now()
         print(
-            "host: %s after connection               : %s", self.port, current_time
+            f"host: {self.port} after connection   : {current_time}"
             )
 
 
     #def send tcp packet
     async def TCP_send(self, *argv):
+        """Send a command to device"""
         message = None
         if len(argv) == 3:
             # Build message
@@ -83,15 +84,32 @@ class PlcController():
         # command = command + chr(data >> 8) + chr(data & 0xFF)   # Data
         
         try:
-            self.writer.write(message.encode())
+            current_time = datetime.datetime.now()
+            print(
+                f"host: {self.port} before write   : {current_time}"
+            )                           
+            self.writer.write(message)
             await self.writer.drain()
+            current_time = datetime.datetime.now()
+            print(
+                f"host: {self.port} after write   : {current_time}"
+            )                         
         except LvmecpError as msg:
             self.writer.close()
             await self.writer.wait_closed()
             warnings.warn(str(msg), LvmecpWarning)            
 
         try:
-            reply = await self.reader.readuntil(b"\r")
+            current_time = datetime.datetime.now()
+            print(
+                f"host: {self.port} before read   : {current_time}"
+            )             
+            reply = await self.reader.read(128)
+            print(f"reply: {reply}")
+            current_time = datetime.datetime.now()
+            print(
+                f"host: {self.port} after read   : {current_time}"
+            )             
         except LvmecpError as msg:
             self.writer.close()
             self.writer.wait_closed()
