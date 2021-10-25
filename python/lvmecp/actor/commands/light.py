@@ -10,11 +10,13 @@ from __future__ import absolute_import, annotations, division, print_function
 
 import asyncio
 import datetime
+from os import name
 
 from clu.command import Command
 
-from lvmecp.controller.testcontroller import TestController
-from lvmecp.controller.pcs import pcs
+#from lvmecp.controller.testcontroller import TestController
+from lvmecp.controller.controller import PlcController
+from lvmecp.controller.pcs import PCS
 from lvmecp.exceptions import LvmecpError
 
 from . import parser
@@ -22,7 +24,14 @@ from . import parser
 
 __all__ = ["light"]
 
-p = pcs()
+plc = PCS()
+
+async def plc_control(command, controllers: dict[str, PlcController]):
+    plcs = []
+    for controller in controllers:
+        plcs.append(PCS(name=controller[name], host=controller["host"], port=controller["port"]))
+
+    return plcs
 
 @parser.group()
 def light(*args):
@@ -31,23 +40,45 @@ def light(*args):
     pass
 
 @light.command()
-def move(command: Command, controllers: dict[str, TestController]):
+async def on(command: Command, controllers: dict[str, PlcController]):
     """on or off the enclosure light"""
-    p.DCS_update()
-
     command.info(text="move the light")
-    p.HL()
-
-    return
+    
+    for controller in controllers:
+        #plc = PCS(name=controller[0], host=controller[1], port=controller[2])
+        #assume one plc host in the enclosure
+        try:
+            await plc.open()
+            await plc.HL_ON()
+            await plc.close()
+        except LvmecpError as err:
+            return command.error(str(err))
+    return command.finish()
 
 @light.command()
-def status(command: Command, controllers: dict[str, TestController]):
-    """return the status of light"""
-    p.DCS_update()
+async def off(command: Command, controllers: dict[str, PlcController]):
+    """on or off the enclosure light"""
+    command.info(text="move the light")
+    
+    for controller in controllers:
+        #plc = PCS(name=controller[0], host=controller[1], port=controller[2])
+        #assume one plc host in the enclosure
+        try:
+            await plc.open()
+            await plc.HL_OFF()
+            await plc.close()
+        except LvmecpError as err:
+            return command.error(str(err))
+    return command.finish()
 
-    command.info(text="what status the light is")
+@light.command()
+def status(command: Command, controllers: dict[str, PlcController]):
+    """return the status of light"""
+   # plc = PCS(name=controllers[name], host=controllers["host"], port=controllers["port"])
+
+    #command.info(text="what status the light is")
     #status = {}
-    #status['STATUS'] = p.HL_stat()
+    #status['STATUS'] = plc.HL_stat()
     #command.info(text = status)
 
-    return command.finish()
+    #return command.finish()
