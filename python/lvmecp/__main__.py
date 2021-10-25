@@ -38,7 +38,7 @@ def lvmecp(ctx, config_file, verbose):
     ctx.obj = {"verbose": verbose, "config_file": config_file}
 
 
-@lvmecp.group(cls=DaemonGroup, prog="nps_actor", workdir=os.getcwd())
+@lvmecp.group(cls=DaemonGroup, prog="ecp_actor", workdir=os.getcwd())
 @click.pass_context
 @cli_coro
 async def actor(ctx):
@@ -46,14 +46,14 @@ async def actor(ctx):
     default_config_file = os.path.join(os.path.dirname(__file__), "etc/lvmecp.yml")
     config_file = ctx.obj["config_file"] or default_config_file
 
-    lvmnps_obj = ECPActorInstance.from_config(config_file)
+    lvmecp_obj = ECPActorInstance.from_config(config_file)
 
     if ctx.obj["verbose"]:
-        lvmnps_obj.log.fh.setLevel(0)
-        lvmnps_obj.log.sh.setLevel(0)
+        lvmecp_obj.log.fh.setLevel(0)
+        lvmecp_obj.log.sh.setLevel(0)
 
-    await lvmnps_obj.start()
-    await lvmnps_obj.run_forever()
+    await lvmecp_obj.start()
+    await lvmecp_obj.run_forever()
 
 
 if __name__ == "__main__":
