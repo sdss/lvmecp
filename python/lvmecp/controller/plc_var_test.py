@@ -1,5 +1,5 @@
 #These are fake addresses to test the code
-#Read only plc variables
+#Read only plc variables 
 plc_var_list = dict()
 plc_var_list['Local_control'] = [0x01, 225]  # Shows if local control is activated or not (0 for TCS control)
 

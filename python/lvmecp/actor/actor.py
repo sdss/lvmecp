@@ -20,7 +20,7 @@ from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
-from lvmecp.controller.testcontroller import TestController
+#from lvmecp.controller.testcontroller import TestController
 from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
@@ -42,7 +42,7 @@ class LvmecpActor(AMQPActor):
     def __init__(
         self,
         *args,
-        controllers: tuple[PlcController, TestController, ...] = (),
+        controllers: tuple[PlcController, ...] = (),
         **kwargs,
     ):
 
@@ -72,27 +72,16 @@ class LvmecpActor(AMQPActor):
         assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
-        if "simulator" in instance.config["devices"]["controllers"]:
+        if "controllers" in instance.config["devices"]:
             controllers = (
-                TestController(
-                    ctrname,
-                    ctr["host"],
-                    ctr["port"],
+                PlcController(
+                    name=ctrname,
+                    host=ctr["host"],
+                    port=ctr["port"],
                 )
-                for (ctrname, ctr) in instance.config["devices"]["controllers"]["simulator"].items()
+                for (ctrname, ctr) in instance.config["devices"]["controllers"].items()
             )
             instance.controllers = {c.name: c for c in controllers}
-
-        #if "plc_controllers" in instance.config["devices"]["controllers"]:
-        #    controllers = (
-        #        PlcController(
-        #            ctrname,
-        #            ctr["host"],
-        #            ctr["port"],
-        #        )
-        #        for (ctrname, ctr) in instance.config["devices"]["controllers"]["plc_controllers"].items()
-        #    )
-        #    instance.controllers.update({c.name: c for c in controllers})
             instance.parser_args = [instance.controllers]  # Need to refresh this
 
         return instance

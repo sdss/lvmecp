@@ -3,13 +3,12 @@
 devices:
     controllers:
         simulator:
-            testcontroller:
-                host: 163.180.145.123
-                port: 502
-        #plc_controllers:
-        #    plc1:
-        #        host:
-        #        port:
+            name: simulator
+            host: 163.180.145.123
+            port: 502
+        #plc1:
+        #   host:
+        #   port:
 
 timeouts:
     controller_connect: 1
@@ -17,4 +16,4 @@ timeouts:
 actor:
     name: lvmecp
     host: localhost
-    port:
+    port: 5672
