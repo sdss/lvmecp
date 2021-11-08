@@ -37,7 +37,9 @@ class LvmecpActor(AMQPActor):
         The list of `.PlcController` instances to manage.
     """
     
-    parser = lvmecp_command_parser
+    parser: ClassVar[click.Group] = lvmecp_command_parser
+    BASE_CONFIG: ClassVar[str | Dict | None] = None
+
 
     def __init__(
         self,
@@ -49,7 +51,7 @@ class LvmecpActor(AMQPActor):
     #: dict[str, PlcController]: A mapping of controller name to controller.
         self.controllers = {c.name: c for c in controllers}
         self.parser_args = [self.controllers]
-
+        
         super().__init__(*args, **kwargs)
 
         self.version = __version__
@@ -58,6 +60,7 @@ class LvmecpActor(AMQPActor):
     async def start(self):
         """Start the actor and connect the controllers."""
         await super().start()
+
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""

@@ -2,7 +2,7 @@
 #
 # @Author: Mingyeong Yang (mingyeong@khu.ac.kr)
 # @Date: 2021-10-05
-# @Filename: light.py
+# @Filename: dm.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
@@ -20,47 +20,44 @@ from lvmecp.exceptions import LvmecpError
 from . import parser
 
 
-__all__ = ["light"]
+__all__ = ["dm"]
 
 @parser.group()
-def light():
-    """tasks for lights"""
+def dome():
+    """tasks for Dome"""
 
     pass
 
-@light.command()
-@click.argument("ROOM", type=str, required=False)
+@dome.command()
 async def move(
-    command: Command, controllers: dict[str, PlcController], room: str
+    command: Command, controllers: dict[str, PlcController],
     ):
-    """on or off the enclosure light"""
+    """on or off the enclosure Dome"""
 
-    command.info(text="move the light")
+    command.info(text="move the Dome")
 
     try:
-        await controllers["simulator"].send_command("light", "move")
-        current_status = await controllers["simulator"].get_status("light")
+        await controllers["simulator"].send_command("Dome", "move")
+        current_status = await controllers["simulator"].get_status("Dome")
     except LvmecpError as err:
             return command.fail(str(err))
 
     command.info(status=current_status)
     return command.finish()
 
-
-@light.command()
-@click.argument("ROOM", type=str, required=False)
+@dome.command()
 async def status(
-    command: Command, controllers: dict[str, PlcController], room: str
+    command: Command, controllers: dict[str, PlcController],
     ):
-    """return the status of the light"""
+    """return the status of the Dome"""
 
-    command.info(text="checking the light")
+    command.info(text="checking the Dome")
 
     try:
-        current_status = await controllers["simulator"].get_status("light")
+        current_status = await controllers["simulator"].get_status("Dome")
     except LvmecpError as err:
             return command.fail(str(err))
-
+            
     command.info(status=current_status)
     return command.finish()
 
