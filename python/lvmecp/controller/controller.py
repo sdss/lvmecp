@@ -17,6 +17,10 @@ import datetime
 import time
 import warnings
 
+from pymodbus.client.asynchronous.async_io import (
+    AsyncioModbusTcpClient as ModbusClient,
+)
+
 from lvmecp.exceptions import LvmecpError, LvmecpWarning
 
 
@@ -39,10 +43,8 @@ class PlcController():
         self.name = name
         self.host = host
         self.port = port
+        self.wagoClient = None
 
-        #self.reader = None
-        #self.writer = None
-        #self.reply = None
 
 
     async def TCP_sock(self):
@@ -52,9 +54,11 @@ class PlcController():
         print(
             f"host: {self.port} before connection   : {current_time}"
             )
-        self.reader, self.writer = await asyncio.open_connection(
-            self.host, self.port
-            )
+        #self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+
+        self.wagoClient = ModbusClient(self.host, self.port)
+        await self.wagoClient.connect()
+
         current_time = datetime.datetime.now()
         print(
             f"host: {self.port} after connection   : {current_time}"
@@ -83,20 +87,23 @@ class PlcController():
         # command = command + chr(addr >> 8) + chr(addr & 0xFF)  	# Address
         # command = command + chr(data >> 8) + chr(data & 0xFF)   # Data
         
+        reg_addr = message + chr(argv[1] >> 8) + chr(argv[1] & 0xFF)  	# Address
+        reg_value = len(argv)                                           #register value to write
+        
         try:
             current_time = datetime.datetime.now()
             print(
                 f"host: {self.port} before write   : {current_time}"
-            )                           
-            self.writer.write(message)
-            await self.writer.drain()
+            )     
+
+            await self.wagoClient.write_single_register(reg_addr, reg_value)
+            
             current_time = datetime.datetime.now()
             print(
                 f"host: {self.port} after write   : {current_time}"
             )                         
         except LvmecpError as msg:
-            self.writer.close()
-            await self.writer.wait_closed()
+            self.close()
             warnings.warn(str(msg), LvmecpWarning)            
 
         try:
@@ -104,15 +111,14 @@ class PlcController():
             print(
                 f"host: {self.port} before read   : {current_time}"
             )             
-            reply = await self.reader.read(128)
+            reply = await self.wagoClient.read_holding_registers(reg_addr, reg_value)
             print(f"reply: {reply}")
             current_time = datetime.datetime.now()
             print(
                 f"host: {self.port} after read   : {current_time}"
             )             
         except LvmecpError as msg:
-            self.writer.close()
-            self.writer.wait_closed()
+            self.close()
             warnings.warn(str(msg), LvmecpWarning)   
 
 
@@ -120,8 +126,8 @@ class PlcController():
         """close the socket connection with PLC"""
         try:
             print('Close the connection')
-            self.writer.close()
-            await self.writer.wait_closed()
+            await self.wagoClient.protocol.close()
+
         except:
-            if not self.writer == None:
+            if not self.wagoClient == None:
                 print('TCP socket already close')

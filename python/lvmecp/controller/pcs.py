@@ -20,7 +20,7 @@ class PCS():
 
         self.PLC = dict()                           # PLC dictionary
         #self.PLC['PLC'] = PlcController(name=self.name, host=self.host,port=self.port)
-        self.PLC['PLC'] = PlcController(name="simulator", host="163.180.145.123",port=502)
+        self.PLC['PLC'] = PlcController(name="simulator", host="163.180.145.123", port=502)
 
         #Define all plc variables from ./var/plc_var.py
         for element in plc_var_list:            # Append to dictionary every plc readable variable in plc_var
