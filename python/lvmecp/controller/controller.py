@@ -48,7 +48,7 @@ class PlcController():
 
 
     async def start(self, *argv):
-        """open the socket connection with PLC"""
+        """open the ModbusTCP connection with PLC"""
         # connection
         try:
             self.wagoClient = ModbusClient(self.host, self.port)
@@ -59,7 +59,7 @@ class PlcController():
         )
 
     async def stop(self):
-        """close the socket connection with PLC"""
+        """close the ModbusTCP connection with PLC"""
         try:
             self.wagoClient.protocol.close()
 
