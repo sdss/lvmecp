@@ -54,7 +54,7 @@ extensions = [
     'sphinx.ext.todo', 
     'sphinx.ext.viewcode', 
     'sphinx.ext.mathjax',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx',
     "sdsstools.releases",
     "sphinx.ext.inheritance_diagram",
     "sphinx_click",
