@@ -6,31 +6,22 @@ devices:
             name: simulator
             host: 163.180.145.123
             port: 502
-            plc_var:
-                plc_var_list:
-                    local_control:
-                        function_code: 0x01
-                        address: 225
-                    Dome_enb_mov:
-                        function_code: 0x01
-                        address: 200
-                    Low_lights:
-                        function_code: 0x01
-                        address: 336
-                    High_lights:
-                        function_code: 0x01
-                        address: 337
-                plc_var_talk:
-                    Dome_enb_mov:
-                        function_code: 0x05
-                        address: 200
-                    Tggl_lights:
-                        function_code: 0x05
-                        address: 236
+            elements:
+                dome:
+                    address: 200
+                tggl_light: 
+                    address: 236
+                low_light: 
+                    address: 336
+                high_light: 
+                    address: 337
+
+
         #dome_plc:
         #   name: dome plc 
         #   host:
         #   port:
+            #elements:
         #hvac_plc:
         #   name: hvac plc 
         #   host:
