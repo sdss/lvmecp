@@ -72,14 +72,14 @@ class LvmecpActor(AMQPActor):
         assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
-        if "controllers" in instance.config["devices"]:
+        if "simulator" in instance.config["devices"]["plcs"]:
             controllers = (
                 PlcController(
                     name=ctrname,
                     host=ctr["host"],
                     port=ctr["port"],
                 )
-                for (ctrname, ctr) in instance.config["devices"]["controllers"].items()
+                for (ctrname, ctr) in instance.config["devices"]["plcs"].items()
             )
             instance.controllers = {c.name: c for c in controllers}
             instance.parser_args = [instance.controllers]  # Need to refresh this

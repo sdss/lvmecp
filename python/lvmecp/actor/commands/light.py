@@ -11,12 +11,10 @@ from __future__ import absolute_import, annotations, division, print_function
 import asyncio
 import datetime
 from os import name
+import click
 
 from clu.command import Command
-
-#from lvmecp.controller.testcontroller import TestController
 from lvmecp.controller.controller import PlcController
-from lvmecp.controller.pcs import PCS
 from lvmecp.exceptions import LvmecpError
 
 from . import parser
@@ -24,61 +22,73 @@ from . import parser
 
 __all__ = ["light"]
 
-plc = PCS()
-
-async def plc_control(command, controllers: dict[str, PlcController]):
-    plcs = []
-    for controller in controllers:
-        plcs.append(PCS(name=controller[name], host=controller["host"], port=controller["port"]))
-
-    return plcs
-
 @parser.group()
-def light(*args):
-    """control enclosure lights."""
+def light():
+    """tasks for lights"""
 
     pass
 
 @light.command()
-async def on(command: Command, controllers: dict[str, PlcController]):
+@click.argument("ROOM", type=str, required=False)
+async def on(
+    command: Command, controllers: dict[str, PlcController], room: str
+    ):
     """on or off the enclosure light"""
-    command.info(text="move the light")
-    
-    for controller in controllers:
-        #plc = PCS(name=controller[0], host=controller[1], port=controller[2])
-        #assume one plc host in the enclosure
-        try:
-            await plc.open()
-            await plc.HL_ON()
-            await plc.close()
-        except LvmecpError as err:
-            return command.error(str(err))
-    return command.finish()
+
+    tasks = []
+    #current_status = await controllers["simulator"].HL_status()
+    command.info(text="on the light")
+
+    try:
+        await controllers["simulator"].send_command("light", "on")
+        #if current_status['Low_lights'] == False or current_status['High_lights'] == False:
+        #    await controllers["simulator"].send_command("light", "on")
+        #elif current_status['Low_lights'] == True or current_status['High_lights'] == True:
+        #    await controllers["simulator"].send_command("light", "off")
+
+    except LvmecpError as err:
+            return command.fail(str(err))
+
+    return command.finish(text="done")
 
 @light.command()
-async def off(command: Command, controllers: dict[str, PlcController]):
+@click.argument("ROOM", type=str, required=False)
+async def off(
+    command: Command, controllers: dict[str, PlcController], room: str
+    ):
     """on or off the enclosure light"""
-    command.info(text="move the light")
-    
-    for controller in controllers:
-        #plc = PCS(name=controller[0], host=controller[1], port=controller[2])
-        #assume one plc host in the enclosure
-        try:
-            await plc.open()
-            await plc.HL_OFF()
-            await plc.close()
-        except LvmecpError as err:
-            return command.error(str(err))
-    return command.finish()
+
+    tasks = []
+    #current_status = await controllers["simulator"].HL_status()
+    command.info(text="off the light")
+
+    try:
+        await controllers["simulator"].send_command("light", "off")
+        #if current_status['Low_lights'] == False or current_status['High_lights'] == False:
+        #    await controllers["simulator"].send_command("light", "on")
+        #elif current_status['Low_lights'] == True or current_status['High_lights'] == True:
+        #    await controllers["simulator"].send_command("light", "off")
+
+    except LvmecpError as err:
+            return command.fail(str(err))
+
+    return command.finish(text="done")
 
 @light.command()
-def status(command: Command, controllers: dict[str, PlcController]):
-    """return the status of light"""
-   # plc = PCS(name=controllers[name], host=controllers["host"], port=controllers["port"])
+@click.argument("ROOM", type=str, required=False)
+async def status(
+    command: Command, controllers: dict[str, PlcController], room: str
+    ):
+    """return the status of the light"""
 
-    #command.info(text="what status the light is")
-    #status = {}
-    #status['STATUS'] = plc.HL_stat()
-    #command.info(text = status)
+    tasks = []
+    command.info(text="checking the light")
 
-    #return command.finish()
+    try:
+        tasks.append(controllers["simulator"].HL_status())
+    except LvmecpError as err:
+            return command.fail(str(err))
+
+    result = await asyncio.gather(*tasks)
+    return command.finish(light=result)
+

@@ -17,14 +17,16 @@ import datetime
 import time
 import warnings
 
-from pymodbus.client.asynchronous.async_io import (
-    AsyncioModbusTcpClient as ModbusClient,
-)
+#from pymodbus.client.asynchronous.async_io import (
+#    AsyncioModbusTcpClient as ModbusClient,
+#)
 
+from .plc_var_test import *                              # Import plc variables
 from lvmecp.exceptions import LvmecpError, LvmecpWarning
 
 
 __all__ = ["PlcController"]
+
 
 class PlcController():
     """Talks to an Plc controller over TCP/IP.
@@ -38,31 +40,97 @@ class PlcController():
     port
         The port on which the Plc listens to incoming connections.
     """
+    def __init__(self, name: str, host: str, port: int, ):
+        self.name = name
+        self.host = host
+        self.port = port
+        self.plc_var_list = plc_var_list
+        self.plc_var_talk = plc_var_talk
 
+        self.PLC = dict()                           # PLC dictionary
+        self.PLC['PLC'] = plc(self.name, self.host, self.port)     # PLC variable
+
+        #Define all plc variables from ./var/plc_var.py
+        for element in self.plc_var_list:            # Append to dictionary every plc readable variable in plc_var
+            self.PLC[element] = None            # Initialize variable with none
+
+    
+    async def send_command(self, device, command):
+        """send command to PLC
+        
+        Parameters
+        -----------
+        device
+            The devices controlled by lvmecp which are "Dome" and "light"
+
+        command
+            on/off/status
+        """
+
+        # get the status from the hardware
+        try:
+            if device == "light":
+                if command == "on":
+                    await self.PLC['PLC'].TCP_send(self.plc_var_talk['Tggl_lights'][0], self.plc_var_talk['Tggl_lights'][1], 0xff00)            #on the light
+                elif command == "off": 
+                    await self.PLC['PLC'].TCP_send(self.plc_var_talk['Tggl_lights'][0], self.plc_var_talk['Tggl_lights'][1], 0x0000)           #off the light
+                else:
+                    raise LvmecpError(
+                        f"{command} is not correct"
+                    )
+            elif device == "Dome" :
+                if command == "open":
+                    await self.PLC['PLC'].TCP_send(self.plc_var_talk['Dome_enb_mov'][0], self.plc_var_talk['Dome_enb_mov'][1], 0xff00)              # Enable dome
+                elif command == "close":
+                    await self.PLC['PLC'].TCP_send(self.plc_var_talk['Dome_enb_mov'][0], self.plc_var_talk['Dome_enb_mov'][1], 0x0000)              # Disable move
+                else:
+                    raise LvmecpError(
+                        f"{command} is not correct"
+                    )                    
+            else:
+                raise LvmecpError(
+                    f"{device} is not correct."
+                )
+        except LvmecpError as err:
+            warnings.warn(str(err), LvmecpWarning)
+
+        # close the connection
+        await self.PLC['PLC'].close() 
+
+
+    async def HL_status(self):
+        out = dict()
+        for element in self.PLC:
+            if 'LIGHTS' in element.upper():                                                                            # Cycle through every variable in plc_var_list
+                try:
+                    data = await self.PLC['PLC'].TCP_send(self.plc_var_list[element][0], self.plc_var_list[element][1], 0x01)       # Query PLC for a value
+                    out[element]=data[element]                                                                           # Print lights status elements 
+                except:
+                    print ('Error Quering ' + element)
+        print(out)
+        return out
+
+    async def DM_status(self):
+        out = dict()
+        for element in self.PLC:
+            if 'DOME' in element.upper():                                                                               # If Dome is in key
+                try:
+                    data = await self.PLC['PLC'].TCP_send(self.plc_var_list[element][0], self.plc_var_list[element][1], 0x01)       # Query PLC for a value
+                    out[element]=data[element]                                                                           # Print lights status elements 
+                except:
+                    print ('Error Quering ' + element)                                                              # Print dome status elements 
+        print(out)            
+        return out
+
+
+class plc():
     def __init__(self, name: str, host: str, port: int):
         self.name = name
         self.host = host
         self.port = port
-        self.wagoClient = None
 
-
-
-    async def TCP_sock(self):
-        """open TCP socket connection"""
-        # connection
-        current_time = datetime.datetime.now()
-        print(
-            f"host: {self.port} before connection   : {current_time}"
-            )
-        #self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
-
-        self.wagoClient = ModbusClient(self.host, self.port)
-        await self.wagoClient.connect()
-
-        current_time = datetime.datetime.now()
-        print(
-            f"host: {self.port} after connection   : {current_time}"
-            )
+        self.reader = None
+        self.writer = None
 
 
     #def send tcp packet
@@ -87,47 +155,38 @@ class PlcController():
         # command = command + chr(addr >> 8) + chr(addr & 0xFF)  	# Address
         # command = command + chr(data >> 8) + chr(data & 0xFF)   # Data
         
-        reg_addr = message + chr(argv[1] >> 8) + chr(argv[1] & 0xFF)  	# Address
-        reg_value = len(argv)                                           #register value to write
-        
-        try:
-            current_time = datetime.datetime.now()
-            print(
-                f"host: {self.port} before write   : {current_time}"
-            )     
+        # connection
+        print('open the connection')
+        self.reader, self.writer = await asyncio.open_connection(
+            self.host, self.port
+            )
 
-            await self.wagoClient.write_single_register(reg_addr, reg_value)
-            
-            current_time = datetime.datetime.now()
-            print(
-                f"host: {self.port} after write   : {current_time}"
-            )                         
+        try:
+            self.writer.write(message)
+            await self.writer.drain()
+            print("write done")
+
         except LvmecpError as msg:
-            self.close()
+            self.writer.close()
+            await self.writer.wait_closed()
             warnings.warn(str(msg), LvmecpWarning)            
 
         try:
-            current_time = datetime.datetime.now()
-            print(
-                f"host: {self.port} before read   : {current_time}"
-            )             
-            reply = await self.wagoClient.read_holding_registers(reg_addr, reg_value)
-            print(f"reply: {reply}")
-            current_time = datetime.datetime.now()
-            print(
-                f"host: {self.port} after read   : {current_time}"
-            )             
-        except LvmecpError as msg:
-            self.close()
-            warnings.warn(str(msg), LvmecpWarning)   
+            reply = await self.reader.read(128)
+            print("read done")        
 
+        except LvmecpError as msg:
+            self.writer.close()
+            self.writer.wait_closed()
+            warnings.warn(str(msg), LvmecpWarning)   
 
     async def close(self):
         """close the socket connection with PLC"""
         try:
             print('Close the connection')
-            await self.wagoClient.protocol.close()
-
+            self.writer.close()
+            await self.writer.wait_closed()
         except:
-            if not self.wagoClient == None:
+            if not self.writer == None:
                 print('TCP socket already close')
+
