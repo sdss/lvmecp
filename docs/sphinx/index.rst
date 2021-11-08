@@ -2,21 +2,18 @@
 lvmecp's documentation
 =============================================
 
-This is the documentation for the SDSS Python product lvmecp. The current version is |lvmecp_version|. You can install the package by doing
-
-.. code-block:: console
-
-  $ pip install sdss-lvmecp
-
+.. include:: ../../README.md
+  :start-line: 2
 
 Contents
 --------
 
 .. toctree::
-  :maxdepth: 2
-
-  What's new in lvmecp? <CHANGELOG>
-  Introduction to lvmecp <intro>
+  
+  lvmecp
+  Controller
+  Commands
+  Exceptions
 
 
 Reference
@@ -25,7 +22,10 @@ Reference
 .. toctree::
    :maxdepth: 1
 
-   api
+  Changelog <changelog>
+  GitHub Repository <https://github.com/sdss/lvmecp>
+  Issues  <https://github.com/sdss/lvmecp/issues>
+
 
 
 Indices and tables
