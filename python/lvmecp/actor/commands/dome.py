@@ -37,13 +37,11 @@ async def move(
     command.info(text="move the Dome")
 
     try:
-        await controllers["simulator"].send_command("Dome", "connect")           #enable
-        #await controllers["simulator"].send_command("Dome", "move")             #move
+        await controllers["simulator"].send_command("Dome", "move")
         current_status = await controllers["simulator"].get_status("Dome")
     except LvmecpError as err:
             return command.fail(str(err))
 
-    #await controllers["simulator"].send_command("Dome", "connect")           #disable
     command.info(current_status)
     return command.finish()
 

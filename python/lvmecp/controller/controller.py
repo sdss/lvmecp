@@ -70,7 +70,7 @@ class PlcController():
             f"fail to close connection with {self.host}"
         )
 
-    async def write(self, key, addr, data=0):
+    async def write(self, key, addr, data):
         """write the data to devices
         
         parameters
@@ -145,8 +145,7 @@ class PlcController():
         """
         
         addr_tggl = 236
-        addr_low = 336
-        addr_high = 337
+        addr_light = 336
         addr_enb = 200
         addr_act = 1000
         addr_new = 2000
@@ -156,36 +155,26 @@ class PlcController():
         # get the status from the hardware
         try:
             if device == "light":
-                reply_low = await self.read("light", addr_low)
-                reply_high = await self.read("light", addr_high)
+                reply = await self.read("light", addr_light)
                 if command == "move":
-                    if reply_high == False and reply_low == False:
-                        await self.write("light", addr_tggl, 0xff00)
-                    elif reply_high == True and reply_low == True:
-                        await self.write("light", addr_tggl, 0x0000)
-                    elif reply_high == None and reply_low == None:
-                        raise LvmecpError(
-                            f"The lights return {reply_low} and {reply_high}"
-                        )
+                    if reply:
+                        await self.write("light", addr_tggl, 0x0000)         #off
+                    else:
+                        await self.write("light", addr_tggl, 0xff00)         #on
                 else:
                     raise LvmecpError(
                         f"{command} is not correct"
                     )
 
             elif device == "Dome" :
-                reply = await self.read('Dome_enb', addr_enb)
-                if command == "connect":
+                if command == "move":
+                    reply = await self.read('Dome_enb', addr_enb)
                     if reply:
-                        await self.write('Dome_enb', addr_enb, 0x0000)              # Disable move
+                        await self.write('Dome_new', addr_new, 0)                   # move the position
+                        await self.write('Dome_enb', addr_enb, 0x0000)              # disable dome
                     else:
                         await self.write('Dome_enb', addr_enb, 0xff00)              # Enable dome
-                elif command == "move":
-                    if reply:
-                        await self.write('Dome_new', addr_new)
-                    else:
-                        raise LvmecpError(
-                            f"Dome is disable to move: {reply}"
-                        )
+                        await self.write('Dome_new', addr_new, 300)                 # move the position
                 else:
                     raise LvmecpError(
                         f"{command} is not correct"
@@ -208,26 +197,22 @@ class PlcController():
         await self.start()
         status = {}
 
-        addr_low = 336
-        addr_high = 337
+        addr_light = 336
         addr_enb = 200
         addr_act = 1000
 
         if device == "light":
-            reply_low = await self.read("light", addr_low)
-            reply_high = await self.read("light", addr_high)
-            status["high_light"] = reply_high
-            status["low_light"] = reply_low
+            reply = await self.read("light", addr_light)
+            status[device] = reply
             print(status) 
-
         elif device == "Dome":
-            reply = await self.read("Dome_enb", addr_enb)
-            if reply:
-                status["Dome_enb"] = reply
-                status["Dome_act"] = await self.read("Dome_act", addr_act)
-            else:
-                status["Dome_enb"] = reply
+            status["Dome_enb"] = reply = await self.read("Dome_enb", addr_enb)
+            status["Dome_act"] = await self.read("Dome_act", addr_act)
             print(status)
+        else:
+            raise LvmecpError(
+                f"{device} is not correct"
+            )
 
         # close the connection
         await self.stop() 
