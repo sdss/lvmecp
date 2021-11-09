@@ -170,11 +170,16 @@ class PlcController():
                 if command == "move":
                     reply = await self.read('Dome_enb', addr_enb)
                     if reply:
-                        await self.write('Dome_new', addr_new, 0)                   # move the position
-                        await self.write('Dome_enb', addr_enb, 0x0000)              # disable dome
+                        dome_position = True
                     else:
-                        await self.write('Dome_enb', addr_enb, 0xff00)              # Enable dome
-                        await self.write('Dome_new', addr_new, 300)                 # move the position
+                        dome_position = False
+                # Dome status is default: False
+                    if dome_position:#true
+                            #await self.write('Dome_new', addr_new, 0)        # close
+                            await self.write('Dome_enb', addr_enb, 0x0000)# disable dome
+                    else:#false
+                            await self.write('Dome_enb', addr_enb, 0xff00)# Enable dome
+                            #await self.write('Dome_new', addr_new, 359)        # open
                 else:
                     raise LvmecpError(
                         f"{command} is not correct"
