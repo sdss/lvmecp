@@ -70,7 +70,7 @@ class PlcController():
             f"fail to close connection with {self.host}"
         )
 
-    async def write(self, key, addr, data):
+    async def write(self, key, addr, data=0):
         """write the data to devices
         
         parameters
@@ -175,23 +175,27 @@ class PlcController():
             elif device == "Dome" :
                 reply = await self.read('Dome_enb', addr_enb)
                 if command == "connect":
-                    if reply == False:
-                        await self.write('Dome_enb', addr_enb, 0xff00)              # Enable dome
-                    elif reply == True:
+                    if reply:
                         await self.write('Dome_enb', addr_enb, 0x0000)              # Disable move
-                    elif reply == None:
+                    else:
+                        await self.write('Dome_enb', addr_enb, 0xff00)              # Enable dome
+                elif command == "move":
+                    if reply:
+                        await self.write('Dome_new', addr_new)
+                    else:
                         raise LvmecpError(
-                            f"The Dome return {reply}"
+                            f"Dome is disable to move: {reply}"
                         )
                 else:
                     raise LvmecpError(
-                        f"{device} is not connected."
+                        f"{command} is not correct"
                     )
-         
+
             else:
                 raise LvmecpError(
-                    f"{device} is not correct."
+                    f"{device} is not connected."
                 )
+         
         except LvmecpError as err:
             warnings.warn(str(err), LvmecpWarning)
 

@@ -43,7 +43,7 @@ async def move(
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(test=current_status)
+    command.info(current_status)
     return command.finish()
 
 
@@ -61,6 +61,6 @@ async def status(
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(test=current_status)
+    command.info(current_status)
     return command.finish()
 

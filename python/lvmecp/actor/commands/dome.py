@@ -43,6 +43,7 @@ async def move(
     except LvmecpError as err:
             return command.fail(str(err))
 
+    #await controllers["simulator"].send_command("Dome", "connect")           #disable
     command.info(current_status)
     return command.finish()
 
