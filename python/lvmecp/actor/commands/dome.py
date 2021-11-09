@@ -37,12 +37,14 @@ async def move(
     command.info(text="move the Dome")
 
     try:
-        await controllers["simulator"].send_command("Dome", "move")
+        await controllers["simulator"].send_command("Dome", "connect")           #enable
+        #await controllers["simulator"].send_command("Dome", "move")             #move
         current_status = await controllers["simulator"].get_status("Dome")
     except LvmecpError as err:
             return command.fail(str(err))
 
-    return command.finish(text=current_status)
+    command.info(current_status)
+    return command.finish()
 
 @dome.command()
 async def status(
@@ -56,6 +58,7 @@ async def status(
         current_status = await controllers["simulator"].get_status("Dome")
     except LvmecpError as err:
             return command.fail(str(err))
-            
-    return command.finish(text=current_status)
+    
+    command.info(current_status)
+    return command.finish()
 

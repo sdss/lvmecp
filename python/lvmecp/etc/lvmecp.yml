@@ -15,7 +15,6 @@ devices:
                     address: 336
                 high_light: 
                     address: 337
-
         #dome_plc:
         #   name: dome plc 
         #   host:
