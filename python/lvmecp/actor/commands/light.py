@@ -11,7 +11,9 @@ from __future__ import absolute_import, annotations, division, print_function
 import asyncio
 import datetime
 from os import name
+from typing import Text
 import click
+import json
 
 from clu.command import Command
 from lvmecp.controller.controller import PlcController
@@ -36,14 +38,19 @@ async def move(
     """on or off the enclosure light"""
 
     command.info(text="move the light")
+    current_status = {}
 
     try:
         await controllers["simulator"].send_command("light", "move")
-        current_status = await controllers["simulator"].get_status("light")
+        current_status[controllers["simulator"].name] = await controllers["simulator"].get_status("light")
+
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(current_status)
+    result = json.dumps(current_status)
+    print(result)
+
+    command.info(result)
     return command.finish()
 
 
@@ -55,12 +62,16 @@ async def status(
     """return the status of the light"""
 
     command.info(text="checking the light")
+    current_status = {}
 
     try:
-        current_status = await controllers["simulator"].get_status("light")
+        current_status[controllers["simulator"].name] = await controllers["simulator"].get_status("light")
+
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(current_status)
-    return command.finish()
+    result = json.dumps(current_status)
+    print(result)
 
+    command.info(result)
+    return command.finish()

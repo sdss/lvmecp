@@ -47,11 +47,16 @@ class LvmecpActor(AMQPActor):
         controllers: tuple[PlcController, ...] = (),
         **kwargs,
     ):
-
     #: dict[str, PlcController]: A mapping of controller name to controller.
         self.controllers = {c.name: c for c in controllers}
         self.parser_args = [self.controllers]
-        
+
+
+        #if "schema" not in kwargs:
+        #    kwargs["schema"] = os.path.join(
+        #        os.path.dirname(__file__),
+        #        "../etc/schema.json",
+        #    )        
         super().__init__(*args, **kwargs)
 
         self.version = __version__

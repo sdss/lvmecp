@@ -3,7 +3,7 @@
 devices:
     plcs:
         simulator:
-            name: simulator
+            name: "simulator"
             host: 163.180.145.123
             port: 502
             elements:

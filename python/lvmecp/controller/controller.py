@@ -16,6 +16,7 @@ import struct
 import datetime
 import time
 import warnings
+import json
 
 from pymodbus.client.asynchronous.async_io import (
     AsyncioModbusTcpClient as ModbusClient,
@@ -26,8 +27,7 @@ from lvmecp.exceptions import LvmecpError, LvmecpWarning
 
 __all__ = ["PlcController"]
 
-
-kylist = ['Tggl_lights', 'Low_lights', 'High_lights', 'Dome_new_pos', 'Dome_enb_mov', 'Dome_enb_mov']
+dev_list = ["light", "Dome"]
 
 class PlcController():
     """Talks to an Plc controller over TCP/IP.
@@ -41,7 +41,7 @@ class PlcController():
     port
         The port on which the Plc listens to incoming connections.
     """
-    def __init__(self, name: str, host: str, port: int, ):
+    def __init__(self, name: str, host: str, port: int):
         self.name = name
         self.host = host
         self.port = port
@@ -70,7 +70,7 @@ class PlcController():
             f"fail to close connection with {self.host}"
         )
 
-    async def write(self, key, addr, data):
+    async def write(self, key:str, addr:int, data):
         """write the data to devices
         
         parameters
@@ -85,11 +85,11 @@ class PlcController():
         """
 
         try:
-            if key == 'light':
+            if key == "light":
                 await self.wagoClient.protocol.write_coil(addr, data)
-            elif key == 'Dome_enb':
+            elif key == "Dome_enb":
                 await self.wagoClient.protocol.write_coil(addr, data)
-            elif key == 'Dome_new':
+            elif key == "Dome_new":
                 await self.wagoClient.protocol.write_register(addr, data)
             else:
                 raise LvmecpError(
@@ -101,25 +101,28 @@ class PlcController():
                 f"fail to write coil to {addr}"
             )
 
-    async def read(self, key, addr):
+    async def read(self, key:str, addr:int):
         """read the data from devices
         
         parameters
         ------------
         key
-            rd_kylist = ['light', 'Dome_enb', 'Dome_act']
+            rd_kylist = ["light", "Dome_enb", "Dome_act"]
         addr
             modbus address       
         """
         try:
-            if key == 'light':
+            if key == "light":
                 reply = await self.wagoClient.protocol.read_coils(addr, 1)
+                reply_str = str(reply.bits[0])
                 return reply.bits[0]
-            elif key == 'Dome_enb':
+            elif key == "Dome_enb":
                 reply = await self.wagoClient.protocol.read_coils(addr, 1)
+                reply_str = str(reply.bits[0])
                 return reply.bits[0]
-            elif key == 'Dome_act':
+            elif key == "Dome_act":
                 reply = await self.wagoClient.protocol.read_holding_registers(addr, 1)
+                reply_str = str(reply.registers)                  
                 return reply.registers
             else:
                 raise LvmecpError(
@@ -132,7 +135,7 @@ class PlcController():
             )
 
     
-    async def send_command(self, device, command):
+    async def send_command(self, device:str, command:str):
         """send command to PLC
         
         Parameters
@@ -168,7 +171,7 @@ class PlcController():
 
             elif device == "Dome" :
                 if command == "move":
-                    reply = await self.read('Dome_enb', addr_enb)
+                    reply = await self.read("Dome_enb", addr_enb)
                     if reply:
                         dome_position = True
                     else:
@@ -176,9 +179,9 @@ class PlcController():
                 # Dome status is default: False
                     if dome_position:#true
                             #await self.write('Dome_new', addr_new, 0)        # close
-                            await self.write('Dome_enb', addr_enb, 0x0000)# disable dome
+                            await self.write("Dome_enb", addr_enb, 0x0000)# disable dome
                     else:#false
-                            await self.write('Dome_enb', addr_enb, 0xff00)# Enable dome
+                            await self.write("Dome_enb", addr_enb, 0xff00)# Enable dome
                             #await self.write('Dome_new', addr_new, 359)        # open
                 else:
                     raise LvmecpError(
@@ -196,7 +199,7 @@ class PlcController():
         # close the connection
         await self.stop() 
 
-    async def get_status(self, device):
+    async def get_status(self, device:str):
         """get the status of the device"""
         
         await self.start()
@@ -207,19 +210,36 @@ class PlcController():
         addr_act = 1000
 
         if device == "light":
+            #print(device)
             reply = await self.read("light", addr_light)
-            status[device] = reply
-            print(status) 
+            #print(reply)
+            status[device] = await self.parse(reply)
+            #print(status) 
+        
         elif device == "Dome":
-            status["Dome_enb"] = reply = await self.read("Dome_enb", addr_enb)
-            status["Dome_act"] = await self.read("Dome_act", addr_act)
-            print(status)
+            reply = await self.read("Dome_enb", addr_enb)
+            status[device] = await self.parse(reply)
+            #status["Dome_act"] = await self.read("Dome_act", addr_act)
+            #print(status)
+        
         else:
             raise LvmecpError(
                 f"{device} is not correct"
             )
 
         # close the connection
-        await self.stop() 
+        await self.stop()
+        
+        #result = json.dumps(status)
+        #print(result)
 
         return status
+
+    @staticmethod
+    async def parse(value):
+        """Parse the input data for ON/OFF."""
+        if value in ["off", "OFF", "0", 0, False]:
+            return 0
+        if value in ["on", "ON", "1", 1, True]:
+            return 1
+        return -1

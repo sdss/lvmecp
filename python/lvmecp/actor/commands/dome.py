@@ -12,6 +12,7 @@ import asyncio
 import datetime
 from os import name
 import click
+import json
 
 from clu.command import Command
 from lvmecp.controller.controller import PlcController
@@ -37,12 +38,21 @@ async def move(
     command.info(text="move the Dome")
 
     try:
+        status = {}
+        current_status = {}
         await controllers["simulator"].send_command("Dome", "move")
         current_status = await controllers["simulator"].get_status("Dome")
+
+        if current_status:
+            status[controllers["simulator"].name] = current_status
+    
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(current_status)
+    result = json.dumps(current_status)
+    print(result)
+
+    command.info(result)
     return command.finish()
 
 @dome.command()
@@ -54,10 +64,19 @@ async def status(
     command.info(text="checking the Dome")
 
     try:
+        status = {}
+        current_status = {}
         current_status = await controllers["simulator"].get_status("Dome")
+
+        if current_status:
+            status[controllers["simulator"].name] = current_status
+
     except LvmecpError as err:
             return command.fail(str(err))
     
-    command.info(current_status)
+    result = json.dumps(current_status)
+    print(result)
+
+    command.info(result)
     return command.finish()
 
