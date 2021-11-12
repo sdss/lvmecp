@@ -8,11 +8,9 @@
 
 __all__ = [
     "PlcController",
-    "TestController"
 ]
 
 from .controller import PlcController
-from .testcontroller import TestController
 
 
 

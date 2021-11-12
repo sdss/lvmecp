@@ -20,7 +20,7 @@ from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
-from lvmecp.controller.testcontroller import TestController
+#from lvmecp.controller.testcontroller import TestController
 from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
@@ -37,19 +37,26 @@ class LvmecpActor(AMQPActor):
         The list of `.PlcController` instances to manage.
     """
     
-    parser = lvmecp_command_parser
+    parser: ClassVar[click.Group] = lvmecp_command_parser
+    BASE_CONFIG: ClassVar[str | Dict | None] = None
+
 
     def __init__(
         self,
         *args,
-        controllers: tuple[PlcController, TestController, ...] = (),
+        controllers: tuple[PlcController, ...] = (),
         **kwargs,
     ):
-
     #: dict[str, PlcController]: A mapping of controller name to controller.
         self.controllers = {c.name: c for c in controllers}
         self.parser_args = [self.controllers]
 
+
+        if "schema" not in kwargs:
+            kwargs["schema"] = os.path.join(
+                os.path.dirname(__file__),
+                "../etc/schema.json",
+            )        
         super().__init__(*args, **kwargs)
 
         self.version = __version__
@@ -58,6 +65,7 @@ class LvmecpActor(AMQPActor):
     async def start(self):
         """Start the actor and connect the controllers."""
         await super().start()
+
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
@@ -72,27 +80,16 @@ class LvmecpActor(AMQPActor):
         assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
-        if "simulator" in instance.config["devices"]["controllers"]:
+        if "simulator" in instance.config["devices"]["plcs"]:
             controllers = (
-                TestController(
-                    ctrname,
-                    ctr["host"],
-                    ctr["port"],
+                PlcController(
+                    name=ctrname,
+                    host=ctr["host"],
+                    port=ctr["port"],
                 )
-                for (ctrname, ctr) in instance.config["devices"]["controllers"]["simulator"].items()
+                for (ctrname, ctr) in instance.config["devices"]["plcs"].items()
             )
             instance.controllers = {c.name: c for c in controllers}
-
-        #if "plc_controllers" in instance.config["devices"]["controllers"]:
-        #    controllers = (
-        #        PlcController(
-        #            ctrname,
-        #            ctr["host"],
-        #            ctr["port"],
-        #        )
-        #        for (ctrname, ctr) in instance.config["devices"]["controllers"]["plc_controllers"].items()
-        #    )
-        #    instance.controllers.update({c.name: c for c in controllers})
             instance.parser_args = [instance.controllers]  # Need to refresh this
 
         return instance

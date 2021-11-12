@@ -1,15 +1,29 @@
 #A dictionary of controller name to plc controller connection parameters
 
 devices:
-    controllers:
+    plcs:
         simulator:
-            testcontroller:
-                host: 163.180.145.123
-                port: 502
-        #plc_controllers:
-        #    plc1:
-        #        host:
-        #        port:
+            name: "simulator"
+            host: 163.180.145.123
+            port: 502
+            elements:
+                dome:
+                    address: 200
+                tggl_light: 
+                    address: 236
+                low_light: 
+                    address: 336
+                high_light: 
+                    address: 337
+        #dome_plc:
+        #   name: dome plc 
+        #   host:
+        #   port:
+            #elements:
+        #hvac_plc:
+        #   name: hvac plc 
+        #   host:
+        #   port:
 
 timeouts:
     controller_connect: 1
@@ -17,4 +31,4 @@ timeouts:
 actor:
     name: lvmecp
     host: localhost
-    port:
+    port: 5672

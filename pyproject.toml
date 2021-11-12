@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "sdss-lvmecp"
-version = "0.1.0-alpha.0"
-description = "osures of lvm in sdss."
+version = "0.1.0"
+description = "A library and actor to communicate with an SDSS-V LVM Enclosure"
 authors = ["mingyeong yang <mingyeong@khu.ac.kr>"]
 license = "BSD-3-Clause"
 readme = "README.md"
@@ -29,7 +29,7 @@ script = "build.py"
 generate-setup-file = false
 
 [tool.poetry.scripts]
-lvmecp = "lvmecp.__main__:main"
+lvmecp = "lvmecp.__main__:lvmecp"
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -39,6 +39,7 @@ sdsstools = ">=0.4.0"
 click = "^8.0.1"
 sdss-clu = "^1.4.0"
 click-default-group = "^1.2.2"
+pymodbus = "^2.5.3"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=7.11.0"
