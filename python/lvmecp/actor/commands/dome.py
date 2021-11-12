@@ -21,7 +21,7 @@ from lvmecp.exceptions import LvmecpError
 from . import parser
 
 
-__all__ = ["dm"]
+__all__ = ["dome"]
 
 @parser.group()
 def dome():
@@ -36,23 +36,20 @@ async def move(
     """on or off the enclosure Dome"""
 
     command.info(text="move the Dome")
-
+    current_status = {}
+    
     try:
-        status = {}
-        current_status = {}
         await controllers["simulator"].send_command("Dome", "move")
+        #current_status = await controllers["simulator"].get_status("Dome")
         current_status = await controllers["simulator"].get_status("Dome")
-
-        if current_status:
-            status[controllers["simulator"].name] = current_status
     
     except LvmecpError as err:
             return command.fail(str(err))
 
-    result = json.dumps(current_status)
-    print(result)
+    #result = json.dumps(current_status)
+    #print(result)
 
-    command.info(result)
+    command.info(current_status)
     return command.finish()
 
 @dome.command()
@@ -62,21 +59,18 @@ async def status(
     """return the status of the Dome"""
 
     command.info(text="checking the Dome")
+    current_status = {}
 
     try:
-        status = {}
-        current_status = {}
+        #current_status = await controllers["simulator"].get_status("Dome")
         current_status = await controllers["simulator"].get_status("Dome")
-
-        if current_status:
-            status[controllers["simulator"].name] = current_status
-
+    
     except LvmecpError as err:
             return command.fail(str(err))
-    
-    result = json.dumps(current_status)
-    print(result)
 
-    command.info(result)
+    #result = json.dumps(current_status)
+    #print(result)
+
+    command.info(current_status)
     return command.finish()
 

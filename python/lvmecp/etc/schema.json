@@ -6,29 +6,17 @@
         "dome": {
             "type":"object",
             "properties":{
-                "text":{"type":"string"},
-                "status":{"type":"object"}
+                "text":{"type":"string"}
             },
-            "patternProperties": {
-                "^[A-Za-z0-9_.-]+$": {
-                    "Dome": {"type": "number"},        
-            }
-        },
             "additionalProperties": false
         },
         "light": {
             "type":"object",
             "properties":{
-                "text":{"type":"string"},
-                "status":{"type":"object"}
-            },
-            "patternProperties": {
-                "^[A-Za-z0-9_.-]+$": {
-                    "light": {"type": "number"},        
+                "text":{"type":"string"}
             }
         },
             "additionalProperties": false
-        }
-    }, 
+    },
     "additionalProperties": false
 }

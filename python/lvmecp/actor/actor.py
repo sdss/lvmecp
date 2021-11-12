@@ -52,11 +52,11 @@ class LvmecpActor(AMQPActor):
         self.parser_args = [self.controllers]
 
 
-        #if "schema" not in kwargs:
-        #    kwargs["schema"] = os.path.join(
-        #        os.path.dirname(__file__),
-        #        "../etc/schema.json",
-        #    )        
+        if "schema" not in kwargs:
+            kwargs["schema"] = os.path.join(
+                os.path.dirname(__file__),
+                "../etc/schema.json",
+            )        
         super().__init__(*args, **kwargs)
 
         self.version = __version__

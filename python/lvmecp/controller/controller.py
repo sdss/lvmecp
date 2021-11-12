@@ -203,7 +203,7 @@ class PlcController():
         """get the status of the device"""
         
         await self.start()
-        status = {}
+        #status = {}
 
         addr_light = 336
         addr_enb = 200
@@ -212,13 +212,15 @@ class PlcController():
         if device == "light":
             #print(device)
             reply = await self.read("light", addr_light)
+            status = await self.parse(reply)
             #print(reply)
-            status[device] = await self.parse(reply)
+            #status[device] = await self.parse(reply)
             #print(status) 
         
         elif device == "Dome":
             reply = await self.read("Dome_enb", addr_enb)
-            status[device] = await self.parse(reply)
+            status = await self.parse(reply)
+            #status[device] = await self.parse(reply)
             #status["Dome_act"] = await self.read("Dome_act", addr_act)
             #print(status)
         
@@ -239,7 +241,7 @@ class PlcController():
     async def parse(value):
         """Parse the input data for ON/OFF."""
         if value in ["off", "OFF", "0", 0, False]:
-            return 0
+            return "OFF"
         if value in ["on", "ON", "1", 1, True]:
-            return 1
+            return "ON"
         return -1

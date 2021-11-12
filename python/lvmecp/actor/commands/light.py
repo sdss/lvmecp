@@ -42,15 +42,16 @@ async def move(
 
     try:
         await controllers["simulator"].send_command("light", "move")
-        current_status[controllers["simulator"].name] = await controllers["simulator"].get_status("light")
+        #current_status[controllers["simulator"].name] = await controllers["simulator"].get_status("light")
+        current_status = await controllers["simulator"].get_status("light")
 
     except LvmecpError as err:
             return command.fail(str(err))
 
-    result = json.dumps(current_status)
-    print(result)
+    #result = json.dumps(current_status)
+    #print(result)
 
-    command.info(result)
+    command.info(current_status)
     return command.finish()
 
 
@@ -62,16 +63,17 @@ async def status(
     """return the status of the light"""
 
     command.info(text="checking the light")
-    current_status = {}
+    #current_status = {}
 
     try:
-        current_status[controllers["simulator"].name] = await controllers["simulator"].get_status("light")
+        #current_status[controllers["simulator"].name] = await controllers["simulator"].get_status("light")
+        current_status = await controllers["simulator"].get_status("light")
 
     except LvmecpError as err:
             return command.fail(str(err))
 
-    result = json.dumps(current_status)
-    print(result)
+    #result = json.dumps(text=current_status)
+    #print(result)
 
-    command.info(result)
+    command.info(current_status)
     return command.finish()
