@@ -18,11 +18,14 @@ Clone this repository.
 ```
 $ git clone https://github.com/sdss/lvmecp
 $ cd lvmecp
+$ poetry install
 ```
 
 ## Quick Start
 
 ### Start the actor
+
+Before you start the actor, you must have the PLC or simulator.
 
 Start `lvmecp` actor.
 ```
@@ -43,7 +46,48 @@ Stop `lvmecp` actor.
 ```
 $ lvmecp stop
 ```
-## Test
-     poetry run pytest
-     poetry run pytest -p no:logging -s -vv 
-     
+
+## Example
+
+In terminal which you are turning clu on, you can use the command for lvmecp.
+
+```
+$ clu
+lvmecp help
+09:57:01.762 lvmecp > 
+09:57:01.767 lvmecp : {
+    "help": [
+        "Usage: lvmecp [OPTIONS] COMMAND [ARGS]...",
+        "",
+        "Options:",
+        "  --help  Show this message and exit.",
+        "",
+        "Commands:",
+        "  dome        tasks for Dome",
+        "  get_schema  Returns the schema of the actor as a JSON schema.",
+        "  help        Shows the help.",
+        "  keyword     Prints human-readable information about a keyword.",
+        "  light       tasks for lights",
+        "  ping        Pings the actor.",
+        "  version     Reports the version."
+    ]
+}
+lvmecp light move
+09:57:05.225 lvmecp > 
+09:57:05.227 lvmecp i {
+    "text": "move the light"
+}
+09:57:05.230 lvmecp i {
+    "text": "ON"
+}
+09:57:05.231 lvmecp : 
+lvmecp light status
+09:57:14.577 lvmecp > 
+09:57:14.579 lvmecp i {
+    "text": "checking the light"
+}
+09:57:14.581 lvmecp i {
+    "text": "ON"
+}
+09:57:14.583 lvmecp : 
+```
