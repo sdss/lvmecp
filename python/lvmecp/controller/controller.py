@@ -200,10 +200,17 @@ class PlcController():
         await self.stop() 
 
     async def get_status(self, device:str):
-        """get the status of the device"""
+        """get the status of the device
+
+                Parameters
+        -----------
+        device
+            The devices controlled by lvmecp which are "Dome" and "light"
+        
+        """
         
         await self.start()
-        #status = {}
+        status = {}
 
         addr_light = 336
         addr_enb = 200
@@ -212,17 +219,11 @@ class PlcController():
         if device == "light":
             #print(device)
             reply = await self.read("light", addr_light)
-            status = await self.parse(reply)
-            #print(reply)
-            #status[device] = await self.parse(reply)
-            #print(status) 
+            status = await self.parse(reply) 
         
         elif device == "Dome":
             reply = await self.read("Dome_enb", addr_enb)
             status = await self.parse(reply)
-            #status[device] = await self.parse(reply)
-            #status["Dome_act"] = await self.read("Dome_act", addr_act)
-            #print(status)
         
         else:
             raise LvmecpError(
@@ -231,9 +232,6 @@ class PlcController():
 
         # close the connection
         await self.stop()
-        
-        #result = json.dumps(status)
-        #print(result)
 
         return status
 

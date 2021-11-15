@@ -40,14 +40,10 @@ async def move(
     
     try:
         await controllers["simulator"].send_command("Dome", "move")
-        #current_status = await controllers["simulator"].get_status("Dome")
         current_status = await controllers["simulator"].get_status("Dome")
     
     except LvmecpError as err:
             return command.fail(str(err))
-
-    #result = json.dumps(current_status)
-    #print(result)
 
     command.info(current_status)
     return command.finish()
@@ -62,14 +58,10 @@ async def status(
     current_status = {}
 
     try:
-        #current_status = await controllers["simulator"].get_status("Dome")
         current_status = await controllers["simulator"].get_status("Dome")
     
     except LvmecpError as err:
             return command.fail(str(err))
-
-    #result = json.dumps(current_status)
-    #print(result)
 
     command.info(current_status)
     return command.finish()
