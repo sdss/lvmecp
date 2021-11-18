@@ -19,7 +19,7 @@ import click
 from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
-from lvmecp.controller.controller import PlcController
+from lvmecp.controller.controller import PlcController, Module
 #from lvmecp.controller.testcontroller import TestController
 from lvmecp.exceptions import LvmecpUserWarning
 
@@ -45,12 +45,13 @@ class LvmecpActor(AMQPActor):
         self,
         *args,
         controllers: tuple[PlcController, ...] = (),
+        modules: tuple[Module, ...] = (),
         **kwargs,
     ):
     #: dict[str, PlcController]: A mapping of controller name to controller.
         self.controllers = {c.name: c for c in controllers}
-        self.parser_args = [self.controllers]
-
+        self.modules = {m.name: m for m in modules}
+        self.parser_args = [self.controllers, self.modules]
 
         if "schema" not in kwargs:
             kwargs["schema"] = os.path.join(
@@ -80,16 +81,77 @@ class LvmecpActor(AMQPActor):
         assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
-        if "simulator" in instance.config["devices"]["plcs"]:
+
+        if "lights" in instance.config["plcs"]["modules"]:
+            modules = (
+                Module(
+                    name=ctrname,
+                    mode=ctr["mode"],
+                    channels=ctr["channels"],
+                    description=ctr["description"],
+                    devices=ctr["devices"],
+                )
+                for (ctrname, ctr) in instance.config["plcs"]["modules"].items()
+            )
+
+        if "DOME1" in instance.config["plcs"]["modules"]:
+            modules = (
+                Module(
+                    name=ctrname,
+                    mode=ctr["mode"],
+                    channels=ctr["channels"],
+                    description=ctr["description"],
+                    devices=ctr["devices"],
+                )
+                for (ctrname, ctr) in instance.config["plcs"]["modules"].items()
+            )
+
+        if "DOME2" in instance.config["plcs"]["modules"]:
+            modules = (
+                Module(
+                    name=ctrname,
+                    mode=ctr["mode"],
+                    channels=ctr["channels"],
+                    description=ctr["description"],
+                    devices=ctr["devices"],
+                )
+                for (ctrname, ctr) in instance.config["plcs"]["modules"].items()
+            )
+
+
+        if "simulator" in instance.config["plcs"]["controllers"]:
             controllers = (
                 PlcController(
                     name=ctrname,
                     host=ctr["host"],
                     port=ctr["port"],
                 )
-                for (ctrname, ctr) in instance.config["devices"]["plcs"].items()
+                for (ctrname, ctr) in instance.config["plcs"]["controllers"].items()
             )
             instance.controllers = {c.name: c for c in controllers}
-            instance.parser_args = [instance.controllers]  # Need to refresh this
+
+        if "dome" in instance.config["plcs"]["controllers"]:
+            controllers = (
+                PlcController(
+                    name=ctrname,
+                    host=ctr["host"],
+                    port=ctr["port"],
+                )
+                for (ctrname, ctr) in instance.config["plcs"]["controllers"].items()
+            )
+            instance.controllers.update({c.name: c for c in controllers})
+
+        if "hvac" in instance.config["plcs"]["controllers"]:
+            controllers = (
+                PlcController(
+                    name=ctrname,
+                    host=ctr["host"],
+                    port=ctr["port"],
+                )
+                for (ctrname, ctr) in instance.config["plcs"]["controllers"].items()
+            )
+            instance.controllers.update({c.name: c for c in controllers})
+
+
 
         return instance

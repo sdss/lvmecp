@@ -3,7 +3,7 @@
 #
 # @Author: Mingyeong Yang (mingyeong@khu.ac.kr)
 # @Date: 2021-10-03
-# @Filename: controller.py
+# @Filename: ControllerBase.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
@@ -25,9 +25,7 @@ from pymodbus.client.asynchronous.async_io import (
 from lvmecp.exceptions import LvmecpError, LvmecpWarning
 
 
-__all__ = ["PlcController"]
-
-dev_list = ["light", "Dome"]
+__all__ = ["PlcController", "Module"]
 
 class PlcController():
     """Talks to an Plc controller over TCP/IP.
@@ -41,20 +39,21 @@ class PlcController():
     port
         The port on which the Plc listens to incoming connections.
     """
-    def __init__(self, name: str, host: str, port: int):
+    def __init__(self, name: str, host: str, port: int, module: dict[str, Module]):
         self.name = name
         self.host = host
         self.port = port
+        self.module = module
 
-        self.wagoClient = None          #Modbusclient or client 
+        self.Client = None          #Modbusclient or client 
 
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
         # connection
         try:
-            self.wagoClient = ModbusClient(self.host, self.port)
-            await self.wagoClient.connect()
+            self.Client = ModbusClient(self.host, self.port)
+            await self.Client.connect()
         except:
             raise LvmecpError(
             f"fail to open connection with {self.host}"
@@ -63,20 +62,20 @@ class PlcController():
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
         try:
-            self.wagoClient.protocol.close()
+            self.Client.protocol.close()
 
         except:
             raise LvmecpError(
             f"fail to close connection with {self.host}"
         )
 
-    async def write(self, key:str, addr:int, data):
+    async def write(self, mode: str, addr: int, data):
         """write the data to devices
         
         parameters
         ------------
-        key
-            wr_kylist = ['light', 'Dome_enb', 'Dome_new',]
+        mode
+            coil or input_register
         addr
             modbus address
         data
@@ -85,15 +84,13 @@ class PlcController():
         """
 
         try:
-            if key == "light":
-                await self.wagoClient.protocol.write_coil(addr, data)
-            elif key == "Dome_enb":
-                await self.wagoClient.protocol.write_coil(addr, data)
-            elif key == "Dome_new":
-                await self.wagoClient.protocol.write_register(addr, data)
+            if mode == "coil":
+                await self.Client.protocol.write_coil(addr, data)
+            elif mode == "input_register":
+                await self.Client.protocol.write_register(addr, data)
             else:
                 raise LvmecpError(
-                    f"{key} is a wrong value"
+                    f"{mode} is a wrong value"
                 )
 
         except:
@@ -101,32 +98,28 @@ class PlcController():
                 f"fail to write coil to {addr}"
             )
 
-    async def read(self, key:str, addr:int):
+    async def read(self, mode:str, addr:int):
         """read the data from devices
         
         parameters
         ------------
-        key
-            rd_kylist = ["light", "Dome_enb", "Dome_act"]
+        mode
+            coil or input_register
         addr
             modbus address       
         """
         try:
-            if key == "light":
-                reply = await self.wagoClient.protocol.read_coils(addr, 1)
+            if mode == "coil":
+                reply = await self.Client.protocol.read_coils(addr, 1)
                 reply_str = str(reply.bits[0])
                 return reply.bits[0]
-            elif key == "Dome_enb":
-                reply = await self.wagoClient.protocol.read_coils(addr, 1)
-                reply_str = str(reply.bits[0])
-                return reply.bits[0]
-            elif key == "Dome_act":
-                reply = await self.wagoClient.protocol.read_holding_registers(addr, 1)
+            elif mode == "input_register":
+                reply = await self.Client.protocol.read_holding_registers(addr, 1)
                 reply_str = str(reply.registers)                  
                 return reply.registers
             else:
                 raise LvmecpError(
-                    f"{key} is a wrong value"
+                    f"{mode} is a wrong value"
                 )
 
         except:
@@ -152,6 +145,11 @@ class PlcController():
         addr_enb = 200
         addr_act = 1000
         addr_new = 2000
+
+        module = self.module
+        devices = module.devices
+        elements = module.elements
+        addr = module.get_address()
 
         await self.start()
 
@@ -199,7 +197,7 @@ class PlcController():
         # close the connection
         await self.stop() 
 
-    async def get_status(self, device:str):
+    async def get_status(self, mode:str, addr:int):
         """get the status of the device
 
                 Parameters
@@ -216,18 +214,18 @@ class PlcController():
         addr_enb = 200
         addr_act = 1000
 
-        if device == "light":
+        if mode == "coil":
             #print(device)
-            reply = await self.read("light", addr_light)
+            reply = await self.read("coil", addr)
             status = await self.parse(reply) 
         
-        elif device == "Dome":
-            reply = await self.read("Dome_enb", addr_enb)
+        elif mode == "input_register":
+            reply = await self.read("input_register", addr)
             status = await self.parse(reply)
         
         else:
             raise LvmecpError(
-                f"{device} is not correct"
+                f"{mode} is not correct"
             )
 
         # close the connection
@@ -243,3 +241,32 @@ class PlcController():
         if value in ["on", "ON", "1", 1, True]:
             return "ON"
         return -1
+
+
+class Module():
+    """get the information of the LVM Enclosure Elements from config."""
+    
+    def __init__(
+        self, 
+        name: str, 
+        mode: str, 
+        channels: int, 
+        description: str,
+        devices: dict, 
+        *args, 
+        **kwargs):
+        
+        self.name = name
+        self.mode = mode
+        self.channels = channels
+        self.description = description
+        self.devices = devices
+        self.elements = self.devices.keys()
+
+    async def get_address(self):
+        self.addr = {}
+
+        for element in self.elements:
+            self.addr[element] = self.device[element]["address"]
+
+        return self.addr
