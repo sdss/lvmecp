@@ -25,6 +25,108 @@ devices:
         #   host:
         #   port:
 
+plcs:
+    controllers:
+        dome:
+            host:
+            port:
+        hvac:
+            host:
+            port:
+    modules:
+       interlocks:
+           channels: 4
+           description: Dome drive interlock elements
+           devices:
+               drive_status:
+                    address:
+                    element: MC111
+               door_magnet:
+                    address:
+                    element: MC401
+                door_lock:
+                    address:
+                    element:  MC402
+                indicator_light:
+                    address:
+                    element: MC403
+        lights:
+            channels: 12
+            description: Light elements of the LVM Enclosure
+            devices:
+                cr_relay:
+                    address:
+                    element: MC235
+                cr_det:
+                    address:
+                    element: MC335
+                ur_relay:
+                    address:
+                    element: MC236
+                ur_det:
+                    address:
+                    element: MC336
+                sr_relay:
+                    address:
+                    element: MC237
+                sr_det:
+                    address:
+                    element: MC337
+                uma_relay:
+                    address:
+                    element: MC238
+                uma_det:
+                    address:
+                    element: MC338
+                tr_relay:
+                    address:
+                    element: MC239
+                tr_det:
+                    address:
+                    element: MC339
+                tb_relay:
+                    address:
+                    element: MC240
+                tb_det:
+                    address:
+                    element: MC340
+        shutter:
+            channels: 10
+            description: Dome drive movement
+            devices:
+                drive_brakes:
+                    address:
+                    element: MC104
+                ne_limit:
+                    address:
+                    element: MC105
+                nw_limit:
+                    address:
+                    element: MC106
+                se_limit:
+                    address:
+                    element: MC107
+                sw_limit:
+                    address:
+                    element: MC108
+                overcurrent:
+                    address:
+                    element: MC110
+                drive_status:
+                    address:
+                    element: MC111
+                motor_direction:
+                    address:
+                    element: MC112
+                motor_desired:
+                    address:
+                    element: MC113
+                drive_encoder:
+                    address:
+                    element: MHR130
+
+
+
 timeouts:
     controller_connect: 1
 
