@@ -55,7 +55,161 @@ plcs:
                         address: 2000
                         function: "0x06"
                         element:
-
+    dome:
+        name: "Dome PLC"
+        host:
+        port:
+        modules:
+            interlocks:
+                name: "interlocks"
+                mode: coil
+                channels: 4
+                description: Dome drive interlock elements
+                elements:
+                    drive_status:
+                        name: "drive_status"
+                        address:
+                        function:
+                        element: MC111
+                    door_magnet:
+                        name: "door_magnet"
+                        address:
+                        function:
+                        element: MC401
+                    door_lock:
+                        name: "door_lock"
+                        address:
+                        function:
+                        element:  MC402
+                    indicator_light:
+                        name: "indicator_light"
+                        address:
+                        function:
+                        element: MC403
+            lights:
+                name: "lights"
+                mode: coil           
+                channels: 12
+                description: Light elements of the LVM Enclosure
+                elements:
+                    cr_relay:
+                        name: "cr_relay"
+                        address:
+                        function:
+                        element: MC235
+                    cr_det:
+                        name: "cr_det"
+                        address:
+                        function:
+                        element: MC335
+                    ur_relay:
+                        name: "ur_relay"
+                        address:
+                        function:
+                        element: MC236
+                    ur_det:
+                        name: "ur_det"
+                        address:
+                        function:
+                        element: MC336
+                    sr_relay:
+                        name: "sr_relay"
+                        address:
+                        function:
+                        element: MC237
+                    sr_det:
+                        name: "sr_det"
+                        address:
+                        function:
+                        element: MC337
+                    uma_relay:
+                        name: "uma_relay"
+                        address:
+                        function:
+                        element: MC238
+                    uma_det:
+                        name: "uma_det"
+                        address:
+                        function:
+                        element: MC338
+                    tr_relay:
+                        name: "tr_relay"
+                        address:
+                        function:
+                        element: MC239
+                    tr_det:
+                        name: "tr_det"
+                        address:
+                        function:
+                        element: MC339
+                    tb_relay:
+                        name: "tb_relay"
+                        address:
+                        function:
+                        element: MC240
+                    tb_det:
+                        name: "tb_det"
+                        address:
+                        function:
+                        element: MC340
+            shutter:
+                mode:            
+                channels: 10
+                description: Elements for dome drive movement
+                elements:
+                    drive_brakes:
+                        name: "drive_brakes"
+                        address:
+                        function:
+                        element: MC104
+                    ne_limit:
+                        name: "ne_limit"
+                        address:
+                        function:
+                        element: MC105
+                    nw_limit:
+                        name: "nw_limit"
+                        address:
+                        function:
+                        element: MC106
+                    se_limit:
+                        name: "se_limit"
+                        address:
+                        element: MC107
+                    sw_limit:
+                        name: "sw_limit"
+                        address:
+                        function:
+                        element: MC108
+                    overcurrent:
+                        name: "overcurrent"
+                        address:
+                        function:
+                        element: MC110
+                    drive_status:
+                        name: "drive_status"
+                        address:
+                        function:
+                        element: MC111
+                    motor_direction:
+                        name: "motor_direction"
+                        address:
+                        function:
+                        element: MC112
+                    motor_desired:
+                        name: "motor_desired"
+                        address:
+                        function:
+                        element: MC113
+                    drive_encoder:
+                        name: "drive_encoder"
+                        address:
+                        function:
+                        element: MHR130
+    hvac:
+        name: "HVAC PLC"
+        host:
+        port:
 
 timeouts:
     controller_connect: 1
