@@ -19,8 +19,7 @@ import click
 from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
-from lvmecp.controller.controller import PlcController, Module
-#from lvmecp.controller.testcontroller import TestController
+from lvmecp.controller.controller import PlcController
 from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
@@ -44,14 +43,9 @@ class LvmecpActor(AMQPActor):
     def __init__(
         self,
         *args,
-        controllers: tuple[PlcController, ...] = (),
-        modules: tuple[Module, ...] = (),
         **kwargs,
     ):
     #: dict[str, PlcController]: A mapping of controller name to controller.
-        self.controllers = {c.name: c for c in controllers}
-        self.modules = {m.name: m for m in modules}
-        self.parser_args = [self.controllers, self.modules]
 
         if "schema" not in kwargs:
             kwargs["schema"] = os.path.join(
@@ -67,6 +61,8 @@ class LvmecpActor(AMQPActor):
         """Start the actor and connect the controllers."""
         await super().start()
 
+        connect_timeout = self.config["timeouts"]["controller_connect"]
+
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
@@ -76,82 +72,29 @@ class LvmecpActor(AMQPActor):
     def from_config(cls, config, *args, **kwargs):
         """Creates an actor from a configuration file."""
 
+        if config is None:
+            if cls.BASE_CONFIG is None:
+                raise RuntimeError("The class does not have a base configuration.")
+            config = cls.BASE_CONFIG
+
         instance = super(LvmecpActor, cls).from_config(config, *args, **kwargs)
 
         assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
+        if "plcs" in instance.config:
+            plcs = []
+            for (name, config) in instance.config["plcs"].items():
+                instance.log.info(f"Instance {name}: {config}")
+                try:
+                    plcs.append(PlcController(name, config, instance.log))
 
-        if "lights" in instance.config["plcs"]["modules"]:
-            modules = (
-                Module(
-                    name=ctrname,
-                    mode=ctr["mode"],
-                    channels=ctr["channels"],
-                    description=ctr["description"],
-                    devices=ctr["devices"],
-                )
-                for (ctrname, ctr) in instance.config["plcs"]["modules"].items()
-            )
-
-        if "DOME1" in instance.config["plcs"]["modules"]:
-            modules = (
-                Module(
-                    name=ctrname,
-                    mode=ctr["mode"],
-                    channels=ctr["channels"],
-                    description=ctr["description"],
-                    devices=ctr["devices"],
-                )
-                for (ctrname, ctr) in instance.config["plcs"]["modules"].items()
-            )
-
-        if "DOME2" in instance.config["plcs"]["modules"]:
-            modules = (
-                Module(
-                    name=ctrname,
-                    mode=ctr["mode"],
-                    channels=ctr["channels"],
-                    description=ctr["description"],
-                    devices=ctr["devices"],
-                )
-                for (ctrname, ctr) in instance.config["plcs"]["modules"].items()
-            )
-
-
-        if "simulator" in instance.config["plcs"]["controllers"]:
-            controllers = (
-                PlcController(
-                    name=ctrname,
-                    host=ctr["host"],
-                    port=ctr["port"],
-                )
-                for (ctrname, ctr) in instance.config["plcs"]["controllers"].items()
-            )
-            instance.controllers = {c.name: c for c in controllers}
-
-        if "dome" in instance.config["plcs"]["controllers"]:
-            controllers = (
-                PlcController(
-                    name=ctrname,
-                    host=ctr["host"],
-                    port=ctr["port"],
-                )
-                for (ctrname, ctr) in instance.config["plcs"]["controllers"].items()
-            )
-            instance.controllers.update({c.name: c for c in controllers})
-
-        if "hvac" in instance.config["plcs"]["controllers"]:
-            controllers = (
-                PlcController(
-                    name=ctrname,
-                    host=ctr["host"],
-                    port=ctr["port"],
-                )
-                for (ctrname, ctr) in instance.config["plcs"]["controllers"].items()
-            )
-            instance.controllers.update({c.name: c for c in controllers})
-
-
+                except Exception as ex:
+                    instance.log.error(
+                        f"Error in {type(ex)}: {ex}"
+                    )
+            instance.parser_args = [plcs]
+        
+        print(plcs)
 
         return instance

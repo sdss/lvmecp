@@ -3,10 +3,11 @@
 #
 # @Author: Mingyeong Yang (mingyeong@khu.ac.kr)
 # @Date: 2021-10-03
-# @Filename: ControllerBase.py
+# @Filename: Controller.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
+from sdsstools.logger import SDSSLogger
 
 import asyncio
 import configparser
@@ -25,7 +26,7 @@ from pymodbus.client.asynchronous.async_io import (
 from lvmecp.exceptions import LvmecpError, LvmecpWarning
 
 
-__all__ = ["PlcController", "Module"]
+__all__ = ["PlcController", "Module", "Elements"]
 
 class PlcController():
     """Talks to an Plc controller over TCP/IP.
@@ -34,17 +35,39 @@ class PlcController():
     ----------
     name
         A name identifying this controller.
-    host
-        The hostname of the Plc.
-    port
-        The port on which the Plc listens to incoming connections.
+    config
+        The configuration defined on the .yaml file under /etc/lvmecp.yml
+    log
+        The logger for logging
     """
-    def __init__(self, name: str, host: str, port: int, module: dict[str, Module]):
-        self.name = name
-        self.host = host
-        self.port = port
-        self.module = module
 
+    def __init__(self, name: str, config: [], log: SDSSLogger):
+        self.name = name
+        self.log = log
+        self.config = config
+
+        modules = self.config_get("modules")
+        print(modules)
+        modules_list = list(modules.keys())
+        print(modules_list)
+        self.modules = [
+            Module(
+                name,
+                config,
+                self.config_get(f"modules.{module}.name"),
+                self.config_get(f"modules.{module}.mode"),
+                self.config_get(f"modules.{module}.channels"),
+                self.config_get(f"modules.{module}.description"),            
+            )for module in modules_list
+        ]
+        print(self.modules)
+
+        self.host = self.config_get("host")
+        self.port = self.config_get("port")
+        self.addr = {}
+        for module in self.modules:
+            self.addr[module.name] = module.get_address() 
+        print(self.addr)
         self.Client = None          #Modbusclient or client 
 
 
@@ -146,11 +169,6 @@ class PlcController():
         addr_act = 1000
         addr_new = 2000
 
-        module = self.module
-        devices = module.devices
-        elements = module.elements
-        addr = module.get_address()
-
         await self.start()
 
         # get the status from the hardware
@@ -233,40 +251,154 @@ class PlcController():
 
         return status
 
+
     @staticmethod
-    async def parse(value):
+    def parse(value):
         """Parse the input data for ON/OFF."""
         if value in ["off", "OFF", "0", 0, False]:
-            return "OFF"
+            return 0
         if value in ["on", "ON", "1", 1, True]:
-            return "ON"
+            return 1
         return -1
+
+    def config_get(self, key, default=None):
+        """Read the configuration and extract the data as a structure that we want.
+        Notice: DOESNT work for keys with dots !!!
+
+        Parameters
+        ----------
+        key
+            The tree structure as a string to extract the data.
+            For example, if the configuration structure is
+
+            ports;
+                1;
+                    desc; "Hg-Ar spectral callibration lamp"
+
+            You can input the key as
+            "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+        """
+
+        def g(config, key, d=None):
+            """Internal function for parsing the key from the configuration.
+
+            Parameters
+            ----------
+            config
+                config from the class member, which is saved from the class instance
+            key
+                The tree structure as a string to extract the data.
+                For example, if the configuration structure is
+
+                ports:
+                    num:1
+                    1:
+                        desc: "Hg-Ar spectral callibration lamp"
+
+                You can input the key as
+                "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+            """
+            k = key.split(".", maxsplit=1)
+            c = config.get(
+                k[0] if not k[0].isnumeric() else int(k[0])
+            )  # keys can be numeric
+            return (
+                d
+                if c is None
+                else c
+                if len(k) < 2
+                else g(c, k[1], d)
+                if type(c) is dict
+                else d
+            )
+
+        return g(self.config, key, default)
 
 
 class Module():
-    """get the information of the LVM Enclosure Elements from config."""
-    
+
     def __init__(
-        self, 
+        self,
+        plcname: str,
+        config: [],
         name: str, 
         mode: str, 
         channels: int, 
         description: str,
-        devices: dict, 
         *args, 
         **kwargs):
-        
+
+        self.plc = plcname
+        self.config = config
+
         self.name = name
         self.mode = mode
-        self.channels = channels
         self.description = description
-        self.devices = devices
-        self.elements = self.devices.keys()
+        self.channels= channels
 
-    async def get_address(self):
+        self.elements = self.config_get(f"modules.{name}.elements")
+        print(self.elements)
+        self.elements_list = list(self.elements.keys())
+        print(self.elements_list)
+
+    def get_address(self):
         self.addr = {}
 
-        for element in self.elements:
-            self.addr[element] = self.device[element]["address"]
+        for element in self.elements_list:
+            self.addr[element] = self.elements[element]["address"]
 
         return self.addr
+
+    def config_get(self, key, default=None):
+        """Read the configuration and extract the data as a structure that we want.
+        Notice: DOESNT work for keys with dots !!!
+
+        Parameters
+        ----------
+        key
+            The tree structure as a string to extract the data.
+            For example, if the configuration structure is
+
+            ports;
+                1;
+                    desc; "Hg-Ar spectral callibration lamp"
+
+            You can input the key as
+            "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+        """
+
+        def g(config, key, d=None):
+            """Internal function for parsing the key from the configuration.
+
+            Parameters
+            ----------
+            config
+                config from the class member, which is saved from the class instance
+            key
+                The tree structure as a string to extract the data.
+                For example, if the configuration structure is
+
+                ports:
+                    num:1
+                    1:
+                        desc: "Hg-Ar spectral callibration lamp"
+
+                You can input the key as
+                "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+            """
+            k = key.split(".", maxsplit=1)
+            c = config.get(
+                k[0] if not k[0].isnumeric() else int(k[0])
+            )  # keys can be numeric
+            return (
+                d
+                if c is None
+                else c
+                if len(k) < 2
+                else g(c, k[1], d)
+                if type(c) is dict
+                else d
+            )
+
+        return g(self.config, key, default)
+

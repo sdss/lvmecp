@@ -2,54 +2,59 @@
 #A dictionary of modules name to plc Elements connection parameters
 
 plcs:
-    controllers:
-        simulator:
-            name: "simulator PLC"
-            host: 163.180.145.123
-            port: 502
-    modules:
-        lights:
-            name: "lights"
-            mode: coil
-            channels: 3
-            description: Light elements of the simulator
-            devices:
-                low_lights:
-                    address: 336
-                    function: "0x01"
-                    element:
-                high_lights:
-                    address: 337
-                    function: "0x01"
-                    element:
-                tggl_lights:
-                    address: 236
-                    function: "0x05"
-                    element:
-        DOME1:
-            name: "DOME1"
-            mode: coil
-            channels: 2
-            description: Elements for dome drive movement
-            devices:
-                dome_env:
-                    address: 200
-                    function: "0x01"
-                    element:
-                dome_env_mov:
-                    address: 200
-                    function: "0x05"
-                    element:
-        DOME2:
-            name: "DOME2"            
-            mode: input_register
-            channels: 1
-            description: Elements for dome drive movement
-            devices:            
-                dome_new_pos:
-                    address: 2000
-                    function: "0x06"
-                    element:
+    simulator:
+        name: "simulator PLC"
+        host: 163.180.145.123
+        port: 502
+        modules:
+            lights:
+                name: "lights"
+                mode: coil
+                channels: 3
+                description: Light elements of the simulator
+                elements:
+                    low_lights:
+                        name: "low_lights"
+                        address: 336
+                        function: "0x01"
+                        element:
+                    high_lights:
+                        name: "high_lights"
+                        address: 337
+                        function: "0x01"
+                        element:
+                    tggl_lights:
+                        name: "tggl_lights"
+                        address: 236
+                        function: "0x05"
+                        element:
+            DOME1:
+                name: "DOME1"
+                mode: coil
+                channels: 2
+                description: Elements for dome drive movement
+                elements:
+                    dome_env:
+                        name: "dome_env"
+                        address: 200
+                        function: "0x01"
+                        element:
+                    dome_env_mov:
+                        name: "dome_env_mov"
+                        address: 200
+                        function: "0x05"
+                        element:
+            DOME2:
+                name: "DOME2"            
+                mode: input_register
+                channels: 1
+                description: Elements for dome drive movement
+                elements:            
+                    dome_new_pos:
+                        name: "dome_new_pos"
+                        address: 2000
+                        function: "0x06"
+                        element:
 
 
 timeouts:
