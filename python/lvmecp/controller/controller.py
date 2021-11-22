@@ -62,6 +62,7 @@ class PlcController():
         ]
         print(self.modules)
 
+
         self.host = self.config_get("host")
         self.port = self.config_get("port")
         self.addr = {}
