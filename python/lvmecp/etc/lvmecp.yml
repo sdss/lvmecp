@@ -80,7 +80,7 @@ plcs:
                         name: "door_lock"
                         address:
                         function:
-                        element:  MC402
+                        element: MC402
                     indicator_light:
                         name: "indicator_light"
                         address:
