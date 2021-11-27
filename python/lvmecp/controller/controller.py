@@ -163,7 +163,7 @@ class PlcController():
         result = {}
 
         try:
-            # module "interlocks" 
+            # module "interlocks" -> 0
             if module == "interlocks":
                 if element == "0":
                     if command == "status":
@@ -179,7 +179,7 @@ class PlcController():
                     f"{element} is not correct"
                 )
             
-            #module "lights"
+            #module "lights" -> 1
             #0x0000  off
             #0xff00  on
 
@@ -214,9 +214,27 @@ class PlcController():
                     f"{command} is not correct"
                 )
 
-            #module "dome"
+            #module "dome" -> 2, 3
 
-            
+
+
+            # module "emergengy_stop" -> 4
+            if module == "emergengy":
+                if element == "0":
+                    if command == "status":
+                        elements = self.modules[4].get_element()
+                        for element in elements:
+                            result[element] = await self.get_status(self.modules[3].mode, self.addr[module][element])
+                    else:
+                        raise LvmecpError(
+                        f"{command} is not correct"
+                    )
+                else:
+                    raise LvmecpError(
+                    f"{element} is not correct"
+                )
+
+
 
             return result
          
@@ -236,7 +254,6 @@ class PlcController():
         """
 
         if mode == "coil":
-            #print(device)
             reply = await self.read("coil", addr)
             status = await self.parse(reply) 
         
@@ -348,7 +365,7 @@ class Module():
             for element in elements_list:
                 addr[element] = elements[element]["address"]
         except:
-                raise LvmecpError(
+            raise LvmecpError(
                     "You cannot get addresses."
                 )            
 

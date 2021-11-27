@@ -22,18 +22,23 @@ from lvmecp.exceptions import LvmecpError
 from . import parser
 
 
-__all__ = ["lock"]
+__all__ = ["monitor"]
 
 @parser.command()
-async def lock(command: Command, controllers: dict[str, PlcController]):
-    """return the status of the interlocks"""
+async def monitor(command: Command, controllers: dict[str, PlcController]):
+    """"""
 
-    command.info(text="checking the interlocks")
+    command.info(text="monitoring ... ")
     current_status = {}
 
     try:
-        current_status = await controllers[0].send_command(
+        current_status["interlocks"] = await controllers[0].send_command(
             "interlocks",
+            "0", 
+            "status"
+        )
+        current_status["emergengy"] = await controllers[0].send_command(
+            "emergengy",
             "0", 
             "status"
         )
