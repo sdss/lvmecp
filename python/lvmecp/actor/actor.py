@@ -63,6 +63,17 @@ class LvmecpActor(AMQPActor):
 
         connect_timeout = self.config["timeouts"]["controller_connect"]
 
+        assert len(self.parser_args) == 1
+        for plc in self.parser_args[0]:
+            try:
+                self.log.debug(f"Start {plc.name} ...")
+                await asyncio.wait_for(plc.start(), timeout=connect_timeout)
+
+            except Exception as ex:
+                self.log.error(f"Unexpected exception {type(ex)}: {ex}")
+
+        self.log.debug("Start done")
+
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
@@ -94,7 +105,5 @@ class LvmecpActor(AMQPActor):
                         f"Error in {type(ex)}: {ex}"
                     )
             instance.parser_args = [plcs]
-        
-        print(plcs)
 
         return instance
