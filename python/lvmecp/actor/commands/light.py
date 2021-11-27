@@ -61,18 +61,18 @@ async def move(
     try:
         command.info(text=f"move the {room_point[room]}")
         if room in room_list:
-            current_status = await controllers[0].send_command("lights", f"{room}_det", "status")
-            val = current_status[f"{room}_det"]
+            current_status = await controllers[0].send_command("lights", f"{room}_status", "status")
+            val = current_status[f"{room}_status"]
             if val == 0:
                 await controllers[0].send_command(
                     "lights",
-                    f"{room}_relay",
+                    f"{room}_new",
                     "on"
                 )
             elif val == 1:
                 await controllers[0].send_command(
                     "lights",
-                    f"{room}_relay",
+                    f"{room}_new",
                     "off"
                 )
             else:
@@ -87,10 +87,10 @@ async def move(
 
         current_status = await controllers[0].send_command(
             "lights",
-            f"{room}_det",
+            f"{room}_status",
             "status"
         )
-        status[room_point[f"{room}"]] = current_status[f"{room}_det"]
+        status[room_point[f"{room}"]] = current_status[f"{room}_status"]
 
     except LvmecpError as err:
             return command.fail(str(err))
@@ -134,10 +134,10 @@ async def status(
             if room in room_list:
                 current_status = await controllers[0].send_command(
                     "lights",
-                    f"{room}_det",
+                    f"{room}_status",
                     "status"
                 )
-                status[room_point[f"{room}"]] = current_status[f"{room}_det"]
+                status[room_point[f"{room}"]] = current_status[f"{room}_status"]
             else:
                 raise LvmecpError(
                     f"{room} is wrong argument."
@@ -149,7 +149,7 @@ async def status(
                 "status"
             )
             for room_ins in room_list:
-                status[room_point[f"{room_ins}"]] = current_status[f"{room_ins}_det"]
+                status[room_point[f"{room_ins}"]] = current_status[f"{room_ins}_status"]
 
 
     except LvmecpError as err:

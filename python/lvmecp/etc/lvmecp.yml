@@ -10,151 +10,192 @@ plcs:
             interlocks:
                 name: "interlocks"
                 mode: coil
-                channels: 4
+                channels: 5
                 description: Dome drive interlock elements
                 elements:
-                    drive_status:
-                        name: "drive_status"
-                        address: 111
+#                    key:
+#                        name: "key"
+#                        address: 
+#                        function: "0x01"
+#                        element: MC0
+                    door_status:
+                        name: "door_status"
+                        address: 0
                         function: "0x01"
-                        element: MC111
-                    door_magnet:
-                        name: "door_magnet"
-                        address: 401
+                        element: MC1
+                    door_power:
+                        name: "door_power"
+                        address: 1
                         function: "0x01"
-                        element: MC401
-                    door_lock:
-                        name: "door_lock"
-                        address: 402
+                        element: MC2
+                    drive_interlock_state:
+                        name: "drive_interlock_state"
+                        address: 2
                         function: "0x01"
-                        element: MC402
-                    indicator_light:
-                        name: "indicator_light"
-                        address: 403
+                        element: MC3
+                    E_stop:
+                        name: "E_stop"
+                        address: 3
                         function: "0x01"
-                        element: MC403
+                        element: MC4
             lights:
                 name: "lights"
                 mode: coil           
                 channels: 12
                 description: Light elements of the LVM Enclosure
                 elements:
-                    cr_relay:
-                        name: "cr_relay"
-                        address: 235
+                    cr_new:
+                        name: "cr_new"
+                        address: 234
                         function: "0x05"
                         element: MC235
-                    cr_det:
-                        name: "cr_det"
-                        address: 335
+                    cr_status:
+                        name: "cr_status"
+                        address: 334
                         function: "0x01"
                         element: MC335
-                    ur_relay:
-                        name: "ur_relay"
-                        address: 236
+                    ur_new:
+                        name: "ur_new"
+                        address: 235
                         function: "0x05"
                         element: MC236
-                    ur_det:
-                        name: "ur_det"
-                        address: 336
+                    ur_status:
+                        name: "ur_status"
+                        address: 335
                         function: "0x01"
                         element: MC336
-                    sr_relay:
-                        name: "sr_relay"
-                        address: 237
+                    sr_new:
+                        name: "sr_new"
+                        address: 236
                         function: "0x05"
                         element: MC237
-                    sr_det:
-                        name: "sr_det"
-                        address: 337
+                    sr_status:
+                        name: "sr_status"
+                        address: 336
                         function: "0x01"
                         element: MC337
-                    uma_relay:
-                        name: "uma_relay"
-                        address: 238
+                    uma_new:
+                        name: "uma_new"
+                        address: 237
                         function: "0x05"
                         element: MC238
-                    uma_det:
-                        name: "uma_det"
-                        address: 338
+                    uma_status:
+                        name: "uma_status"
+                        address: 337
                         function: "0x01"
                         element: MC338
-                    tr_relay:
-                        name: "tr_relay"
-                        address: 239
+                    tb_new:
+                        name: "tb_new"
+                        address: 238
                         function: "0x05"
                         element: MC239
-                    tr_det:
-                        name: "tr_det"
-                        address: 339
+                    tb_status:
+                        name: "tb_new"
+                        address: 338
                         function: "0x01"
                         element: MC339
-                    tb_relay:
-                        name: "tb_relay"
-                        address: 240
+                    tr_new:
+                        name: "tr_new"
+                        address: 239
                         function: "0x05"
                         element: MC240
-                    tb_det:
-                        name: "tb_det"
-                        address: 340
+                    tr_status:
+                        name: "tr_status"
+                        address: 339
                         function: "0x01"
                         element: MC340
-            shutter:
-                name: "shutter"
+            shutter1:
+                name: "shutter1"
                 mode: coil
-                channels: 10
+                channels: 11
                 description: Elements for dome drive movement
                 elements:
-                    drive_brakes:
-                        name: "drive_brakes"
-                        address: 104
+                    drive_enable:
+                        name: "drive_enable"
+                        address: 99
                         function:
-                        element: MC104
+                        element: MC100
+                    drive_state:
+                        name: "drive_state"
+                        address: 100
+                        function:
+                        element: MC101
+                    motor_direction:
+                        name: "motor_direction"
+                        address: 101
+                        function:
+                        element: MC102
+                    drive_brake:
+                        name: "drive_brake"
+                        address: 102
+                        function:
+                        element: MC103
                     ne_limit:
                         name: "ne_limit"
-                        address: 105
+                        address: 104
                         function:
                         element: MC105
                     nw_limit:
                         name: "nw_limit"
-                        address: 106
+                        address: 105
                         function:
                         element: MC106
                     se_limit:
                         name: "se_limit"
-                        address: 107
+                        address: 106
                         function:
                         element: MC107
                     sw_limit:
                         name: "sw_limit"
-                        address: 108
+                        address: 107
                         function:
                         element: MC108
                     overcurrent:
                         name: "overcurrent"
-                        address: 110
+                        address: 109
                         function:
                         element: MC110
-                    drive_status:
-                        name: "drive_status"
-                        address: 111
+                    open_timeout:
+                        name: "open_timeout"
+                        address: 121
                         function:
-                        element: MC111
-                    motor_direction:
-                        name: "motor_direction"
-                        address: 112
+                        element: MC122
+                    close_timeout:
+                        name: "close_timeout"
+                        address: 122
                         function:
-                        element: MC112
-                    motor_desired:
-                        name: "motor_desired"
-                        address: 113
+                        element: MC123
+            shutter2:
+                name: "shutter2"
+                mode: input_register
+                channels: 5
+                description: Elements for dome drive movement
+                elements:
+                    drive_velcity1:
+                        name: "drive_velcity1"
+                        address: 103
                         function:
-                        element: MC113
-                    drive_encoder:
-                        name: "drive_encoder"
-                        address: 130
+                        element: MC104
+                    drive_velcity2:
+                        name: "drive_velcity2"
+                        address: 104
                         function:
-                        element: MHR130
+                        element: MC105
+                    open_timeout:
+                        name: "open_timeout"
+                        address: 119
+                        function:
+                        element: MC120
+                    close_timeout:
+                        name: "close_timeout"
+                        address: 120
+                        function:
+                        element: MC121
+                    drive_current:
+                        name: "drive_current"
+                        address: 129
+                        function:
+                        element: MC130
     #hvac:
     #    name: "HVAC PLC"
     #    host: 163.180.145.123
