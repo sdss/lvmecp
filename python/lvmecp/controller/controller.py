@@ -234,6 +234,21 @@ class PlcController():
                     f"{element} is not correct"
                 )
 
+            # module "hvac" -> 0
+            if module == "hvac":
+                if element == "0":
+                    if command == "status":
+                        elements = self.modules[0].get_element()
+                        for element in elements:
+                            result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
+                    else:
+                        raise LvmecpError(
+                        f"{command} is not correct"
+                    )
+                else:
+                    raise LvmecpError(
+                    f"{element} is not correct"
+                )
 
 
             return result

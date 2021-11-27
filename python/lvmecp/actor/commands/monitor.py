@@ -42,6 +42,11 @@ async def monitor(command: Command, controllers: dict[str, PlcController]):
             "0", 
             "status"
         )
+        current_status["hvac"] = await controllers[1].send_command(
+            "hvac",
+            "0", 
+            "status"
+        )
 
     except LvmecpError as err:
             return command.fail(str(err))
