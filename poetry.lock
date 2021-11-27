@@ -996,6 +996,14 @@ lint = ["flake8 (>=3.5.0)", "isort", "mypy (>=0.800)", "docutils-stubs"]
 test = ["pytest", "pytest-cov", "html5lib", "cython", "typed-ast"]
 
 [[package]]
+name = "sphinx-bootstrap-theme"
+version = "0.8.0"
+description = "Sphinx Bootstrap Theme."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "sphinx-click"
 version = "3.0.2"
 description = "Sphinx extension that automatically documents click applications"
@@ -1205,7 +1213,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "fcf285da2348f88014fda7ccee730054eccf03d347c1280233e0f56498714cad"
+content-hash = "17a093666ea28f853694ec650c06def54dd85bdfbfcb917942084c94867d39ec"
 
 [metadata.files]
 aio-pika = [
@@ -1858,6 +1866,10 @@ snowballstemmer = [
 sphinx = [
     {file = "Sphinx-3.5.4-py3-none-any.whl", hash = "sha256:2320d4e994a191f4b4be27da514e46b3d6b420f2ff895d064f52415d342461e8"},
     {file = "Sphinx-3.5.4.tar.gz", hash = "sha256:19010b7b9fa0dc7756a6e105b2aacd3a80f798af3c25c273be64d7beeb482cb1"},
+]
+sphinx-bootstrap-theme = [
+    {file = "sphinx-bootstrap-theme-0.8.0.tar.gz", hash = "sha256:038ee7e89478e064b5dd7e614de6f3f4cec81d9f9efbebb06e105693d6a50924"},
+    {file = "sphinx_bootstrap_theme-0.8.0-py2.py3-none-any.whl", hash = "sha256:8b648023a0587f1695460670554ca3fb493e344313189b74a87b0ba27168ca47"},
 ]
 sphinx-click = [
     {file = "sphinx-click-3.0.2.tar.gz", hash = "sha256:29896dd12bfaacb566a8c7af2e2b675d010d69b0c5aad3b52495d4842358b15b"},
