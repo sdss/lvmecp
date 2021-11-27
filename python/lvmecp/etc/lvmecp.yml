@@ -2,63 +2,10 @@
 #A dictionary of modules name to plc Elements connection parameters
 
 plcs:
-    simulator:
-        name: "simulator PLC"
-        host: 163.180.145.123
-        port: 502
-        modules:
-            lights:
-                name: "lights"
-                mode: coil
-                channels: 3
-                description: Light elements of the simulator
-                elements:
-                    low_lights:
-                        name: "low_lights"
-                        address: 336
-                        function: "0x01"
-                        element:
-                    high_lights:
-                        name: "high_lights"
-                        address: 337
-                        function: "0x01"
-                        element:
-                    tggl_lights:
-                        name: "tggl_lights"
-                        address: 236
-                        function: "0x05"
-                        element:
-            DOME1:
-                name: "DOME1"
-                mode: coil
-                channels: 2
-                description: Elements for dome drive movement
-                elements:
-                    dome_env:
-                        name: "dome_env"
-                        address: 200
-                        function: "0x01"
-                        element:
-                    dome_env_mov:
-                        name: "dome_env_mov"
-                        address: 200
-                        function: "0x05"
-                        element:
-            DOME2:
-                name: "DOME2"            
-                mode: input_register
-                channels: 1
-                description: Elements for dome drive movement
-                elements:            
-                    dome_new_pos:
-                        name: "dome_new_pos"
-                        address: 2000
-                        function: "0x06"
-                        element:
     dome:
         name: "Dome PLC"
-        host:
-        port:
+        host: 163.180.145.123
+        port: 502
         modules:
             interlocks:
                 name: "interlocks"
@@ -68,23 +15,23 @@ plcs:
                 elements:
                     drive_status:
                         name: "drive_status"
-                        address:
-                        function:
+                        address: 111
+                        function: "0x01"
                         element: MC111
                     door_magnet:
                         name: "door_magnet"
-                        address:
-                        function:
+                        address: 401
+                        function: "0x01"
                         element: MC401
                     door_lock:
                         name: "door_lock"
-                        address:
-                        function:
+                        address: 402
+                        function: "0x01"
                         element: MC402
                     indicator_light:
                         name: "indicator_light"
-                        address:
-                        function:
+                        address: 403
+                        function: "0x01"
                         element: MC403
             lights:
                 name: "lights"
@@ -94,122 +41,126 @@ plcs:
                 elements:
                     cr_relay:
                         name: "cr_relay"
-                        address:
-                        function:
+                        address: 235
+                        function: "0x05"
                         element: MC235
                     cr_det:
                         name: "cr_det"
-                        address:
-                        function:
+                        address: 335
+                        function: "0x01"
                         element: MC335
                     ur_relay:
                         name: "ur_relay"
-                        address:
-                        function:
+                        address: 236
+                        function: "0x05"
                         element: MC236
                     ur_det:
                         name: "ur_det"
-                        address:
-                        function:
+                        address: 336
+                        function: "0x01"
                         element: MC336
                     sr_relay:
                         name: "sr_relay"
-                        address:
-                        function:
+                        address: 237
+                        function: "0x05"
                         element: MC237
                     sr_det:
                         name: "sr_det"
-                        address:
-                        function:
+                        address: 337
+                        function: "0x01"
                         element: MC337
                     uma_relay:
                         name: "uma_relay"
-                        address:
-                        function:
+                        address: 238
+                        function: "0x05"
                         element: MC238
                     uma_det:
                         name: "uma_det"
-                        address:
-                        function:
+                        address: 338
+                        function: "0x01"
                         element: MC338
                     tr_relay:
                         name: "tr_relay"
-                        address:
-                        function:
+                        address: 239
+                        function: "0x05"
                         element: MC239
                     tr_det:
                         name: "tr_det"
-                        address:
-                        function:
+                        address: 339
+                        function: "0x01"
                         element: MC339
                     tb_relay:
                         name: "tb_relay"
-                        address:
-                        function:
+                        address: 240
+                        function: "0x05"
                         element: MC240
                     tb_det:
                         name: "tb_det"
-                        address:
-                        function:
+                        address: 340
+                        function: "0x01"
                         element: MC340
             shutter:
-                mode:            
+                name: "shutter"
+                mode: coil
                 channels: 10
                 description: Elements for dome drive movement
                 elements:
                     drive_brakes:
                         name: "drive_brakes"
-                        address:
+                        address: 104
                         function:
                         element: MC104
                     ne_limit:
                         name: "ne_limit"
-                        address:
+                        address: 105
                         function:
                         element: MC105
                     nw_limit:
                         name: "nw_limit"
-                        address:
+                        address: 106
                         function:
                         element: MC106
                     se_limit:
                         name: "se_limit"
-                        address:
+                        address: 107
+                        function:
                         element: MC107
                     sw_limit:
                         name: "sw_limit"
-                        address:
+                        address: 108
                         function:
                         element: MC108
                     overcurrent:
                         name: "overcurrent"
-                        address:
+                        address: 110
                         function:
                         element: MC110
                     drive_status:
                         name: "drive_status"
-                        address:
+                        address: 111
                         function:
                         element: MC111
                     motor_direction:
                         name: "motor_direction"
-                        address:
+                        address: 112
                         function:
                         element: MC112
                     motor_desired:
                         name: "motor_desired"
-                        address:
+                        address: 113
                         function:
                         element: MC113
                     drive_encoder:
                         name: "drive_encoder"
-                        address:
+                        address: 130
                         function:
                         element: MHR130
-    hvac:
-        name: "HVAC PLC"
-        host:
-        port:
+    #hvac:
+    #    name: "HVAC PLC"
+    #    host: 163.180.145.123
+    #    port: 502
+
+
 
 timeouts:
     controller_connect: 1
