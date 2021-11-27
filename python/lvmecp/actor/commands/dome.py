@@ -37,16 +37,31 @@ async def move(
 
     command.info(text="move the Dome")
     current_status = {}
+    status = {}
     
     try:
-        await controllers["simulator"].send_command("Dome", "move")
-        current_status = await controllers["simulator"].get_status("Dome")
-    
+        current_status["enable"] = await controllers[0].send_command("shutter1", "drive_enable", "status")
+        if current_status["enable"] == 0:                 #dome state == close
+            await controllers[0].send_command("shutter1", "drive_enable", "on")
+            await controllers[0].send_command("shutter1", "motor_direction", "on")
+        elif current_status["enable"] == 1:               #dome state == open
+            await controllers[0].send_command("shutter1", "drive_enable", "off")
+            await controllers[0].send_command("shutter1", "motor_direction", "off")
+        else:
+            raise LvmecpError(
+                f"{current_status} is wrong value."
+            )
+
+        current_status["enable"] = await controllers[0].send_command("shutter1", "drive_enable", "status")
+        current_status["drive"] = await controllers[0].send_command("shutter1", "drive_state", "status")
+        status["Dome"] = current_status
+
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(current_status)
+    command.info(status=status)
     return command.finish()
+
 
 @dome.command()
 async def status(
@@ -56,13 +71,16 @@ async def status(
 
     command.info(text="checking the Dome")
     current_status = {}
+    status = {}
 
     try:
-        current_status = await controllers["simulator"].get_status("Dome")
+        current_status["enable"] = await controllers[0].send_command("shutter1", "drive_enable", "status")
+        current_status["drive"] = await controllers[0].send_command("shutter1", "drive_state", "status")
+        status["Dome"] = current_status
     
     except LvmecpError as err:
             return command.fail(str(err))
 
-    command.info(current_status)
+    command.info(status=status)
     return command.finish()
 

@@ -215,7 +215,33 @@ class PlcController():
                 )
 
             #module "dome" -> 2, 3
-
+            if module == "shutter1":
+                elements = self.modules[2].get_element()
+                if command == "status":
+                    if element in elements:
+                        result = await self.get_status(self.modules[2].mode, self.addr[module][element])
+                    else:
+                        raise LvmecpError(
+                        f"{element} is not correct"
+                    )                
+                elif command == "on":
+                    if element in elements:
+                        await self.write(self.modules[2].mode, self.addr[module][element], 0xff00)
+                    else:
+                        raise LvmecpError(
+                        f"{element} is not correct"
+                    )
+                elif command == "off":
+                    if element in elements:
+                        await self.write(self.modules[2].mode, self.addr[module][element], 0x0000)
+                    else:
+                        raise LvmecpError(
+                        f"{element} is not correct"
+                    )
+                else:
+                    raise LvmecpError(
+                    f"{command} is not correct"
+                )
 
 
             # module "emergengy_stop" -> 4
