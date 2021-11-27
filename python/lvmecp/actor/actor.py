@@ -20,7 +20,6 @@ from clu.actor import AMQPActor, BaseActor
 
 from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
-#from lvmecp.controller.testcontroller import TestController
 from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
@@ -44,13 +43,9 @@ class LvmecpActor(AMQPActor):
     def __init__(
         self,
         *args,
-        controllers: tuple[PlcController, ...] = (),
         **kwargs,
     ):
     #: dict[str, PlcController]: A mapping of controller name to controller.
-        self.controllers = {c.name: c for c in controllers}
-        self.parser_args = [self.controllers]
-
 
         if "schema" not in kwargs:
             kwargs["schema"] = os.path.join(
@@ -66,6 +61,19 @@ class LvmecpActor(AMQPActor):
         """Start the actor and connect the controllers."""
         await super().start()
 
+        connect_timeout = self.config["timeouts"]["controller_connect"]
+
+        assert len(self.parser_args) == 1
+        for plc in self.parser_args[0]:
+            try:
+                self.log.debug(f"Start {plc.name} ...")
+                await asyncio.wait_for(plc.start(), timeout=connect_timeout)
+
+            except Exception as ex:
+                self.log.error(f"Unexpected exception {type(ex)}: {ex}")
+
+        self.log.debug("Start done")
+
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
@@ -75,21 +83,27 @@ class LvmecpActor(AMQPActor):
     def from_config(cls, config, *args, **kwargs):
         """Creates an actor from a configuration file."""
 
+        if config is None:
+            if cls.BASE_CONFIG is None:
+                raise RuntimeError("The class does not have a base configuration.")
+            config = cls.BASE_CONFIG
+
         instance = super(LvmecpActor, cls).from_config(config, *args, **kwargs)
 
         assert isinstance(instance, LvmecpActor)
         assert isinstance(instance.config, dict)
 
-        if "simulator" in instance.config["devices"]["plcs"]:
-            controllers = (
-                PlcController(
-                    name=ctrname,
-                    host=ctr["host"],
-                    port=ctr["port"],
-                )
-                for (ctrname, ctr) in instance.config["devices"]["plcs"].items()
-            )
-            instance.controllers = {c.name: c for c in controllers}
-            instance.parser_args = [instance.controllers]  # Need to refresh this
+        if "plcs" in instance.config:
+            plcs = []
+            for (name, config) in instance.config["plcs"].items():
+                instance.log.info(f"Instance {name}: {config}")
+                try:
+                    plcs.append(PlcController(name, config, instance.log))
+
+                except Exception as ex:
+                    instance.log.error(
+                        f"Error in {type(ex)}: {ex}"
+                    )
+            instance.parser_args = [plcs]
 
         return instance
