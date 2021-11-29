@@ -35,16 +35,29 @@ def light():
 async def move(
     command: Command, controllers: dict[str, PlcController], room: str
     ):
-    """on or off the enclosure light
+    """Turn on or off the enclosure light. This command 
+    required the argument essentially. You should put the 
+    proper argument according to the room you want to control.
+    
+    A message is printed by the final status of the light.
+    If message return "0", it means "OFF".
+    If message return "1", it means "ON".
+
 
     Parameters
     -----------
-    cr: Control room
-    ur: Utilities room
-    sr: Spectrograph room
-    uma: UMA lights
-    tb: Telescope room - bright light
-    tr: Telescope room - red light
+    cr
+        Control room.
+    ur
+        Utilities room.
+    sr
+        Spectrograph room.
+    uma
+        UMA lights.
+    tb
+        Telescope room - bright light.
+    tr
+        Telescope room - red light.
     """
 
     current_status = {}
@@ -104,17 +117,30 @@ async def move(
 async def status(
     command: Command, controllers: dict[str, PlcController], room: str
     ):
-    """return the status of the light
+    """return the current status of the light. This command don't
+    require the argument essentially. You should put the 
+    proper argument according to the room you want to control. If you don't
+    put any argument, this returns the status of all room in the enclosure.
+
+    A message is printed by the status of the light.
+    If message return "0", it means "OFF".
+    If message return "1", it means "ON".
+
     
     Parameters
     -----------
-    cr: Control room
-    ur: Utilities room
-    sr: Spectrograph room
-    uma: UMA lights
-    tb: Telescope room - bright light
-    tr: Telescope room - red light
-    all: return the status of all room
+    cr
+        Control room.
+    ur
+        Utilities room.
+    sr
+        Spectrograph room.
+    uma
+        UMA lights.
+    tb
+        Telescope room - bright light.
+    tr
+        Telescope room - red light.
     """
 
     command.info(text="checking the light")

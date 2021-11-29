@@ -26,7 +26,13 @@ __all__ = ["monitor"]
 
 @parser.command()
 async def monitor(command: Command, controllers: dict[str, PlcController]):
-    """"""
+    """return the status of HVAC system, air purge system and emergency stop.
+    
+    ECP should monitor the pressure in air purge system and the 
+    temperature in each room. Also, ECP should start the emergency stop
+    if the pressure changed outside normal range. 
+    
+    """
 
     command.info(text="monitoring ... ")
     current_status = {}

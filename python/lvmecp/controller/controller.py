@@ -151,7 +151,7 @@ class PlcController():
         Parameters
         -----------
         module
-            The devices controlled by lvmecp which are "interlocks", "light" and "shutter" 
+            The devices controlled by lvmecp which are "interlocks", "light", "shutter" and "emergengy". 
 
         element
         The elements contained by the module
@@ -320,6 +320,7 @@ class PlcController():
             return 1
         return -1
 
+
     def config_get(self, key, default=None):
         """Read the configuration and extract the data as a structure that we want.
         Notice: DOESNT work for keys with dots !!!
@@ -397,6 +398,8 @@ class Module():
 
 
     def get_address(self):
+        """ return a dictionary about modbus address of each element in module."""
+
         addr = {}
 
         elements = self.config_get(f"modules.{self.name}.elements")
@@ -413,7 +416,8 @@ class Module():
         return addr
 
     def get_element(self):
-
+        """ return a list of elements in module."""
+        
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())
 
