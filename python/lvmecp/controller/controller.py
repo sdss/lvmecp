@@ -164,20 +164,20 @@ class PlcController():
 
         try:
             # module "interlocks" -> 0
-            if module == "interlocks":
-                if element == "0":
-                    if command == "status":
-                        elements = self.modules[0].get_element()
-                        for element in elements:
-                            result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
-                    else:
-                        raise LvmecpError(
-                        f"{command} is not correct"
-                    )
-                else:
-                    raise LvmecpError(
-                    f"{element} is not correct"
-                )
+            #if module == "interlocks":
+            #    if element == "0":
+            #        if command == "status":
+            #            elements = self.modules[0].get_element()
+            #            for element in elements:
+            #                result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
+            #        else:
+            #            raise LvmecpError(
+            #            f"{command} is not correct"
+            #        )
+            #    else:
+            #        raise LvmecpError(
+            #        f"{element} is not correct"
+            #    )
             
             #module "lights" -> 1
             #0x0000  off
