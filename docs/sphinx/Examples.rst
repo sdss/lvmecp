@@ -192,11 +192,11 @@ If you run the monitor command via lvmecp, you can get the status of elements in
 will return this kind of reply.::
 
     lvmecp monitor
-    04:22:17.108 lvmecp > 
-    04:22:17.109 lvmecp i {
+    04:55:50.115 lvmecp > 
+    04:55:50.117 lvmecp i {
         "text": "monitoring ... "
     }
-    04:22:17.117 lvmecp i {
+    04:55:50.133 lvmecp i {
         "status": {
             "interlocks": {
                 "door_status": 0,
@@ -205,13 +205,13 @@ will return this kind of reply.::
                 "E_stop": 0
             },
             "emergengy": {
-                "E_stop": -1,
-                "E_status": -1,
-                "E_relay": -1
+                "E_stop": 0,
+                "E_status": 0,
+                "E_relay": 0
             },
             "hvac": {
-                "key1": -1,
-                "key2": -1
+                "key1": 4259,
+                "key2": 6925
             }
         }
     }
