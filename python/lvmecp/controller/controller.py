@@ -133,7 +133,7 @@ class PlcController():
                 return reply.bits[0]
             elif mode == "input_register":
                 reply = await self.Client.protocol.read_holding_registers(addr, 1)               
-                return reply.registers
+                return reply.registers[0]
             else:
                 raise LvmecpError(
                     f"{mode} is a wrong value"
@@ -164,20 +164,20 @@ class PlcController():
 
         try:
             # module "interlocks" -> 0
-            if module == "interlocks":
-                if element == "0":
-                    if command == "status":
-                        elements = self.modules[0].get_element()
-                        for element in elements:
-                            result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
-                    else:
-                        raise LvmecpError(
-                        f"{command} is not correct"
-                    )
-                else:
-                    raise LvmecpError(
-                    f"{element} is not correct"
-                )
+            #if module == "interlocks":
+            #    if element == "0":
+            #        if command == "status":
+            #            elements = self.modules[0].get_element()
+            #            for element in elements:
+            #                result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
+            #        else:
+            #            raise LvmecpError(
+            #            f"{command} is not correct"
+            #        )
+            #    else:
+            #        raise LvmecpError(
+            #        f"{element} is not correct"
+            #    )
             
             #module "lights" -> 1
             #0x0000  off
@@ -266,7 +266,7 @@ class PlcController():
                     if command == "status":
                         elements = self.modules[0].get_element()
                         for element in elements:
-                            result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
+                            result[element] = await self.read(self.modules[0].mode, self.addr[module][element])
                     else:
                         raise LvmecpError(
                         f"{command} is not correct"

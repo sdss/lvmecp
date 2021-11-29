@@ -13,11 +13,11 @@ plcs:
                 channels: 5
                 description: Dome drive interlock elements
                 elements:
-#                    key:
-#                        name: "key"
-#                        address: 
-#                        function: "0x01"
-#                        element: MC0
+                    key:
+                        name: "key"
+                        address: 
+                        function: "0x01"
+                        element: MC0
                     door_status:
                         name: "door_status"
                         address: 0
@@ -205,17 +205,17 @@ plcs:
                     E_stop:
                         name: "E_stop"
                         address: 199
-                        function:
+                        function: "0x01"
                         element: MC200
                     E_status:
                         name: "E_status"
                         address: 200
-                        function:
+                        function: "0x01"
                         element: MC201
                     E_relay:
                         name: "E_relay"
                         address: 101
-                        function:
+                        function: "0x01"
                         element: MC202
     hvac:
         name: "HVAC PLC"
@@ -231,12 +231,12 @@ plcs:
                     key1:
                         name: "key1"
                         address: 499
-                        function:
+                        function: "0x03"
                         element: MHR500
                     key2:
                         name: "key2"
                         address: 500
-                        function:
+                        function: "0x03"
                         element: MHR501
 
 timeouts:

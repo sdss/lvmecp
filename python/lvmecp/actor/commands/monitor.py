@@ -38,11 +38,7 @@ async def monitor(command: Command, controllers: dict[str, PlcController]):
     current_status = {}
 
     try:
-        current_status["interlocks"] = await controllers[0].send_command(
-            "interlocks",
-            "0", 
-            "status"
-        )
+        #current_status["interlocks"] = await controllers[0].send_command("interlocks","0","status")
         current_status["emergengy"] = await controllers[0].send_command(
             "emergengy",
             "0", 
