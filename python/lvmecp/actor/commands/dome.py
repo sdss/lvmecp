@@ -33,7 +33,7 @@ def dome():
 async def move(
     command: Command, controllers: dict[str, PlcController],
     ):
-    """on or off the enclosure Dome"""
+    """Turn on or off the roll-off dome of the enclosure."""
 
     command.info(text="move the Dome")
     current_status = {}
@@ -67,7 +67,7 @@ async def move(
 async def status(
     command: Command, controllers: dict[str, PlcController],
     ):
-    """return the status of the Dome"""
+    """return the current status of the dome"""
 
     command.info(text="checking the Dome")
     current_status = {}

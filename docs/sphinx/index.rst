@@ -20,6 +20,7 @@ lvmecp's documentation
   lvmecp
   Controller
   Commands
+  actor-schema
   Exceptions
 
 
