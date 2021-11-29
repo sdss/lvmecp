@@ -118,7 +118,7 @@ will return this kind of reply.::
 
 
 light command
----------------
+-----------------
 
 If you run the light command via lvmecp, you can control the light in the enclosure. ::
 
@@ -146,14 +146,20 @@ As you can see the reply, we have 6 lights in the enclosure.
 Therefore, if you want to turn on the lights in a specific room,
 you should use a appropriate argument.
 
-   Parameters
+    Parameters
     -----------
-    cr: Control room
-    ur: Utilities room
-    sr: Spectrograph room
-    uma: UMA lights
-    tb: Telescope room - bright light
-    tr: Telescope room - red light
+    cr
+        Control room.
+    ur
+        Utilities room.
+    sr
+        Spectrograph room.
+    uma
+        UMA lights.
+    tb
+        Telescope room - bright light.
+    tr
+        Telescope room - red light.
 
 For example, if you want to turn on the light of Control room,::
 
@@ -192,28 +198,21 @@ If you run the monitor command via lvmecp, you can get the status of elements in
 will return this kind of reply.::
 
     lvmecp monitor
-    04:55:50.115 lvmecp > 
-    04:55:50.117 lvmecp i {
+    06:21:42.663 lvmecp > 
+    06:21:42.671 lvmecp i {
         "text": "monitoring ... "
     }
-    04:55:50.133 lvmecp i {
+    06:21:42.674 lvmecp i {
         "status": {
-            "interlocks": {
-                "door_status": 0,
-                "door_power": 0,
-                "drive_interlock_state": 1,
-                "E_stop": 0
-            },
             "emergengy": {
                 "E_stop": 0,
                 "E_status": 0,
                 "E_relay": 0
             },
             "hvac": {
-                "key1": 4259,
-                "key2": 6925
+                "key1": 2366,
+                "key2": 724
             }
         }
     }
-
 

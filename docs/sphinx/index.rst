@@ -2,8 +2,6 @@
 lvmecp's documentation
 =============================================
 
-.. include:: ../../README.md
-  :start-line: 2
 
 
 .. toctree::
