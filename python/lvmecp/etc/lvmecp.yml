@@ -3,7 +3,7 @@
 
 plcs:
     dome:
-        name: "Dome PLC"
+        name: "Dome PLC of LVM Enclosure"
         host: 163.180.145.123
         port: 502
         modules:
@@ -218,7 +218,7 @@ plcs:
                         function: "0x01"
                         element: MC202
     hvac:
-        name: "HVAC PLC"
+        name: "HVAC PLC of LVM Enclosure"
         host: 163.180.145.123
         port: 502
         modules:
@@ -228,16 +228,20 @@ plcs:
                 channels: 2
                 description: HVAC system
                 elements:
-                    key1:
-                        name: "key1"
+                    sensor1:
+                        name: "sensor1"
                         address: 499
                         function: "0x03"
                         element: MHR500
-                    key2:
-                        name: "key2"
+                        category: TBD
+                        units: TBD
+                    sensor2:
+                        name: "sensor2"
                         address: 500
                         function: "0x03"
                         element: MHR501
+                        category: TBD
+                        units: TBD
 
 timeouts:
     controller_connect: 1
