@@ -104,9 +104,31 @@ class PlcController():
 
         try:
             if mode == "coil":
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"Before write the data to address {addr}     : {current_time}"
+                )
+
                 await self.Client.protocol.write_coil(addr, data)
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"After write the data to address {addr}     : {current_time}"
+                )
             elif mode == "input_register":
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"Before write the data to address {addr}     : {current_time}"
+                )
+
                 await self.Client.protocol.write_register(addr, data)
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"After write the data to address {addr}     : {current_time}"
+                )
             else:
                 raise LvmecpError(
                     f"{mode} is a wrong value"
@@ -162,23 +184,7 @@ class PlcController():
 
         result = {}
 
-        try:
-            # module "interlocks" -> 0
-            #if module == "interlocks":
-            #    if element == "0":
-            #        if command == "status":
-            #            elements = self.modules[0].get_element()
-            #            for element in elements:
-            #                result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
-            #        else:
-            #            raise LvmecpError(
-            #            f"{command} is not correct"
-            #        )
-            #    else:
-            #        raise LvmecpError(
-            #        f"{element} is not correct"
-            #    )
-            
+        try:            
             #module "lights" -> 1
             #0x0000  off
             #0xff00  on

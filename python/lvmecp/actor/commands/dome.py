@@ -40,17 +40,38 @@ async def move(
     status = {}
     
     try:
+        current_time = datetime.datetime.now()
+        print(
+            f"start the command and get initial status of device              : {current_time}"
+        )
         current_status["enable"] = await controllers[0].send_command("shutter1", "drive_enable", "status")
         if current_status["enable"] == 0:                 #dome state == close
+
+            current_time = datetime.datetime.now()
+            print(
+                f"start the send_command(ON)           : {current_time}"
+            )
             await controllers[0].send_command("shutter1", "drive_enable", "on")
             await controllers[0].send_command("shutter1", "motor_direction", "on")
+        
         elif current_status["enable"] == 1:               #dome state == open
+        
+            current_time = datetime.datetime.now()
+            print(
+                f"start the send_command(OFF)           : {current_time}"
+            )        
+
             await controllers[0].send_command("shutter1", "drive_enable", "off")
             await controllers[0].send_command("shutter1", "motor_direction", "off")
         else:
             raise LvmecpError(
                 f"{current_status} is wrong value."
             )
+
+        current_time = datetime.datetime.now()
+        print(
+            f"get final status of device              : {current_time}"
+        )
 
         current_status["enable"] = await controllers[0].send_command("shutter1", "drive_enable", "status")
         current_status["drive"] = await controllers[0].send_command("shutter1", "drive_state", "status")
