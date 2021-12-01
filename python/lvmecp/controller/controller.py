@@ -62,8 +62,11 @@ class PlcController():
         self.host = self.config_get("host")
         self.port = self.config_get("port")
         self.addr = {}
+        self.unit = {}
         for module in self.modules:
             self.addr[module.name] = module.get_address()
+            if module.name == "hvac":
+                self.unit[module.name] = module.get_unit()        
         self.Client = None          #Modbusclient or client 
 
 
@@ -104,9 +107,31 @@ class PlcController():
 
         try:
             if mode == "coil":
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"Before write the data to address {addr}     : {current_time}"
+                )
+
                 await self.Client.protocol.write_coil(addr, data)
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"After write the data to address {addr}     : {current_time}"
+                )
             elif mode == "input_register":
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"Before write the data to address {addr}     : {current_time}"
+                )
+
                 await self.Client.protocol.write_register(addr, data)
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"After write the data to address {addr}     : {current_time}"
+                )
             else:
                 raise LvmecpError(
                     f"{mode} is a wrong value"
@@ -162,23 +187,7 @@ class PlcController():
 
         result = {}
 
-        try:
-            # module "interlocks" -> 0
-            #if module == "interlocks":
-            #    if element == "0":
-            #        if command == "status":
-            #            elements = self.modules[0].get_element()
-            #            for element in elements:
-            #                result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
-            #        else:
-            #            raise LvmecpError(
-            #            f"{command} is not correct"
-            #        )
-            #    else:
-            #        raise LvmecpError(
-            #        f"{element} is not correct"
-            #    )
-            
+        try:            
             #module "lights" -> 1
             #0x0000  off
             #0xff00  on
@@ -262,20 +271,25 @@ class PlcController():
 
             # module "hvac" -> 0
             if module == "hvac":
-                if element == "0":
-                    if command == "status":
-                        elements = self.modules[0].get_element()
+                if command == "status":
+                    elements = self.modules[0].get_element()
+                    if element in elements:
+                        result[element] = await self.get_status(self.modules[0].mode, self.addr[module][element])
+                        result["unit"] = self.unit[module][element]
+                    elif element == "all":
                         for element in elements:
-                            result[element] = await self.read(self.modules[0].mode, self.addr[module][element])
+                            see = {}
+                            see["value"] = await self.get_status(self.modules[0].mode, self.addr[module][element])
+                            see["unit"] = self.unit[module][element]
+                            result[element] = see                     
                     else:
                         raise LvmecpError(
-                        f"{command} is not correct"
+                        f"{element} is not correct"
                     )
                 else:
                     raise LvmecpError(
-                    f"{element} is not correct"
+                    f"{command} is not correct"
                 )
-
 
             return result
          
@@ -300,7 +314,7 @@ class PlcController():
         
         elif mode == "input_register":
             reply = await self.read("input_register", addr)
-            status = await self.parse(reply)
+            status = reply
         
         else:
             raise LvmecpError(
@@ -414,6 +428,26 @@ class Module():
                 )            
 
         return addr
+    
+    def get_unit(self):
+        """ return a dictionary about units of each element in module."""
+
+        unit = {}
+
+        elements = self.config_get(f"modules.{self.name}.elements")
+        elements_list = list(elements.keys())
+         
+        try:
+            for element in elements_list:
+                unit[element] = elements[element]["units"]
+        except:
+            raise LvmecpError(
+                    "You cannot get units."
+                )
+            
+        print(unit)
+        return unit
+
 
     def get_element(self):
         """ return a list of elements in module."""
