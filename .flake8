@@ -34,4 +34,3 @@ max-line-length = 200
 per-file-ignores =
     */__init__.py:E,W
 
-max-line-length = 99
