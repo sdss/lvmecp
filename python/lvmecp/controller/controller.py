@@ -3,31 +3,21 @@
 #
 # @Author: Mingyeong Yang (mingyeong@khu.ac.kr)
 # @Date: 2021-10-03
-# @Filename: controller.py
+# @Filename: Controller.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
 
-import asyncio
-import configparser
-import os
-import socket
-import struct
 import datetime
-import time
 import warnings
-import json
 
+from sdsstools.logger import SDSSLogger
+from lvmecp.exceptions import LvmecpControllerError, LvmecpControllerWarning
 from pymodbus.client.asynchronous.async_io import (
     AsyncioModbusTcpClient as ModbusClient,
 )
 
-from lvmecp.exceptions import LvmecpError, LvmecpWarning
-
-
-__all__ = ["PlcController"]
-
-dev_list = ["light", "Dome"]
+__all__ = ["PlcController", "Module"]
 
 class PlcController():
     """Talks to an Plc controller over TCP/IP.
@@ -36,47 +26,68 @@ class PlcController():
     ----------
     name
         A name identifying this controller.
-    host
-        The hostname of the Plc.
-    port
-        The port on which the Plc listens to incoming connections.
+    config
+        The configuration defined on the .yaml file under /etc/lvmecp.yml
+    log
+        The logger for logging
     """
-    def __init__(self, name: str, host: str, port: int):
+
+    def __init__(self, name: str, config: [], log: SDSSLogger):
         self.name = name
-        self.host = host
-        self.port = port
+        self.log = log
+        self.config = config
 
-        self.wagoClient = None          #Modbusclient or client 
+        modules = self.config_get("modules")
+        modules_list = list(modules.keys())
+        self.modules = [
+            Module(
+                name,
+                config,
+                self.config_get(f"modules.{module}.name"),
+                self.config_get(f"modules.{module}.mode"),
+                self.config_get(f"modules.{module}.channels"),
+                self.config_get(f"modules.{module}.description")
+            )for module in modules_list
+        ]
 
+        self.host = self.config_get("host")
+        self.port = self.config_get("port")
+        self.addr = {}
+        self.unit = {}
+        for module in self.modules:
+            self.addr[module.name] = module.get_address()
+            if module.name == "hvac":
+                self.unit[module.name] = module.get_unit()
+        self.Client = None
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
         # connection
         try:
-            self.wagoClient = ModbusClient(self.host, self.port)
-            await self.wagoClient.connect()
-        except:
-            raise LvmecpError(
-            f"fail to open connection with {self.host}"
-        )
+            self.Client = ModbusClient(self.host, self.port)
+            await self.Client.connect()
+        except LvmecpControllerError:
+            print(
+                f"fail to open connection with {self.host}"
+            )
 
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
         try:
-            self.wagoClient.protocol.close()
+            self.Client.protocol.close()
 
-        except:
-            raise LvmecpError(
-            f"fail to close connection with {self.host}"
-        )
+        except LvmecpControllerError:
+            print(
+                f"fail to close connection with {self.host}"
+            )
 
-    async def write(self, key:str, addr:int, data):
+    async def write(self, mode: str, addr: int, data):
         """write the data to devices
-        
+
         parameters
         ------------
-        key
-            wr_kylist = ['light', 'Dome_enb', 'Dome_new',]
+        mode
+            coil or input_register
         addr
             modbus address
         data
@@ -85,153 +96,255 @@ class PlcController():
         """
 
         try:
-            if key == "light":
-                await self.wagoClient.protocol.write_coil(addr, data)
-            elif key == "Dome_enb":
-                await self.wagoClient.protocol.write_coil(addr, data)
-            elif key == "Dome_new":
-                await self.wagoClient.protocol.write_register(addr, data)
-            else:
-                raise LvmecpError(
-                    f"{key} is a wrong value"
+            if mode == "coil":
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"Before write the data to address {addr}     : {current_time}"
                 )
 
-        except:
-            raise LvmecpError(
+                await self.Client.protocol.write_coil(addr, data)
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"After write the data to address {addr}     : {current_time}"
+                )
+            elif mode == "input_register":
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"Before write the data to address {addr}     : {current_time}"
+                )
+
+                await self.Client.protocol.write_register(addr, data)
+
+                current_time = datetime.datetime.now()
+                print(
+                    f"After write the data to address {addr}     : {current_time}"
+                )
+            else:
+                raise LvmecpControllerError(
+                    f"{mode} is a wrong value"
+                )
+
+        except LvmecpControllerError:
+            print(
                 f"fail to write coil to {addr}"
             )
 
-    async def read(self, key:str, addr:int):
+    async def read(self, mode: str, addr: int):
         """read the data from devices
-        
+
         parameters
         ------------
-        key
-            rd_kylist = ["light", "Dome_enb", "Dome_act"]
+        mode
+            coil or input_register
         addr
-            modbus address       
+            modbus address
         """
+
         try:
-            if key == "light":
-                reply = await self.wagoClient.protocol.read_coils(addr, 1)
-                reply_str = str(reply.bits[0])
+            if mode == "coil":
+                reply = await self.Client.protocol.read_coils(addr, 1)
                 return reply.bits[0]
-            elif key == "Dome_enb":
-                reply = await self.wagoClient.protocol.read_coils(addr, 1)
-                reply_str = str(reply.bits[0])
-                return reply.bits[0]
-            elif key == "Dome_act":
-                reply = await self.wagoClient.protocol.read_holding_registers(addr, 1)
-                reply_str = str(reply.registers)                  
-                return reply.registers
+            elif mode == "input_register":
+                reply = await self.Client.protocol.read_holding_registers(addr, 1)
+                return reply.registers[0]
             else:
-                raise LvmecpError(
-                    f"{key} is a wrong value"
+                raise LvmecpControllerError(
+                    f"{mode} is a wrong value"
                 )
 
-        except:
-            raise LvmecpError(
+        except LvmecpControllerError:
+            print(
                 f"fail to read coils to {addr}"
             )
 
-    
-    async def send_command(self, device:str, command:str):
+    async def send_command(self, module: str, element: str, command: str):
         """send command to PLC
         
         Parameters
         -----------
-        device
-            The devices controlled by lvmecp which are "Dome" and "light"
+        module
+            The devices controlled by lvmecp 
+            which are "interlocks", "light", "shutter" and "emergengy". 
+
+        element
+            The elements contained by the module
 
         command
             move/status
         """
-        
-        addr_tggl = 236
-        addr_light = 336
-        addr_enb = 200
-        addr_act = 1000
-        addr_new = 2000
 
-        await self.start()
+        result = {}
 
-        # get the status from the hardware
         try:
-            if device == "light":
-                reply = await self.read("light", addr_light)
-                if command == "move":
-                    if reply:
-                        await self.write("light", addr_tggl, 0x0000)         #off
+            # module "lights" -> 1
+            # 0x0000  off
+            # 0xff00  on
+
+            if module == "lights":
+                elements = self.modules[1].get_element()
+                if command == "status":
+                    if element in elements:
+                        result[element] = await self.get_status(
+                            self.modules[1].mode,
+                            self.addr[module][element]
+                        )
+                    elif element == "all":
+                        for element in elements:
+                            result[element] = await self.get_status(
+                                self.modules[1].mode,
+                                self.addr[module][element]
+                            )
                     else:
-                        await self.write("light", addr_tggl, 0xff00)         #on
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
+                elif command == "on":
+                    if element in elements:
+                        await self.write(
+                            self.modules[1].mode,
+                            self.addr[module][element],
+                            0xff00
+                        )
+                    else:
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
+                elif command == "off":
+                    if element in elements:
+                        await self.write(
+                            self.modules[1].mode,
+                            self.addr[module][element],
+                            0x0000
+                        )
+                    else:
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
                 else:
-                    raise LvmecpError(
+                    raise LvmecpControllerError(
                         f"{command} is not correct"
                     )
 
-            elif device == "Dome" :
-                if command == "move":
-                    reply = await self.read("Dome_enb", addr_enb)
-                    if reply:
-                        dome_position = True
+            #module "dome" -> 2, 3
+            if module == "shutter1":
+                elements = self.modules[2].get_element()
+                if command == "status":
+                    if element in elements:
+                        result = await self.get_status(
+                            self.modules[2].mode,
+                            self.addr[module][element]
+                        )
                     else:
-                        dome_position = False
-                # Dome status is default: False
-                    if dome_position:#true
-                            #await self.write('Dome_new', addr_new, 0)        # close
-                            await self.write("Dome_enb", addr_enb, 0x0000)# disable dome
-                    else:#false
-                            await self.write("Dome_enb", addr_enb, 0xff00)# Enable dome
-                            #await self.write('Dome_new', addr_new, 359)        # open
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
+                elif command == "on":
+                    if element in elements:
+                        await self.write(
+                            self.modules[2].mode,
+                            self.addr[module][element],
+                            0xff00
+                        )
+                    else:
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
+                elif command == "off":
+                    if element in elements:
+                        await self.write(
+                            self.modules[2].mode,
+                            self.addr[module][element],
+                            0x0000
+                        )
+                    else:
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
                 else:
-                    raise LvmecpError(
+                    raise LvmecpControllerError(
                         f"{command} is not correct"
                     )
 
-            else:
-                raise LvmecpError(
-                    f"{device} is not connected."
-                )
+
+            # module "emergengy_stop" -> 4
+            if module == "emergengy":
+                if element == "0":
+                    if command == "status":
+                        elements = self.modules[4].get_element()
+                        for element in elements:
+                            result[element] = await self.get_status(
+                                self.modules[3].mode,
+                                self.addr[module][element]
+                            )
+                    else:
+                        raise LvmecpControllerError(
+                            f"{command} is not correct"
+                        )
+                else:
+                    raise LvmecpControllerError(
+                        f"{element} is not correct"
+                    )
+
+            # module "hvac" -> 0
+            if module == "hvac":
+                if command == "status":
+                    elements = self.modules[0].get_element()
+                    if element in elements:
+                        result[element] = await self.get_status(
+                            self.modules[0].mode,
+                            self.addr[module][element]
+                        )
+                        result["unit"] = self.unit[module][element]
+                    elif element == "all":
+                        for element in elements:
+                            see = {}
+                            see["value"] = await self.get_status(
+                                self.modules[0].mode,
+                                self.addr[module][element]
+                            )
+                            see["unit"] = self.unit[module][element]
+                            result[element] = see                     
+                    else:
+                        raise LvmecpControllerError(
+                            f"{element} is not correct"
+                        )
+                else:
+                    raise LvmecpControllerError(
+                        f"{command} is not correct"
+                    )
+
+            return result
          
-        except LvmecpError as err:
-            warnings.warn(str(err), LvmecpWarning)
+        except LvmecpControllerError as err:
+            warnings.warn(str(err), LvmecpControllerWarning)
 
-        # close the connection
-        await self.stop() 
 
-    async def get_status(self, device:str):
+    async def get_status(self, mode: str, addr: int):
         """get the status of the device
 
-                Parameters
-        -----------
-        device
-            The devices controlled by lvmecp which are "Dome" and "light"
-        
+        parameters
+        ------------
+        mode
+            coil or input_register
+        addr
+            modbus address
         """
-        
-        await self.start()
-        status = {}
 
-        addr_light = 336
-        addr_enb = 200
-        addr_act = 1000
-
-        if device == "light":
-            #print(device)
-            reply = await self.read("light", addr_light)
-            status = await self.parse(reply) 
-        
-        elif device == "Dome":
-            reply = await self.read("Dome_enb", addr_enb)
+        if mode == "coil":
+            reply = await self.read("coil", addr)
             status = await self.parse(reply)
         
+        elif mode == "input_register":
+            reply = await self.read("input_register", addr)
+            status = reply
+        
         else:
-            raise LvmecpError(
-                f"{device} is not correct"
+            raise LvmecpControllerError(
+                f"{mode} is not correct"
             )
-
-        # close the connection
-        await self.stop()
 
         return status
 
@@ -239,7 +352,175 @@ class PlcController():
     async def parse(value):
         """Parse the input data for ON/OFF."""
         if value in ["off", "OFF", "0", 0, False]:
-            return "OFF"
+            return 0
         if value in ["on", "ON", "1", 1, True]:
-            return "ON"
+            return 1
         return -1
+
+    def config_get(self, key, default=None):
+        """Read the configuration and extract the data as a structure that we want.
+        Notice: DOESNT work for keys with dots !!!
+
+        Parameters
+        ----------
+        key
+            The tree structure as a string to extract the data.
+            For example, if the configuration structure is
+
+            ports;
+                1;
+                    desc; "Hg-Ar spectral callibration lamp"
+
+            You can input the key as
+            "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+        """
+
+        def g(config, key, d=None):
+            """Internal function for parsing the key from the configuration.
+
+            Parameters
+            ----------
+            config
+                config from the class member, which is saved from the class instance
+            key
+                The tree structure as a string to extract the data.
+                For example, if the configuration structure is
+
+                ports:
+                    num:1
+                    1:
+                        desc: "Hg-Ar spectral callibration lamp"
+
+                You can input the key as
+                "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+            """
+            k = key.split(".", maxsplit=1)
+            c = config.get(
+                k[0] if not k[0].isnumeric() else int(k[0])
+            )  # keys can be numeric
+            return (
+                d
+                if c is None
+                else c
+                if len(k) < 2
+                else g(c, k[1], d)
+                if type(c) is dict
+                else d
+            )
+
+        return g(self.config, key, default)
+
+class Module():
+
+    def __init__(
+        self,
+        plcname: str,
+        config: [],
+        name: str,
+        mode: str,
+        channels: int,
+        description: str,
+        *args,
+        **kwargs
+    ):
+
+        self.plc = plcname
+        self.config = config
+
+        self.name = name
+        self.mode = mode
+        self.description = description
+        self.channels = channels
+
+    def get_address(self):
+        """ return a dictionary about modbus address of each element in module."""
+
+        addr = {}
+
+        elements = self.config_get(f"modules.{self.name}.elements")
+        elements_list = list(elements.keys())
+
+        try:
+            for element in elements_list:
+                addr[element] = elements[element]["address"]
+        except LvmecpControllerError:
+            print("You cannot get addresses.")
+
+        return addr
+        
+    def get_unit(self):
+        """ return a dictionary about units of each element in module."""
+
+        unit = {}
+
+        elements = self.config_get(f"modules.{self.name}.elements")
+        elements_list = list(elements.keys())
+
+        try:
+            for element in elements_list:
+                unit[element] = elements[element]["units"]
+        except LvmecpControllerError:
+            print("You cannot get units.")
+
+        return unit
+
+    def get_element(self):
+        """ return a list of elements in module."""
+
+        elements = self.config_get(f"modules.{self.name}.elements")
+        elements_list = list(elements.keys())
+
+        return elements_list
+
+    def config_get(self, key, default=None):
+        """Read the configuration and extract the data as a structure that we want.
+        Notice: DOESNT work for keys with dots !!!
+
+        Parameters
+        ----------
+        key
+            The tree structure as a string to extract the data.
+            For example, if the configuration structure is
+
+            ports;
+                1;
+                    desc; "Hg-Ar spectral callibration lamp"
+
+            You can input the key as
+            "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+        """
+
+        def g(config, key, d=None):
+            """Internal function for parsing the key from the configuration.
+
+            Parameters
+            ----------
+            config
+                config from the class member, which is saved from the class instance
+            key
+                The tree structure as a string to extract the data.
+                For example, if the configuration structure is
+
+                ports:
+                    num:1
+                    1:
+                        desc: "Hg-Ar spectral callibration lamp"
+
+                You can input the key as
+                "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+            """
+            k = key.split(".", maxsplit=1)
+            c = config.get(
+                k[0] if not k[0].isnumeric() else int(k[0])
+            )  # keys can be numeric
+            return (
+                d
+                if c is None
+                else c
+                if len(k) < 2
+                else g(c, k[1], d)
+                if type(c) is dict
+                else d
+            )
+
+        return g(self.config, key, default)

@@ -12,7 +12,6 @@
 # type: ignore
 
 import os
-
 from pkg_resources import parse_version
 
 try:
@@ -20,7 +19,6 @@ try:
 except ModuleNotFoundError:
     from sdsstools import get_package_version
     __version__ = get_package_version(__file__, 'sdss-lvmecp') or 'dev'
-
 
 # Are we building in RTD?
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
@@ -32,11 +30,9 @@ use_releases = 'no'
 if sphinx_template == 'sphinx-bootstrap':
     import sphinx_bootstrap_theme
 
-
 # Importing matplotlib here with agg to prevent tkinter error in readthedocs
 # import matplotlib
 # matplotlib.use('agg')
-
 
 # -- General configuration ------------------------------------------------
 
@@ -49,18 +45,18 @@ if sphinx_template == 'sphinx-bootstrap':
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon', 
+    'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
-    'sphinx.ext.todo', 
-    'sphinx.ext.viewcode', 
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     "sdsstools.releases",
     "sphinx.ext.inheritance_diagram",
     "sphinx_click",
     "myst_parser",
-    "sphinx-jsonschema",    
-    ]
+    "sphinx-jsonschema"
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -71,9 +67,9 @@ templates_path = ['_templates']
 source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
 
-# source_parsers = {
-#     '.md': 'recommonmark.parser.CommonMarkParser',
-# }
+source_parsers = {
+    '.md': 'recommonmark.parser.CommonMarkParser'
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -132,12 +128,12 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 # Intersphinx mappings
-intersphinx_mapping = {'python': ('https://docs.python.org/', None),
-                       'astropy': ('http://docs.astropy.org/en/latest', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+intersphinx_mapping = {"python": ('https://docs.python.org/', None),
+                       "astropy": ('http://docs.astropy.org/en/latest', None),
+                       "numpy": ('http://docs.scipy.org/doc/numpy/', None),
                        "click": ("https://click.palletsprojects.com/en/7.x/", None),
-                       "aio_pika": ("https://aio-pika.readthedocs.io/en/latest/", None),
-}
+                       "aio_pika": ("https://aio-pika.readthedocs.io/en/latest/", None)
+                       }
 
 autodoc_mock_imports = ["_tkinter", "asynctest", "numpy", "pymodbus"]
 autodoc_member_order = "groupwise"
@@ -181,7 +177,7 @@ if sphinx_template == 'alabaster':
             'about.html',
             'navigation.html',
             'relations.html',
-            'searchbox.html',
+            'searchbox.html'
         ]
     }
 
@@ -231,7 +227,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, '{0}.tex'.format(project), u'{0} Documentation'.format(project),
-     author, 'manual'),
+     author, 'manual')
 ]
 
 # -- Options for manual page output ---------------------------------------
@@ -251,7 +247,7 @@ man_pages = [
 texinfo_documents = [
     (master_doc, project, u'{0} Documentation'.format(project),
      author, project, 'One line description of project.',
-     'Miscellaneous'),
+     'Miscellaneous')
 ]
 
 if use_releases == 'yes':

@@ -2,22 +2,25 @@
 lvmecp's documentation
 =============================================
 
-.. include:: ../../README.md
-  :start-line: 2
 
-Contents
---------
 
 .. toctree::
-  
+
+  Introduction
+  Examples
+
+
+.. toctree::
+  :caption: api
+  :maxdepth: 3
+  :hidden:
+
   lvmecp
   Controller
   Commands
+  actor-schema
   Exceptions
 
-
-Reference
----------
 
 .. toctree::
    :maxdepth: 1

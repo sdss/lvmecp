@@ -21,6 +21,16 @@ class LvmecpError(Exception):
 
         super(LvmecpError, self).__init__(message)   
 
+class LvmecpControllerError(LvmecpError):
+    """An exception raised by an '.PlcController'."""
+
+    def __init__(self, message=None):
+
+        message = 'Error with response from PlcController' \
+            if not message else message
+
+        super(LvmecpError, self).__init__(message)
+
 
 class LvmecpNotImplemented(LvmecpError):
     """A custom exception for not yet implemented features."""
@@ -64,11 +74,7 @@ class LvmecpUserWarning(UserWarning, LvmecpWarning):
     pass
 
 
-class LvmecpSkippedTestWarning(LvmecpUserWarning):
-    """A warning for when a test is skipped."""
-    pass
+class LvmecpControllerWarning(UserWarning, LvmecpWarning):
+    """A warning issued by an `.PlcController`."""
 
-
-class LvmecpDeprecationWarning(LvmecpUserWarning):
-    """A warning for deprecated features."""
     pass
