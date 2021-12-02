@@ -6,11 +6,11 @@
 # @Filename: Controller.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
+from __future__ import annotations
 
 import datetime
 import warnings
 
-from __future__ import annotations
 from sdsstools.logger import SDSSLogger
 from lvmecp.exceptions import LvmecpControllerError, LvmecpControllerWarning
 from pymodbus.client.asynchronous.async_io import (
@@ -47,7 +47,7 @@ class PlcController():
                 self.config_get(f"modules.{module}.mode"),
                 self.config_get(f"modules.{module}.channels"),
                 self.config_get(f"modules.{module}.description")
-                ) for module in modules_list
+            )for module in modules_list
         ]
 
         self.host = self.config_get("host")
@@ -421,7 +421,8 @@ class Module():
         channels: int,
         description: str,
         *args,
-        **kwargs):
+        **kwargs
+        ):
 
         self.plc = plcname
         self.config = config

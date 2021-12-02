@@ -24,9 +24,7 @@ def dome():
     pass
 
 @dome.command()
-async def move(
-    command: Command, controllers: dict[str, PlcController]
-    ):
+async def move(command: Command, controllers: dict[str, PlcController]):
     """Turn on or off the roll-off dome of the enclosure."""
 
     command.info(text="move the Dome")
@@ -43,7 +41,8 @@ async def move(
             "drive_enable",
             "status"
         )
-        if current_status["enable"] == 0:                 #dome state == close
+        if current_status["enable"] == 0:
+            #dome state == close
             current_time = datetime.datetime.now()
             print(
                 f"start the send_command(ON)           : {current_time}"
@@ -58,7 +57,8 @@ async def move(
                 "motor_direction",
                 "on"
             )
-        elif current_status["enable"] == 1:               #dome state == open
+        elif current_status["enable"] == 1:
+            #dome state == open
             current_time = datetime.datetime.now()
             print(
                 f"start the send_command(OFF)           : {current_time}"
@@ -96,15 +96,13 @@ async def move(
         status["Dome"] = current_status
 
     except LvmecpError as err:
-            return command.fail(str(err))
+        return command.fail(str(err))
 
     command.info(status=status)
     return command.finish()
 
 @dome.command()
-async def status(
-    command: Command, controllers: dict[str, PlcController]
-    ):
+async def status(command: Command, controllers: dict[str, PlcController]):
     """return the current status of the dome"""
 
     command.info(text="checking the Dome")

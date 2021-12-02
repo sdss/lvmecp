@@ -26,9 +26,7 @@ def light():
 
 @light.command()
 @click.argument("ROOM", type=str, required=True)
-async def move(
-    command: Command, controllers: dict[str, PlcController], room: str
-    ):
+async def move(command: Command, controllers: dict[str, PlcController], room: str):
     """Turn on or off the enclosure light. This command
     required the argument essentially. You should put the
     proper argument according to the room you want to control.
@@ -102,7 +100,7 @@ async def move(
         status[room_point[f"{room}"]] = current_status[f"{room}_status"]
 
     except LvmecpError as err:
-            return command.fail(str(err))
+        return command.fail(str(err))
 
     command.info(status=status)
     return command.finish()

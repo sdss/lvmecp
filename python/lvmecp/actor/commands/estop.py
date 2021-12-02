@@ -39,7 +39,7 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
         )
 
     except LvmecpError as err:
-            return command.fail(str(err))
+        return command.fail(str(err))
 
     command.info(status=current_status)
     return command.finish()

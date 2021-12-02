@@ -12,6 +12,7 @@ import asyncio
 import os
 import click
 
+from typing import ClassVar, Dict
 from clu.actor import AMQPActor
 from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
