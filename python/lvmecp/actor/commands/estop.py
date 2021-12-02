@@ -8,19 +8,14 @@
 
 from __future__ import absolute_import, annotations, division, print_function
 
-import asyncio
 import datetime
-from os import name
-from typing import Text
 import click
-import json
 
 from clu.command import Command
 from lvmecp.controller.controller import PlcController
 from lvmecp.exceptions import LvmecpError
 
 from . import parser
-
 
 __all__ = ["estop"]
 
@@ -30,7 +25,6 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
     
     ECP should start the emergency stop
     if the pressure changed outside normal range. 
-    
     """
 
     command.info(text="monitoring ... ")
@@ -49,4 +43,3 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
 
     command.info(status=current_status)
     return command.finish()
-

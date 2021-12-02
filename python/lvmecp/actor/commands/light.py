@@ -8,12 +8,8 @@
 
 from __future__ import absolute_import, annotations, division, print_function
 
-import asyncio
 import datetime
-from os import name
-from typing import Text
 import click
-import json
 
 from clu.command import Command
 from lvmecp.controller.controller import PlcController
@@ -21,13 +17,11 @@ from lvmecp.exceptions import LvmecpError
 
 from . import parser
 
-
 __all__ = ["light"]
 
 @parser.group()
 def light():
     """tasks for lights"""
-
     pass
 
 @light.command()
@@ -35,14 +29,13 @@ def light():
 async def move(
     command: Command, controllers: dict[str, PlcController], room: str
     ):
-    """Turn on or off the enclosure light. This command 
-    required the argument essentially. You should put the 
+    """Turn on or off the enclosure light. This command
+    required the argument essentially. You should put the
     proper argument according to the room you want to control.
-    
+
     A message is printed by the final status of the light.
     If message return "0", it means "OFF".
     If message return "1", it means "ON".
-
 
     Parameters
     -----------
@@ -74,7 +67,11 @@ async def move(
     try:
         command.info(text=f"move the {room_point[room]}")
         if room in room_list:
-            current_status = await controllers[0].send_command("lights", f"{room}_status", "status")
+            current_status = await controllers[0].send_command(
+                "lights",
+                f"{room}_status",
+                "status"
+            )
             val = current_status[f"{room}_status"]
             if val == 0:
                 await controllers[0].send_command(
@@ -92,7 +89,6 @@ async def move(
                 raise LvmecpError(
                     f"{current_status} is wrong value."
                 )
-
         else:
             raise LvmecpError(
                 f"{room} is wrong argument."
@@ -111,7 +107,6 @@ async def move(
     command.info(status=status)
     return command.finish()
 
-
 @light.command()
 @click.argument("ROOM", type=str, required=False)
 async def status(
@@ -125,7 +120,6 @@ async def status(
     A message is printed by the status of the light.
     If message return "0", it means "OFF".
     If message return "1", it means "ON".
-
     
     Parameters
     -----------
@@ -176,7 +170,6 @@ async def status(
             )
             for room_ins in room_list:
                 status[room_point[f"{room_ins}"]] = current_status[f"{room_ins}_status"]
-
 
     except LvmecpError as err:
             return command.fail(str(err))

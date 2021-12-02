@@ -10,20 +10,13 @@ from __future__ import annotations
 
 import asyncio
 import os
-import warnings
-from contextlib import suppress
-
-from typing import ClassVar, Dict, Type
-
 import click
-from clu.actor import AMQPActor, BaseActor
 
+from clu.actor import AMQPActor
 from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
-from lvmecp.exceptions import LvmecpUserWarning
 
 from .commands import parser as lvmecp_command_parser
-
 
 __all__ = ["LvmecpActor"]
 
@@ -35,10 +28,9 @@ class LvmecpActor(AMQPActor):
     controllers
         The list of `.PlcController` instances to manage.
     """
-    
+
     parser: ClassVar[click.Group] = lvmecp_command_parser
     BASE_CONFIG: ClassVar[str | Dict | None] = None
-
 
     def __init__(
         self,
@@ -51,12 +43,11 @@ class LvmecpActor(AMQPActor):
             kwargs["schema"] = os.path.join(
                 os.path.dirname(__file__),
                 "../etc/schema.json",
-            )        
+            )
         super().__init__(*args, **kwargs)
 
         self.version = __version__
-
-
+        
     async def start(self):
         """Start the actor and connect the controllers."""
         await super().start()
@@ -73,7 +64,6 @@ class LvmecpActor(AMQPActor):
                 self.log.error(f"Unexpected exception {type(ex)}: {ex}")
 
         self.log.debug("Start done")
-
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
