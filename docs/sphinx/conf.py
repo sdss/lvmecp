@@ -132,7 +132,7 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 # Intersphinx mappings
-intersphinx_mapping = {"python: ('https://docs.python.org/', None),
+intersphinx_mapping = {"python": ('https://docs.python.org/', None),
                        "astropy": ('http://docs.astropy.org/en/latest', None),
                        "numpy": ('http://docs.scipy.org/doc/numpy/', None),
                        "click": ("https://click.palletsprojects.com/en/7.x/", None),
