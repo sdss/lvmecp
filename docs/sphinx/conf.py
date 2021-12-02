@@ -59,7 +59,7 @@ extensions = [
     "sphinx.ext.inheritance_diagram",
     "sphinx_click",
     "myst_parser",
-    "sphinx-jsonschema",    
+    "sphinx-jsonschema"
     ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -72,7 +72,7 @@ source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
 
 source_parsers = {
-     '.md': 'recommonmark.parser.CommonMarkParser',
+     '.md': 'recommonmark.parser.CommonMarkParser'
  }
 
 # The master toctree document.
@@ -132,9 +132,9 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 # Intersphinx mappings
-intersphinx_mapping = {'python': ('https://docs.python.org/', None),
-                       'astropy': ('http://docs.astropy.org/en/latest', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+intersphinx_mapping = {"python: ('https://docs.python.org/', None),
+                       "astropy": ('http://docs.astropy.org/en/latest', None),
+                       "numpy": ('http://docs.scipy.org/doc/numpy/', None),
                        "click": ("https://click.palletsprojects.com/en/7.x/", None),
                        "aio_pika": ("https://aio-pika.readthedocs.io/en/latest/", None)
 }
@@ -181,7 +181,7 @@ if sphinx_template == 'alabaster':
             'about.html',
             'navigation.html',
             'relations.html',
-            'searchbox.html',
+            'searchbox.html'
         ]
     }
 
@@ -231,7 +231,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, '{0}.tex'.format(project), u'{0} Documentation'.format(project),
-     author, 'manual'),
+     author, 'manual')
 ]
 
 # -- Options for manual page output ---------------------------------------
@@ -251,7 +251,7 @@ man_pages = [
 texinfo_documents = [
     (master_doc, project, u'{0} Documentation'.format(project),
      author, project, 'One line description of project.',
-     'Miscellaneous'),
+     'Miscellaneous')
 ]
 
 if use_releases == 'yes':

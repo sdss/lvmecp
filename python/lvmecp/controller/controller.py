@@ -17,13 +17,9 @@ from pymodbus.client.asynchronous.async_io import (
     AsyncioModbusTcpClient as ModbusClient,
 )
 
-
-
 __all__ = ["PlcController", "Module"]
 
 class PlcController():
-
-
     """Talks to an Plc controller over TCP/IP.
 
     Parameters
@@ -51,7 +47,7 @@ class PlcController():
                 self.config_get(f"modules.{module}.mode"),
                 self.config_get(f"modules.{module}.channels"),
                 self.config_get(f"modules.{module}.description")
-                )for module in modules_list
+                ) for module in modules_list
         ]
 
         self.host = self.config_get("host")
@@ -174,7 +170,7 @@ class PlcController():
             which are "interlocks", "light", "shutter" and "emergengy". 
 
         element
-        The elements contained by the module
+            The elements contained by the module
 
         command
             move/status
@@ -203,7 +199,7 @@ class PlcController():
                             )
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
+                            f"{element} is not correct"
                         )
                 elif command == "on":
                     if element in elements:
@@ -214,7 +210,7 @@ class PlcController():
                         )
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
+                            f"{element} is not correct"
                         )
                 elif command == "off":
                     if element in elements:
@@ -225,11 +221,11 @@ class PlcController():
                         )
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
+                            f"{element} is not correct"
                         )
                 else:
                     raise LvmecpControllerError(
-                    f"{command} is not correct"
+                        f"{command} is not correct"
                     )
 
             #module "dome" -> 2, 3
@@ -243,7 +239,7 @@ class PlcController():
                         )
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
+                            f"{element} is not correct"
                         )
                 elif command == "on":
                     if element in elements:
@@ -254,7 +250,7 @@ class PlcController():
                         )
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
+                            f"{element} is not correct"
                         )
                 elif command == "off":
                     if element in elements:
@@ -265,11 +261,11 @@ class PlcController():
                         )
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
+                            f"{element} is not correct"
                         )
                 else:
                     raise LvmecpControllerError(
-                    f"{command} is not correct"
+                        f"{command} is not correct"
                     )
 
 
@@ -285,11 +281,11 @@ class PlcController():
                             )
                     else:
                         raise LvmecpControllerError(
-                        f"{command} is not correct"
+                            f"{command} is not correct"
                         )
                 else:
                     raise LvmecpControllerError(
-                    f"{element} is not correct"
+                        f"{element} is not correct"
                     )
 
             # module "hvac" -> 0
@@ -313,12 +309,12 @@ class PlcController():
                             result[element] = see                     
                     else:
                         raise LvmecpControllerError(
-                        f"{element} is not correct"
-                    )
+                            f"{element} is not correct"
+                        )
                 else:
                     raise LvmecpControllerError(
-                    f"{command} is not correct"
-                )
+                        f"{command} is not correct"
+                    )
 
             return result
          
@@ -414,7 +410,6 @@ class PlcController():
 
         return g(self.config, key, default)
 
-
 class Module():
 
     def __init__(
@@ -436,7 +431,6 @@ class Module():
         self.description = description
         self.channels = channels
 
-
     def get_address(self):
         """ return a dictionary about modbus address of each element in module."""
 
@@ -444,7 +438,7 @@ class Module():
 
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())
-         
+
         try:
             for element in elements_list:
                 addr[element] = elements[element]["address"]
@@ -460,18 +454,18 @@ class Module():
 
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())
-         
+
         try:
             for element in elements_list:
                 unit[element] = elements[element]["units"]
         except LvmecpControllerError:
             print("You cannot get units.")
-            
+
         return unit
 
     def get_element(self):
         """ return a list of elements in module."""
-        
+
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())
 
@@ -529,4 +523,3 @@ class Module():
             )
 
         return g(self.config, key, default)
-
