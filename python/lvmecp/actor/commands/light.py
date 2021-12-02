@@ -107,9 +107,7 @@ async def move(command: Command, controllers: dict[str, PlcController], room: st
 
 @light.command()
 @click.argument("ROOM", type=str, required=False)
-async def status(
-    command: Command, controllers: dict[str, PlcController], room: str
-    ):
+async def status(command: Command, controllers: dict[str, PlcController], room: str):
     """return the current status of the light. This command don't
     require the argument essentially. You should put the 
     proper argument according to the room you want to control. If you don't
@@ -170,7 +168,7 @@ async def status(
                 status[room_point[f"{room_ins}"]] = current_status[f"{room_ins}_status"]
 
     except LvmecpError as err:
-            return command.fail(str(err))
+        return command.fail(str(err))
 
     command.info(status=status)
     return command.finish()

@@ -36,9 +36,9 @@ class LvmecpActor(AMQPActor):
     def __init__(
         self,
         *args,
-        **kwargs,
+        **kwargs
     ):
-    #: dict[str, PlcController]: A mapping of controller name to controller.
+        #: dict[str, PlcController]: A mapping of controller name to controller.
 
         if "schema" not in kwargs:
             kwargs["schema"] = os.path.join(

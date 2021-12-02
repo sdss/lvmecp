@@ -123,7 +123,7 @@ async def status(command: Command, controllers: dict[str, PlcController]):
         status["Dome"] = current_status
     
     except LvmecpError as err:
-            return command.fail(str(err))
+        return command.fail(str(err))
 
     command.info(status=status)
     return command.finish()

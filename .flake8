@@ -29,6 +29,7 @@ ignore =
     B007,
     B950,
     F401,
+    F405,
 
 max-line-length = 200
 

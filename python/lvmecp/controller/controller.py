@@ -422,7 +422,7 @@ class Module():
         description: str,
         *args,
         **kwargs
-        ):
+    ):
 
         self.plc = plcname
         self.config = config
