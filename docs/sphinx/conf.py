@@ -12,7 +12,6 @@
 # type: ignore
 
 import os
-
 from pkg_resources import parse_version
 
 try:
@@ -20,7 +19,6 @@ try:
 except ModuleNotFoundError:
     from sdsstools import get_package_version
     __version__ = get_package_version(__file__, 'sdss-lvmecp') or 'dev'
-
 
 # Are we building in RTD?
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
@@ -32,11 +30,9 @@ use_releases = 'no'
 if sphinx_template == 'sphinx-bootstrap':
     import sphinx_bootstrap_theme
 
-
 # Importing matplotlib here with agg to prevent tkinter error in readthedocs
 # import matplotlib
 # matplotlib.use('agg')
-
 
 # -- General configuration ------------------------------------------------
 
