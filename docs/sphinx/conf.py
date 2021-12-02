@@ -136,7 +136,7 @@ intersphinx_mapping = {'python': ('https://docs.python.org/', None),
                        'astropy': ('http://docs.astropy.org/en/latest', None),
                        'numpy': ('http://docs.scipy.org/doc/numpy/', None),
                        "click": ("https://click.palletsprojects.com/en/7.x/", None),
-                       "aio_pika": ("https://aio-pika.readthedocs.io/en/latest/", None),
+                       "aio_pika": ("https://aio-pika.readthedocs.io/en/latest/", None)
 }
 
 autodoc_mock_imports = ["_tkinter", "asynctest", "numpy", "pymodbus"]
