@@ -45,10 +45,10 @@ if sphinx_template == 'sphinx-bootstrap':
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon', 
+    'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
-    'sphinx.ext.todo', 
-    'sphinx.ext.viewcode', 
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     "sdsstools.releases",
@@ -56,7 +56,7 @@ extensions = [
     "sphinx_click",
     "myst_parser",
     "sphinx-jsonschema"
-    ]
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -68,8 +68,8 @@ source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
 
 source_parsers = {
-     '.md': 'recommonmark.parser.CommonMarkParser'
- }
+    '.md': 'recommonmark.parser.CommonMarkParser'
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -133,7 +133,7 @@ intersphinx_mapping = {"python": ('https://docs.python.org/', None),
                        "numpy": ('http://docs.scipy.org/doc/numpy/', None),
                        "click": ("https://click.palletsprojects.com/en/7.x/", None),
                        "aio_pika": ("https://aio-pika.readthedocs.io/en/latest/", None)
-}
+                       }
 
 autodoc_mock_imports = ["_tkinter", "asynctest", "numpy", "pymodbus"]
 autodoc_member_order = "groupwise"
