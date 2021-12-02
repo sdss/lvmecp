@@ -2,24 +2,24 @@
 from setuptools import setup
 
 package_dir = \
-{'': 'python'}
+    {'': 'python'}
 
 packages = \
-['lvmecp', 'lvmecp.actor', 'lvmecp.actor.commands', 'lvmecp.controller']
+    ['lvmecp', 'lvmecp.actor', 'lvmecp.actor.commands', 'lvmecp.controller']
 
 package_data = \
-{'': ['*'], 'lvmecp': ['etc/*']}
+    {'': ['*'], 'lvmecp': ['etc/*']}
 
 install_requires = \
-['click-default-group>=1.2.2,<2.0.0',
- 'click>=8.0.1,<9.0.0',
- 'sdss-access>=0.2.3',
- 'sdss-clu>=1.4.0,<2.0.0',
- 'sdss-tree>=2.15.2',
- 'sdsstools>=0.4.0']
+    ['click-default-group>=1.2.2,<2.0.0',
+    'click>=8.0.1,<9.0.0',
+    'sdss-access>=0.2.3',
+    'sdss-clu>=1.4.0,<2.0.0',
+    'sdss-tree>=2.15.2',
+    'sdsstools>=0.4.0']
 
 entry_points = \
-{'console_scripts': ['lvmecp = lvmecp.__main__:main']}
+    {'console_scripts': ['lvmecp = lvmecp.__main__:main']}
 
 setup_kwargs = {
     'name': 'sdss-lvmecp',
@@ -38,6 +38,7 @@ setup_kwargs = {
     'entry_points': entry_points,
     'python_requires': '>=3.7,<4.0',
 }
+
 from build import *
 build(setup_kwargs)
 
