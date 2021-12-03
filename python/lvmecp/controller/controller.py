@@ -6,13 +6,16 @@
 # @Filename: Controller.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
+"""
+isort:skip_file
+"""
+
 from __future__ import annotations
 
 import datetime
 import warnings
 
-from pymodbus.client.asynchronous.async_io import (
-    AsyncioModbusTcpClient as ModbusClient)
+from pymodbus.client.asynchronous.async_io import AsyncioModbusTcpClient as ModbusClient
 
 from sdsstools.logger import SDSSLogger
 
