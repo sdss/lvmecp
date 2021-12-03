@@ -11,7 +11,8 @@ from __future__ import annotations
 import datetime
 import warnings
 
-from pymodbus.client.asynchronous.async_io import AsyncioModbusTcpClient as ModbusClient
+from pymodbus.client.asynchronous.async_io import (
+    AsyncioModbusTcpClient as ModbusClient)
 
 from sdsstools.logger import SDSSLogger
 
