@@ -2,9 +2,10 @@
 
 ![Versions](https://img.shields.io/badge/python->3.7-blue)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Test](https://github.com/sdss/lvmecp/actions/workflows/Test.yml/badge.svg?branch=develop)](https://github.com/sdss/lvmecp/actions/workflows/Test.yml)
 [![Documentation Status](https://readthedocs.org/projects/lvmecp/badge/?version=latest)](https://lvmecp.readthedocs.io/en/latest/?badge=latest)
 [![Docker](https://github.com/sdss/lvmecp/actions/workflows/Docker.yml/badge.svg)](https://github.com/sdss/lvmecp/actions/workflows/Docker.yml)
-[![codecov](https://codecov.io/gh/sdss/lvmecp/branch/main/graph/badge.svg)](https://codecov.io/gh/sdss/lvmecp)
+[![codecov](https://codecov.io/gh/sdss/lvmecp/branch/develop/graphs/badge.svg)](https://codecov.io/gh/sdss/lvmecp)
 
 SDSS-V LVM Enclosure Control Package
 
