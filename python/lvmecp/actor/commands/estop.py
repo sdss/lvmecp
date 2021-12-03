@@ -9,33 +9,34 @@
 from __future__ import absolute_import, annotations, division, print_function
 
 import datetime
-import click
 
+import click
 from clu.command import Command
+
 from lvmecp.controller.controller import PlcController
 from lvmecp.exceptions import LvmecpError
 
 from . import parser
 
+
 __all__ = ["estop"]
+
 
 @parser.command()
 async def estop(command: Command, controllers: dict[str, PlcController]):
     """return the status of emergency stop.
-    
+
     ECP should start the emergency stop
-    if the pressure changed outside normal range. 
+    if the pressure changed outside normal range.
     """
 
     command.info(text="monitoring ... ")
     current_status = {}
 
     try:
-        #current_status["interlocks"] = await controllers[0].send_command("interlocks","0","status")
+        # current_status["interlocks"] = await controllers[0].send_command("interlocks","0","status")
         current_status["emergengy"] = await controllers[0].send_command(
-            "emergengy",
-            "0",
-            "status"
+            "emergengy", "0", "status"
         )
 
     except LvmecpError as err:

@@ -46,6 +46,7 @@ sphinx-jsonschema = "^1.17.1"
 sphinx-bootstrap-theme = "^0.8.0"
 codecov = "^2.1.12"
 pytest-cov = "^3.0.0"
+black = "^21.11b1"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=7.11.0"

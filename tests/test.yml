@@ -1,0 +1,47 @@
+plcs:
+    TestDome:
+        modules:
+            lights:
+                name: "lights"
+                mode: coil           
+                elements:
+                    testroom_new:
+                        name: "testroom_new"
+                        address: 1
+                    testroom_status:
+                        name: "testroom_status"
+                        address: 2
+            shutter1:
+                name: "shutter1"
+                mode: coil
+                elements:
+                    drive_enable:
+                        name: "drive_enable"
+                        address: 3
+                    drive_state:
+                        name: "drive_state"
+                        address: 4
+    TestHvac:
+        modules:
+            hvac:
+                name: "hvac"
+                mode: input_register
+                elements:
+                    sensor1:
+                        name: "sensor1"
+                        address: 5
+                        category: temperature
+                        units: degC
+                    sensor2:
+                        name: "sensor2"
+                        address: 6
+                        category: humidity
+                        units: percent
+
+timeouts:
+    controller_connect: 1
+
+actor:
+    name: lvmecp
+    host: localhost
+    port: 5672
