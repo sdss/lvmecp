@@ -11,8 +11,7 @@ import importlib
 import os
 
 import click
-from clu.parsers.click import (CluGroup, get_schema, help_,
-                               keyword, ping, version)
+from clu.parsers.click import CluGroup, get_schema, help_, keyword, ping, version
 
 
 @click.group(cls=CluGroup)
