@@ -24,6 +24,7 @@ from lvmecp import config
 from lvmecp.actor.actor import LvmecpActor as ECPActor
 from lvmecp.controller.controller import PlcController
 
+
 @pytest.fixture
 async def amqp_actor(rabbitmq, event_loop):
 
@@ -35,6 +36,7 @@ async def amqp_actor(rabbitmq, event_loop):
     yield actor
 
     await actor.stop()
+
 
 @pytest.fixture
 async def amqp_client(rabbitmq, amqp_actor, event_loop):
@@ -52,10 +54,9 @@ async def amqp_client(rabbitmq, amqp_actor, event_loop):
 @pytest.fixture()
 def test_config():
 
-    extra = read_yaml_file(
-        os.path.join(os.path.dirname(__file__), "test.yml")
-    )
+    extra = read_yaml_file(os.path.join(os.path.dirname(__file__), "test.yml"))
     yield merge_config(extra, config)
+
 
 @pytest.fixture
 def controllers():
@@ -74,6 +75,7 @@ def controllers():
             print(f"Error in {type(ex)}: {ex}")
 
     return plcs
+
 
 @pytest.fixture()
 async def actor(test_config: dict, controllers, mocker):

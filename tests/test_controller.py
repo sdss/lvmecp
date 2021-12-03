@@ -20,11 +20,11 @@ async def send_command(actor, command_string):
     # assert command.status.is_done
 
     # plc_num = len(actor.parser_args[0])
-    #status_all_reply = []
-    #assert actor.mock_replies[-1]["text"] == "done"
+    # status_all_reply = []
+    # assert actor.mock_replies[-1]["text"] == "done"
     status_reply = actor.mock_replies
     print(status_reply)
-    
+
     return status_reply
 
 
@@ -41,4 +41,3 @@ async def test_actor(controllers):
     # command dome/ light/ monitor
     status = await send_command(test_actor, "dome status")
     print(status)
-
