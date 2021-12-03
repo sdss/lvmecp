@@ -10,14 +10,16 @@ from __future__ import annotations
 
 import asyncio
 import os
-import click
-
 from typing import ClassVar, Dict
+
+import click
 from clu.actor import AMQPActor
+
 from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
 
 from .commands import parser as lvmecp_command_parser
+
 
 __all__ = ["LvmecpActor"]
 

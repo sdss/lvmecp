@@ -9,13 +9,15 @@
 from __future__ import absolute_import, annotations, division, print_function
 
 import datetime
-import click
 
+import click
 from clu.command import Command
+
 from lvmecp.controller.controller import PlcController
 from lvmecp.exceptions import LvmecpError
 
 from . import parser
+
 
 __all__ = ["monitor"]
 

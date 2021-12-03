@@ -12,7 +12,9 @@
 # type: ignore
 
 import os
+
 from pkg_resources import parse_version
+
 
 try:
     from lvmecp import __version__

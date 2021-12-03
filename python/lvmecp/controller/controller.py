@@ -11,11 +11,13 @@ from __future__ import annotations
 import datetime
 import warnings
 
-from sdsstools.logger import SDSSLogger
-from lvmecp.exceptions import LvmecpControllerError, LvmecpControllerWarning
 from pymodbus.client.asynchronous.async_io import (
-    AsyncioModbusTcpClient as ModbusClient,
-)
+    AsyncioModbusTcpClient as ModbusClient)
+
+from sdsstools.logger import SDSSLogger
+
+from lvmecp.exceptions import LvmecpControllerError, LvmecpControllerWarning
+
 
 __all__ = ["PlcController", "Module"]
 

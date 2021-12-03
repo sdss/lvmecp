@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
+
 package_dir = {"": "python"}
 
 packages = ["lvmecp", "lvmecp.actor", "lvmecp.actor.commands", "lvmecp.controller"]
@@ -37,6 +38,7 @@ setup_kwargs = {
 }
 
 from build import *
+
 
 build(setup_kwargs)
 
