@@ -65,10 +65,10 @@ def controllers():
     assert "plcs" in default_config
 
     plcs = []
-    for (name, config) in default_config["plcs"].items():
-        print(f"plcs {name}: {config}")
+    for (name, conf) in default_config["plcs"].items():
+        print(f"plcs {name}: {conf}")
         try:
-            plcs.append(PlcController(name, config, get_logger("test")))
+            plcs.append(PlcController(name, conf, get_logger("test")))
 
         except Exception as ex:
             print(f"Error in {type(ex)}: {ex}")
