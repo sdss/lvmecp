@@ -16,18 +16,17 @@ class LvmecpError(Exception):
 
     def __init__(self, message=None):
 
-        message = 'There has been an error' \
-            if not message else message
+        message = "There has been an error" if not message else message
 
-        super(LvmecpError, self).__init__(message)   
+        super(LvmecpError, self).__init__(message)
+
 
 class LvmecpControllerError(LvmecpError):
     """An exception raised by an '.PlcController'."""
 
     def __init__(self, message=None):
 
-        message = 'Error with response from PlcController' \
-            if not message else message
+        message = "Error with response from PlcController" if not message else message
 
         super(LvmecpError, self).__init__(message)
 
@@ -37,8 +36,7 @@ class LvmecpNotImplemented(LvmecpError):
 
     def __init__(self, message=None):
 
-        message = 'This feature is not implemented yet.' \
-            if not message else message
+        message = "This feature is not implemented yet." if not message else message
 
         super(LvmecpNotImplemented, self).__init__(message)
 
@@ -48,20 +46,22 @@ class LvmecpAPIError(LvmecpError):
 
     def __init__(self, message=None):
         if not message:
-            message = 'Error with Http Response from Lvmecp API'
+            message = "Error with Http Response from Lvmecp API"
         else:
-            message = 'Http response error from Lvmecp API. {0}'.format(message)
+            message = "Http response error from Lvmecp API. {0}".format(message)
 
         super(LvmecpAPIError, self).__init__(message)
 
 
 class LvmecpApiAuthError(LvmecpAPIError):
     """A custom exception for API authentication errors"""
+
     pass
 
 
 class LvmecpMissingDependency(LvmecpError):
     """A custom exception for missing dependencies."""
+
     pass
 
 
@@ -71,6 +71,7 @@ class LvmecpWarning(Warning):
 
 class LvmecpUserWarning(UserWarning, LvmecpWarning):
     """The primary warning class."""
+
     pass
 
 

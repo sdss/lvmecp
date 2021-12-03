@@ -19,7 +19,8 @@ from pymodbus.client.asynchronous.async_io import (
 
 __all__ = ["PlcController", "Module"]
 
-class PlcController():
+
+class PlcController:
     """Talks to an Plc controller over TCP/IP.
 
     Parameters
@@ -46,8 +47,9 @@ class PlcController():
                 self.config_get(f"modules.{module}.name"),
                 self.config_get(f"modules.{module}.mode"),
                 self.config_get(f"modules.{module}.channels"),
-                self.config_get(f"modules.{module}.description")
-            )for module in modules_list
+                self.config_get(f"modules.{module}.description"),
+            )
+            for module in modules_list
         ]
 
         self.host = self.config_get("host")
@@ -67,9 +69,7 @@ class PlcController():
             self.Client = ModbusClient(self.host, self.port)
             await self.Client.connect()
         except LvmecpControllerError:
-            print(
-                f"fail to open connection with {self.host}"
-            )
+            print(f"fail to open connection with {self.host}")
 
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
@@ -77,9 +77,7 @@ class PlcController():
             self.Client.protocol.close()
 
         except LvmecpControllerError:
-            print(
-                f"fail to close connection with {self.host}"
-            )
+            print(f"fail to close connection with {self.host}")
 
     async def write(self, mode: str, addr: int, data):
         """write the data to devices
@@ -99,38 +97,26 @@ class PlcController():
             if mode == "coil":
 
                 current_time = datetime.datetime.now()
-                print(
-                    f"Before write the data to address {addr}     : {current_time}"
-                )
+                print(f"Before write the data to address {addr}     : {current_time}")
 
                 await self.Client.protocol.write_coil(addr, data)
 
                 current_time = datetime.datetime.now()
-                print(
-                    f"After write the data to address {addr}     : {current_time}"
-                )
+                print(f"After write the data to address {addr}     : {current_time}")
             elif mode == "input_register":
 
                 current_time = datetime.datetime.now()
-                print(
-                    f"Before write the data to address {addr}     : {current_time}"
-                )
+                print(f"Before write the data to address {addr}     : {current_time}")
 
                 await self.Client.protocol.write_register(addr, data)
 
                 current_time = datetime.datetime.now()
-                print(
-                    f"After write the data to address {addr}     : {current_time}"
-                )
+                print(f"After write the data to address {addr}     : {current_time}")
             else:
-                raise LvmecpControllerError(
-                    f"{mode} is a wrong value"
-                )
+                raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
-            print(
-                f"fail to write coil to {addr}"
-            )
+            print(f"fail to write coil to {addr}")
 
     async def read(self, mode: str, addr: int):
         """read the data from devices
@@ -151,23 +137,19 @@ class PlcController():
                 reply = await self.Client.protocol.read_holding_registers(addr, 1)
                 return reply.registers[0]
             else:
-                raise LvmecpControllerError(
-                    f"{mode} is a wrong value"
-                )
+                raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
-            print(
-                f"fail to read coils to {addr}"
-            )
+            print(f"fail to read coils to {addr}")
 
     async def send_command(self, module: str, element: str, command: str):
         """send command to PLC
-        
+
         Parameters
         -----------
         module
-            The devices controlled by lvmecp 
-            which are "interlocks", "light", "shutter" and "emergengy". 
+            The devices controlled by lvmecp
+            which are "interlocks", "light", "shutter" and "emergengy".
 
         element
             The elements contained by the module
@@ -188,86 +170,58 @@ class PlcController():
                 if command == "status":
                     if element in elements:
                         result[element] = await self.get_status(
-                            self.modules[1].mode,
-                            self.addr[module][element]
+                            self.modules[1].mode, self.addr[module][element]
                         )
                     elif element == "all":
                         for element in elements:
                             result[element] = await self.get_status(
-                                self.modules[1].mode,
-                                self.addr[module][element]
+                                self.modules[1].mode, self.addr[module][element]
                             )
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "on":
                     if element in elements:
                         await self.write(
-                            self.modules[1].mode,
-                            self.addr[module][element],
-                            0xff00
+                            self.modules[1].mode, self.addr[module][element], 0xFF00
                         )
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "off":
                     if element in elements:
                         await self.write(
-                            self.modules[1].mode,
-                            self.addr[module][element],
-                            0x0000
+                            self.modules[1].mode, self.addr[module][element], 0x0000
                         )
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 else:
-                    raise LvmecpControllerError(
-                        f"{command} is not correct"
-                    )
+                    raise LvmecpControllerError(f"{command} is not correct")
 
-            #module "dome" -> 2, 3
+            # module "dome" -> 2, 3
             if module == "shutter1":
                 elements = self.modules[2].get_element()
                 if command == "status":
                     if element in elements:
                         result = await self.get_status(
-                            self.modules[2].mode,
-                            self.addr[module][element]
+                            self.modules[2].mode, self.addr[module][element]
                         )
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "on":
                     if element in elements:
                         await self.write(
-                            self.modules[2].mode,
-                            self.addr[module][element],
-                            0xff00
+                            self.modules[2].mode, self.addr[module][element], 0xFF00
                         )
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "off":
                     if element in elements:
                         await self.write(
-                            self.modules[2].mode,
-                            self.addr[module][element],
-                            0x0000
+                            self.modules[2].mode, self.addr[module][element], 0x0000
                         )
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 else:
-                    raise LvmecpControllerError(
-                        f"{command} is not correct"
-                    )
-
+                    raise LvmecpControllerError(f"{command} is not correct")
 
             # module "emergengy_stop" -> 4
             if module == "emergengy":
@@ -276,17 +230,12 @@ class PlcController():
                         elements = self.modules[4].get_element()
                         for element in elements:
                             result[element] = await self.get_status(
-                                self.modules[3].mode,
-                                self.addr[module][element]
+                                self.modules[3].mode, self.addr[module][element]
                             )
                     else:
-                        raise LvmecpControllerError(
-                            f"{command} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{command} is not correct")
                 else:
-                    raise LvmecpControllerError(
-                        f"{element} is not correct"
-                    )
+                    raise LvmecpControllerError(f"{element} is not correct")
 
             # module "hvac" -> 0
             if module == "hvac":
@@ -294,33 +243,26 @@ class PlcController():
                     elements = self.modules[0].get_element()
                     if element in elements:
                         result[element] = await self.get_status(
-                            self.modules[0].mode,
-                            self.addr[module][element]
+                            self.modules[0].mode, self.addr[module][element]
                         )
                         result["unit"] = self.unit[module][element]
                     elif element == "all":
                         for element in elements:
                             see = {}
                             see["value"] = await self.get_status(
-                                self.modules[0].mode,
-                                self.addr[module][element]
+                                self.modules[0].mode, self.addr[module][element]
                             )
                             see["unit"] = self.unit[module][element]
-                            result[element] = see                     
+                            result[element] = see
                     else:
-                        raise LvmecpControllerError(
-                            f"{element} is not correct"
-                        )
+                        raise LvmecpControllerError(f"{element} is not correct")
                 else:
-                    raise LvmecpControllerError(
-                        f"{command} is not correct"
-                    )
+                    raise LvmecpControllerError(f"{command} is not correct")
 
             return result
-         
+
         except LvmecpControllerError as err:
             warnings.warn(str(err), LvmecpControllerWarning)
-
 
     async def get_status(self, mode: str, addr: int):
         """get the status of the device
@@ -336,15 +278,13 @@ class PlcController():
         if mode == "coil":
             reply = await self.read("coil", addr)
             status = await self.parse(reply)
-        
+
         elif mode == "input_register":
             reply = await self.read("input_register", addr)
             status = reply
-        
+
         else:
-            raise LvmecpControllerError(
-                f"{mode} is not correct"
-            )
+            raise LvmecpControllerError(f"{mode} is not correct")
 
         return status
 
@@ -410,8 +350,8 @@ class PlcController():
 
         return g(self.config, key, default)
 
-class Module():
 
+class Module:
     def __init__(
         self,
         plcname: str,
@@ -421,7 +361,7 @@ class Module():
         channels: int,
         description: str,
         *args,
-        **kwargs
+        **kwargs,
     ):
 
         self.plc = plcname
@@ -433,7 +373,7 @@ class Module():
         self.channels = channels
 
     def get_address(self):
-        """ return a dictionary about modbus address of each element in module."""
+        """return a dictionary about modbus address of each element in module."""
 
         addr = {}
 
@@ -447,9 +387,9 @@ class Module():
             print("You cannot get addresses.")
 
         return addr
-        
+
     def get_unit(self):
-        """ return a dictionary about units of each element in module."""
+        """return a dictionary about units of each element in module."""
 
         unit = {}
 
@@ -465,7 +405,7 @@ class Module():
         return unit
 
     def get_element(self):
-        """ return a list of elements in module."""
+        """return a list of elements in module."""
 
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())

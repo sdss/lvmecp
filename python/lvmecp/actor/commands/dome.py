@@ -18,10 +18,12 @@ from . import parser
 
 __all__ = ["dome"]
 
+
 @parser.group()
 def dome():
     """tasks for Dome"""
     pass
+
 
 @dome.command()
 async def move(command: Command, controllers: dict[str, PlcController]):
@@ -37,61 +39,31 @@ async def move(command: Command, controllers: dict[str, PlcController]):
             f"start the command and get initial status of device              : {current_time}"
         )
         current_status["enable"] = await controllers[0].send_command(
-            "shutter1",
-            "drive_enable",
-            "status"
+            "shutter1", "drive_enable", "status"
         )
         if current_status["enable"] == 0:
-            #dome state == close
+            # dome state == close
             current_time = datetime.datetime.now()
-            print(
-                f"start the send_command(ON)           : {current_time}"
-            )
-            await controllers[0].send_command(
-                "shutter1",
-                "drive_enable",
-                "on"
-            )
-            await controllers[0].send_command(
-                "shutter1",
-                "motor_direction",
-                "on"
-            )
+            print(f"start the send_command(ON)           : {current_time}")
+            await controllers[0].send_command("shutter1", "drive_enable", "on")
+            await controllers[0].send_command("shutter1", "motor_direction", "on")
         elif current_status["enable"] == 1:
-            #dome state == open
+            # dome state == open
             current_time = datetime.datetime.now()
-            print(
-                f"start the send_command(OFF)           : {current_time}"
-            )
-            await controllers[0].send_command(
-                "shutter1",
-                "drive_enable",
-                "off"
-            )
-            await controllers[0].send_command(
-                "shutter1",
-                "motor_direction",
-                "off"
-            )
+            print(f"start the send_command(OFF)           : {current_time}")
+            await controllers[0].send_command("shutter1", "drive_enable", "off")
+            await controllers[0].send_command("shutter1", "motor_direction", "off")
         else:
-            raise LvmecpError(
-                f"{current_status} is wrong value."
-            )
+            raise LvmecpError(f"{current_status} is wrong value.")
 
         current_time = datetime.datetime.now()
-        print(
-            f"get final status of device              : {current_time}"
-        )
+        print(f"get final status of device              : {current_time}")
 
         current_status["enable"] = await controllers[0].send_command(
-            "shutter1",
-            "drive_enable",
-            "status"
+            "shutter1", "drive_enable", "status"
         )
         current_status["drive"] = await controllers[0].send_command(
-            "shutter1",
-            "drive_state",
-            "status"
+            "shutter1", "drive_state", "status"
         )
         status["Dome"] = current_status
 
@@ -100,6 +72,7 @@ async def move(command: Command, controllers: dict[str, PlcController]):
 
     command.info(status=status)
     return command.finish()
+
 
 @dome.command()
 async def status(command: Command, controllers: dict[str, PlcController]):
@@ -111,17 +84,13 @@ async def status(command: Command, controllers: dict[str, PlcController]):
 
     try:
         current_status["enable"] = await controllers[0].send_command(
-            "shutter1",
-            "drive_enable",
-            "status"
+            "shutter1", "drive_enable", "status"
         )
         current_status["drive"] = await controllers[0].send_command(
-            "shutter1",
-            "drive_state",
-            "status"
+            "shutter1", "drive_state", "status"
         )
         status["Dome"] = current_status
-    
+
     except LvmecpError as err:
         return command.fail(str(err))
 

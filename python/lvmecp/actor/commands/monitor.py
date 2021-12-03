@@ -19,12 +19,13 @@ from . import parser
 
 __all__ = ["monitor"]
 
+
 @parser.command()
 @click.argument("ROOM", type=str, required=False)
 async def monitor(command: Command, controllers: dict[str, PlcController], room: str):
     """return the status of HVAC system and air purge system.
-    
-    ECP should monitor the pressure in air purge system and the 
+
+    ECP should monitor the pressure in air purge system and the
     temperature in each room.
     """
 
@@ -44,20 +45,14 @@ async def monitor(command: Command, controllers: dict[str, PlcController], room:
         if room:
             if room in room_list:
                 current_status["hvac"] = await controllers[1].send_command(
-                    "hvac",
-                    f"{room}_sensor",
-                    "status"
+                    "hvac", f"{room}_sensor", "status"
                 )
                 status[room_point[f"{room}"]] = current_status[f"{room}_sensor"]
             else:
-                raise LvmecpError(
-                    f"{room} is wrong argument."
-                )
+                raise LvmecpError(f"{room} is wrong argument.")
         else:
             current_status["hvac"] = await controllers[1].send_command(
-                "hvac",
-                "all",
-                "status"
+                "hvac", "all", "status"
             )
 
     except LvmecpError as err:

@@ -21,6 +21,7 @@ from .commands import parser as lvmecp_command_parser
 
 __all__ = ["LvmecpActor"]
 
+
 class LvmecpActor(AMQPActor):
     """Lvmecp controller actor.
 
@@ -33,11 +34,7 @@ class LvmecpActor(AMQPActor):
     parser: ClassVar[click.Group] = lvmecp_command_parser
     BASE_CONFIG: ClassVar[str | Dict | None] = None
 
-    def __init__(
-        self,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, *args, **kwargs):
         #: dict[str, PlcController]: A mapping of controller name to controller.
 
         if "schema" not in kwargs:
@@ -48,7 +45,7 @@ class LvmecpActor(AMQPActor):
         super().__init__(*args, **kwargs)
 
         self.version = __version__
-        
+
     async def start(self):
         """Start the actor and connect the controllers."""
         await super().start()
@@ -92,9 +89,7 @@ class LvmecpActor(AMQPActor):
                     plcs.append(PlcController(name, config, instance.log))
 
                 except Exception as ex:
-                    instance.log.error(
-                        f"Error in {type(ex)}: {ex}"
-                    )
+                    instance.log.error(f"Error in {type(ex)}: {ex}")
             instance.parser_args = [plcs]
 
         return instance
