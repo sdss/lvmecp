@@ -19,7 +19,7 @@ async def send_command(actor, command_string):
     await command
     # assert command.status.is_done
 
-    plc_num = len(actor.parser_args[0])
+    # plc_num = len(actor.parser_args[0])
     status_all_reply = []
     #assert actor.mock_replies[-1]["text"] == "done"
     status_reply = actor.mock_replies
