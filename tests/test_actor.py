@@ -4,7 +4,7 @@
 
 import pytest
 
-from lvmecp.actor.actor import lvmecp as EcpActor
+from lvmecp.actor.actor import LvmecpActor as EcpActor
 
 
 @pytest.mark.asyncio

@@ -187,7 +187,7 @@ class PlcController:
                 elif command == "on":
                     if element in elements:
                         await self.write(
-                            self.modules[1].mode, self.addr[module][element], 0xFF00
+                            self.modules[1].mode, self.addr[module][element], 0xff00
                         )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
@@ -214,7 +214,7 @@ class PlcController:
                 elif command == "on":
                     if element in elements:
                         await self.write(
-                            self.modules[2].mode, self.addr[module][element], 0xFF00
+                            self.modules[2].mode, self.addr[module][element], 0xff00
                         )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")

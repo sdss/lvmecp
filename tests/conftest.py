@@ -28,13 +28,13 @@ from lvmecp.controller.controller import PlcController
 @pytest.fixture()
 def test_config():
 
-    extra = read_yaml_file(os.path.join(os.path.dirname(__file__), "test.yml"))
+    extra = read_yaml_file(os.path.join(os.path.dirname(__file__), "test_lvmecp.yml"))
     yield merge_config(extra, config)
 
 
 @pytest.fixture
 def controllers():
-    default_config_file = os.path.join(os.path.dirname(__file__), "test.yml")
+    default_config_file = os.path.join(os.path.dirname(__file__), "test_lvmecp.yml")
     default_config = AMQPActor._parse_config(default_config_file)
 
     assert "plcs" in default_config

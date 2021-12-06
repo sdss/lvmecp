@@ -1,19 +1,60 @@
 plcs:
-    TestDome:
+    dome:
+        name: "Dome PLC of LVM Enclosure"
         modules:
+            interlocks:
+                name: "interlocks"
+                mode: coil
+                channels: 5
+                description: Dome drive interlock elements
             lights:
                 name: "lights"
                 mode: coil           
+                channels: 12
+                description: Light elements of the LVM Enclosure       
                 elements:
-                    testroom_new:
-                        name: "testroom_new"
+                    cr_new:
+                        name: "cr_new"
                         address: 1
-                    testroom_status:
-                        name: "testroom_status"
+                    cr_status:
+                        name: "cr_status"
                         address: 2
+                    ur_new:
+                        name: "ur_new"
+                        address: 7
+                    ur_status:
+                        name: "ur_status"
+                        address: 8
+                    sr_new:
+                        name: "sr_new"
+                        address: 9
+                    sr_status:
+                        name: "sr_status"
+                        address: 10
+                    uma_new:
+                        name: "uma_new"
+                        address: 11
+                    uma_status:
+                        name: "uma_status"
+                        address: 12
+                    tb_new:
+                        name: "tb_new"
+                        address: 13
+                    tb_status:
+                        name: "tb_status"
+                        address: 14
+                    tr_new:
+                        name: "tr_new"
+                        address: 15
+                    tr_status:
+                        name: "tr_status"
+                        address: 16
+
             shutter1:
                 name: "shutter1"
                 mode: coil
+                channels: 11
+                description: Elements for dome drive movement
                 elements:
                     drive_enable:
                         name: "drive_enable"
@@ -21,7 +62,17 @@ plcs:
                     drive_state:
                         name: "drive_state"
                         address: 4
-    TestHvac:
+            shutter2:
+                name: "shutter2"
+                mode: input_register
+                channels: 5
+                description: Elements for dome drive movement
+            emergengy:
+                name: "emergengy"
+                mode: coil
+                channels: 3
+                description: Elements for emergengy stop
+    hvac:
         modules:
             hvac:
                 name: "hvac"
