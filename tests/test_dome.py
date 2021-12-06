@@ -30,8 +30,8 @@ async def test_dome(actor: EcpActor):
     await command
     assert command.status.did_succeed
     assert len(command.replies) == 4
-    #assert command.replies[-2].message["status"]["Dome"]["enable"] == 1
-    #assert command.replies[-2].message["status"]["Dome"]["drive"] == 1
+    # assert command.replies[-2].message["status"]["Dome"]["enable"] == 1
+    # assert command.replies[-2].message["status"]["Dome"]["drive"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("dome move")
@@ -40,4 +40,3 @@ async def test_dome(actor: EcpActor):
     assert len(command.replies) == 4
     assert command.replies[-2].message["status"]["Dome"]["enable"] == 0
     assert command.replies[-2].message["status"]["Dome"]["drive"] == 0
-
