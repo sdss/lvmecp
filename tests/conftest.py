@@ -25,32 +25,6 @@ from lvmecp.actor.actor import LvmecpActor as ECPActor
 from lvmecp.controller.controller import PlcController
 
 
-@pytest.fixture
-async def amqp_actor(rabbitmq, event_loop):
-
-    port = rabbitmq.args["port"]
-
-    actor = AMQPActor(name="amqp_actor", port=port)
-    await actor.start()
-
-    yield actor
-
-    await actor.stop()
-
-
-@pytest.fixture
-async def amqp_client(rabbitmq, amqp_actor, event_loop):
-
-    port = rabbitmq.args["port"]
-
-    client = AMQPClient(name="amqp_client", models=["amqp_actor"], port=port)
-    await client.start()
-
-    yield client
-
-    await client.stop()
-
-
 @pytest.fixture()
 def test_config():
 
