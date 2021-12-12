@@ -25,42 +25,16 @@ from lvmecp.actor.actor import LvmecpActor as ECPActor
 from lvmecp.controller.controller import PlcController
 
 
-@pytest.fixture
-async def amqp_actor(rabbitmq, event_loop):
-
-    port = rabbitmq.args["port"]
-
-    actor = AMQPActor(name="amqp_actor", port=port)
-    await actor.start()
-
-    yield actor
-
-    await actor.stop()
-
-
-@pytest.fixture
-async def amqp_client(rabbitmq, amqp_actor, event_loop):
-
-    port = rabbitmq.args["port"]
-
-    client = AMQPClient(name="amqp_client", models=["amqp_actor"], port=port)
-    await client.start()
-
-    yield client
-
-    await client.stop()
-
-
 @pytest.fixture()
 def test_config():
 
-    extra = read_yaml_file(os.path.join(os.path.dirname(__file__), "test.yml"))
+    extra = read_yaml_file(os.path.join(os.path.dirname(__file__), "test_lvmecp.yml"))
     yield merge_config(extra, config)
 
 
 @pytest.fixture
 def controllers():
-    default_config_file = os.path.join(os.path.dirname(__file__), "test.yml")
+    default_config_file = os.path.join(os.path.dirname(__file__), "test_lvmecp.yml")
     default_config = AMQPActor._parse_config(default_config_file)
 
     assert "plcs" in default_config
