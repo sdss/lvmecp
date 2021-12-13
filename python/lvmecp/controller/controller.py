@@ -66,6 +66,7 @@ class PlcController:
             if module.name == "hvac":
                 self.unit[module.name] = module.get_unit()
         self.Client = None
+        self.result = {}
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
@@ -162,9 +163,6 @@ class PlcController:
         command
             move/status
         """
-
-        result = {}
-
         try:
             # module "lights" -> 1
             # 0x0000  off
@@ -174,12 +172,12 @@ class PlcController:
                 elements = self.modules[1].get_element()
                 if command == "status":
                     if element in elements:
-                        result[element] = await self.get_status(
+                        self.result[element] = await self.get_status(
                             self.modules[1].mode, self.addr[module][element]
                         )
                     elif element == "all":
                         for element in elements:
-                            result[element] = await self.get_status(
+                            self.result[element] = await self.get_status(
                                 self.modules[1].mode, self.addr[module][element]
                             )
                     else:
@@ -206,7 +204,7 @@ class PlcController:
                 elements = self.modules[2].get_element()
                 if command == "status":
                     if element in elements:
-                        result = await self.get_status(
+                        self.result = await self.get_status(
                             self.modules[2].mode, self.addr[module][element]
                         )
                     else:
@@ -234,7 +232,7 @@ class PlcController:
                     if command == "status":
                         elements = self.modules[4].get_element()
                         for element in elements:
-                            result[element] = await self.get_status(
+                            self.result[element] = await self.get_status(
                                 self.modules[3].mode, self.addr[module][element]
                             )
                     else:
@@ -247,10 +245,10 @@ class PlcController:
                 if command == "status":
                     elements = self.modules[0].get_element()
                     if element in elements:
-                        result[element] = await self.get_status(
+                        self.result[element] = await self.get_status(
                             self.modules[0].mode, self.addr[module][element]
                         )
-                        result["unit"] = self.unit[module][element]
+                        self.result["unit"] = self.unit[module][element]
                     elif element == "all":
                         for element in elements:
                             see = {}
@@ -258,13 +256,13 @@ class PlcController:
                                 self.modules[0].mode, self.addr[module][element]
                             )
                             see["unit"] = self.unit[module][element]
-                            result[element] = see
+                            self.result[element] = see
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
                 else:
                     raise LvmecpControllerError(f"{command} is not correct")
 
-            return result
+            return self.result
 
         except LvmecpControllerError as err:
             warnings.warn(str(err), LvmecpControllerWarning)

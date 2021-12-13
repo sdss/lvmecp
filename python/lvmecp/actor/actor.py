@@ -92,7 +92,7 @@ class LvmecpActor(AMQPActor):
 
                 except Exception as ex:
                     instance.log.error(f"Error in {type(ex)}: {ex}")
-            instance.plcs= plcs
+            instance.plcs = plcs
             instance.parser_args = [instance.plcs]
 
         return instance

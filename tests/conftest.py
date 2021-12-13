@@ -52,7 +52,7 @@ def controllers():
 
 
 @pytest.fixture()
-async def actor(test_config: dict, controllers, mocker):
+async def actor(test_config: dict, mocker):
 
     # We need to call the actor .start() method to force it to create the
     # controllers and to start the tasks, but we don't want to run .start()

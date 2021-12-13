@@ -13,6 +13,7 @@ async def test_actor(actor: EcpActor):
     assert actor
     assert len(actor.plcs) == 2
 
+
 @pytest.mark.asyncio
 async def test_ping(actor: EcpActor):
 
@@ -29,4 +30,3 @@ async def test_actor_no_config():
 
     with pytest.raises(RuntimeError):
         EcpActor.from_config(None)
-
