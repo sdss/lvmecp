@@ -770,7 +770,7 @@ documents = ["sphinx (>=1.1.3)", "sphinx-rtd-theme", "humanfriendly"]
 quality = ["coverage (>=3.5.3)", "nose (>=1.2.1)", "mock (>=1.0.0)", "pep8 (>=1.3.3)"]
 repl = ["click (>=7.0)", "prompt-toolkit (==2.0.4)", "pygments (>=2.2.0)", "click (>=7.0)", "prompt-toolkit (>=3.0.8)", "pygments (>=2.2.0)", "aiohttp (>=3.7.3)", "pyserial-asyncio (>=0.5)"]
 tornado = ["tornado (==4.5.3)"]
-twisted = ["Twisted[conch,serial] (>=20.3.0)", "Twisted[conch] (>=20.3.0)"]
+twisted = ["Twisted[serial,conch] (>=20.3.0)", "Twisted[conch] (>=20.3.0)"]
 
 [[package]]
 name = "pyparsing"
@@ -828,7 +828,7 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xm
 name = "pytest-asyncio"
 version = "0.16.0"
 description = "Pytest support for asyncio."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">= 3.6"
 
@@ -1330,7 +1330,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "950a835781cbf30d71f7f64c49aaaf6482ca2ff6ffbff0a73e9994be30f202f8"
+content-hash = "f96f414036c93cea24bfcf16c47cd63cf092755132874b05f735d3b0748bbfbd"
 
 [metadata.files]
 aio-pika = [

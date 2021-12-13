@@ -229,7 +229,7 @@ class PlcController:
                     raise LvmecpControllerError(f"{command} is not correct")
 
             # module "emergengy_stop" -> 4
-            if module == "emergengy":
+            if module == "emergency":
                 if element == "0":
                     if command == "status":
                         elements = self.modules[4].get_element()
