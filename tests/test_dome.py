@@ -13,10 +13,10 @@ async def test_actor(actor: EcpActor):
     assert actor
 
 
-#@pytest.mark.asyncio
-#async def test_dome_status(actor: EcpActor):
+# @pytest.mark.asyncio
+# async def test_dome_status(actor: EcpActor):
 
-    # status check of dome
+# status check of dome
 #    command = await actor.invoke_mock_command("dome status")
 #    await command
 
@@ -48,8 +48,8 @@ async def test_actor(actor: EcpActor):
 # assert command.replies[-2].message["status"]["Dome"]["drive"] == 0
 
 
-#@pytest.mark.asyncio
-#async def test_dome_fail_connect(actor: EcpActor):
+# @pytest.mark.asyncio
+# async def test_dome_fail_connect(actor: EcpActor):
 
 #    await actor.plcs[0].stop()
 
