@@ -77,9 +77,6 @@ async def telemetry(command: Command, controllers: dict[str, PlcController]):
         estop_status = estop_replies[-2].body["status"]
 
     command.info(
-        DOME=dome_status,
-        LIGHTS=light_status,
-        HVAC=hvac_status,
-        ESTOP=estop_status
+        DOME=dome_status, LIGHTS=light_status, HVAC=hvac_status, ESTOP=estop_status
     )
     return command.finish()

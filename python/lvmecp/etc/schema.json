@@ -1,8 +1,41 @@
 {
     "type": "object",
     "properties": {
-        "text": {"type": "string"},
-        "status": {"type": "object"}
+            "text": {"type": "string"},
+            "status": {
+                "type": "object",
+                "light": {
+                    "type": "object",
+                    "Control room": {"type": "integer"},
+                    "Utilities room": {"type": "integer"},
+                    "Spectrograph room": {"type": "integer"},
+                    "UMA lights": {"type": "integer"},
+                    "Telescope room - bright": {"type": "integer"},
+                    "Telescope room - red": {"type": "integer"}
+                },
+                "hvac": {
+                    "type": "object",
+                    "sensor1": {
+                        "value": {"type": "integer"},
+                        "unit": {"type": "string"}
+                    },
+                    "sensor2": {
+                        "value": {"type": "integer"},
+                        "unit": {"type": "string"}
+                    }
+                },
+                "Dome": {
+                    "type": "object",
+                    "enable": {"type": "integer"},
+                    "drive": {"type": "integer"}
+                },
+                "emergengy": {
+                    "type": "object",
+                    "E_stop": {"type": "integer"},
+                    "E_status": {"type": "integer"},
+                    "E_relay": {"type": "integer"}
+                }
+            }
     },
     "additionalProperties": false
 }

@@ -3,7 +3,7 @@
 
 plcs:
     dome:
-        name: "Dome PLC of LVM Enclosure"
+        name: "Dome PLC System"
         host: 163.180.145.123
         port: 502
         modules:
@@ -196,11 +196,11 @@ plcs:
                         address: 129
                         function:
                         element: MHR130
-            emergengy:
-                name: "emergengy"
+            emergency:
+                name: "emergency"
                 mode: coil
                 channels: 3
-                description: Elements for emergengy stop
+                description: Elements for emergency stop
                 elements:
                     E_stop:
                         name: "E_stop"
@@ -218,7 +218,7 @@ plcs:
                         function: "0x01"
                         element: MC202
     hvac:
-        name: "HVAC PLC of LVM Enclosure"
+        name: "HVAC PLC System"
         host: 163.180.145.123
         port: 502
         modules:
