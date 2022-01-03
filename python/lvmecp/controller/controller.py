@@ -66,7 +66,7 @@ class PlcController:
             if module.name == "hvac":
                 self.unit[module.name] = module.get_unit()
         self.Client = None
-        self.result = {}
+        #self.result = {}
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
@@ -163,10 +163,34 @@ class PlcController:
         command
             move/status
         """
+
+        self.result = {}
+        
         try:
+            # module "interlocks" -> 0
+            if module == "interlocks":
+                elements = self.modules[0].get_element()
+                if element in elements:
+                    if command == "status":
+                        self.result[element] = await self.get_status(
+                            self.modules[0].mode, self.addr[module][element]
+                        )
+                    elif command == "trigger":
+                        await self.write(
+                            self.modules[0].mode, self.addr[module][element], 0xFF00
+                        )
+                    elif command == "stop":
+                        await self.write(
+                            self.modules[0].mode, self.addr[module][element], 0x0000
+                        )
+                    else:
+                        raise LvmecpControllerError(f"{command} is not correct")
+                else:
+                    raise LvmecpControllerError(f"{element} is not correct")
+
             # module "lights" -> 1
             # 0x0000  off
-            # 0xff00  on
+            # 0xff00  on            
 
             if module == "lights":
                 elements = self.modules[1].get_element()
@@ -204,9 +228,14 @@ class PlcController:
                 elements = self.modules[2].get_element()
                 if command == "status":
                     if element in elements:
-                        self.result = await self.get_status(
+                        self.result[element] = await self.get_status(
                             self.modules[2].mode, self.addr[module][element]
                         )
+                    elif element == "all":
+                        for element in elements:
+                            self.result[element] = await self.get_status(
+                                self.modules[2].mode, self.addr[module][element]
+                                )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "on":
@@ -214,6 +243,11 @@ class PlcController:
                         await self.write(
                             self.modules[2].mode, self.addr[module][element], 0xFF00
                         )
+                    elif element == "all":
+                        for element in elements:
+                            await self.write(
+                                self.modules[2].mode, self.addr[module][element], 0xFF00
+                            )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "off":
@@ -221,6 +255,52 @@ class PlcController:
                         await self.write(
                             self.modules[2].mode, self.addr[module][element], 0x0000
                         )
+                    elif element == "all":
+                        for element in elements:
+                            await self.write(
+                                self.modules[2].mode, self.addr[module][element], 0x0000
+                            )
+                    else:
+                        raise LvmecpControllerError(f"{element} is not correct")
+                else:
+                    raise LvmecpControllerError(f"{command} is not correct")
+
+            if module == "shutter2":
+                elements = self.modules[3].get_element()
+                if command == "status":
+                    if element in elements:
+                        self.result[element] = await self.get_status(
+                            self.modules[3].mode, self.addr[module][element]
+                        )
+                    elif element == "all":
+                        for element in elements:
+                            self.result[element] = await self.get_status(
+                                self.modules[3].mode, self.addr[module][element]
+                                )
+                    else:
+                        raise LvmecpControllerError(f"{element} is not correct")
+                elif command == "on":
+                    if element in elements:
+                        await self.write(
+                            self.modules[3].mode, self.addr[module][element], 0xFF00
+                        )
+                    elif element == "all":
+                        for element in elements:
+                            await self.write(
+                                self.modules[3].mode, self.addr[module][element], 0xFF00
+                            )
+                    else:
+                        raise LvmecpControllerError(f"{element} is not correct")
+                elif command == "off":
+                    if element in elements:
+                        await self.write(
+                            self.modules[3].mode, self.addr[module][element], 0x0000
+                        )
+                    elif element == "all":
+                        for element in elements:
+                            await self.write(
+                                self.modules[3].mode, self.addr[module][element], 0x0000
+                            )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
                 else:
