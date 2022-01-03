@@ -67,7 +67,7 @@ async def telemetry(command: Command, controllers: dict[str, PlcController]):
     current_time = datetime.datetime.now()
     print(f"start to write the data to estop_status_cmd     : {current_time}")
 
-    estop_status_cmd = await command.actor.send_command("lvmecp", "estop")
+    estop_status_cmd = await command.actor.send_command("lvmecp", "estop status")
     await estop_status_cmd
 
     if estop_status_cmd.status.did_fail:

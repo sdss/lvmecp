@@ -31,9 +31,7 @@
                 },
                 "emergengy": {
                     "type": "object",
-                    "E_stop": {"type": "integer"},
-                    "E_status": {"type": "integer"},
-                    "E_relay": {"type": "integer"}
+                    "E_status": {"type": "integer"}
                 }
             }
     },

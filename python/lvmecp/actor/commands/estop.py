@@ -22,8 +22,13 @@ from . import parser
 __all__ = ["estop"]
 
 
-@parser.command()
-async def estop(command: Command, controllers: dict[str, PlcController]):
+@parser.group()
+def estop():
+    """tasks for emergency stop."""
+    pass
+
+@estop.command()
+async def status(command: Command, controllers: dict[str, PlcController]):
     """return the status of emergency stop.
 
     ECP should start the emergency stop
@@ -34,13 +39,59 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
     current_status = {}
 
     try:
-        # current_status["interlocks"] = await controllers[0].send_command("interlocks","0","status")
         current_status["emergency"] = await controllers[0].send_command(
-            "emergency", "0", "status"
+            "interlocks", "E_status", "status"
         )
 
     except LvmecpError as err:
         return command.fail(str(err))
 
     command.info(status=current_status)
+    return command.finish()
+
+@estop.command()
+async def trigger(command: Command, controllers: dict[str, PlcController]):
+    """E-stop indicator code, 
+    uses the modbus + input variables to determine
+    if the E-stop has been triggered.
+    """
+
+    command.info(text="start emergency stop of the enclosure ... ")
+    current_status = {}
+    status={}
+
+    try:
+        current_status["E_stop"] = await controllers[0].send_command(
+            "interlocks","E_stop","trigger"
+        )
+        status["emergency"] = await controllers[0].send_command(
+            "interlocks", "E_status", "status"
+        )
+
+    except LvmecpError as err:
+        return command.fail(str(err))
+
+    command.info(status=status)
+    return command.finish()
+
+@estop.command()
+async def stop(command: Command, controllers: dict[str, PlcController]):
+    """stop the emergency status"""
+
+    command.info(text="stop the emergency status ... ")
+    current_status = {}
+    status={}
+
+    try:
+        current_status["E_stop"] = await controllers[0].send_command(
+            "interlocks","E_stop","stop"
+        )
+        status["emergency"] = await controllers[0].send_command(
+            "interlocks", "E_status", "status"
+        )
+
+    except LvmecpError as err:
+        return command.fail(str(err))
+
+    command.info(status=status)
     return command.finish()
