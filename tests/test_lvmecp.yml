@@ -15,16 +15,11 @@ plcs:
                 elements:
                     key:
                         name: "key"
-                        address: 
-                        function: "0x01"
-                        element: MC0
-                    door_status:
-                        name: "door_status"
                         address: 0
                         function: "0x01"
                         element: MC1
-                    door_power:
-                        name: "door_power"
+                    door_status:
+                        name: "door_status"
                         address: 1
                         function: "0x01"
                         element: MC2
@@ -33,11 +28,16 @@ plcs:
                         address: 2
                         function: "0x01"
                         element: MC3
-                    E_stop:
-                        name: "E_stop"
+                    E_status:
+                        name: "E_status"
                         address: 3
                         function: "0x01"
                         element: MC4
+                    E_stop:
+                        name: "E_stop"
+                        address: 4
+                        function: "0x05"
+                        element: MC5
             lights:
                 name: "lights"
                 mode: coil           
@@ -213,7 +213,7 @@ plcs:
                         function: "0x01"
                         element: MC201
                     E_relay:
-                        name: "E_relay"
+                        name: "E_reset"
                         address: 101
                         function: "0x01"
                         element: MC202

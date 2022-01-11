@@ -91,11 +91,11 @@ class PlcController:
         parameters
         ------------
         mode
-            coil or input_register
+            coil or holding_registers
         addr
             modbus address
         data
-            ON 0xff00
+            ON 0xFF00
             OFF 0x0000
         """
 
@@ -109,7 +109,7 @@ class PlcController:
 
                 current_time = datetime.datetime.now()
                 print(f"After write the data to address {addr}     : {current_time}")
-            elif mode == "input_register":
+            elif mode == "holding_registers":
 
                 current_time = datetime.datetime.now()
                 print(f"Before write the data to address {addr}     : {current_time}")
@@ -130,7 +130,7 @@ class PlcController:
         parameters
         ------------
         mode
-            coil or input_register
+            coil or holding_registers
         addr
             modbus address
         """
@@ -138,9 +138,11 @@ class PlcController:
         try:
             if mode == "coil":
                 reply = await self.Client.protocol.read_coils(addr, 1)
+                print(reply.bits)
                 return reply.bits[0]
-            elif mode == "input_register":
-                reply = await self.Client.protocol.read_holding_registers(addr, 1)
+            elif mode == "holding_registers":
+                reply = await self.Client.protocol.read_holding_registers(addr, 10)
+                print(reply.registers)
                 return reply.registers[0]
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
@@ -178,10 +180,6 @@ class PlcController:
                     elif command == "trigger":
                         await self.write(
                             self.modules[0].mode, self.addr[module][element], 0xFF00
-                        )
-                    elif command == "stop":
-                        await self.write(
-                            self.modules[0].mode, self.addr[module][element], 0x0000
                         )
                     else:
                         raise LvmecpControllerError(f"{command} is not correct")
@@ -353,7 +351,7 @@ class PlcController:
         parameters
         ------------
         mode
-            coil or input_register
+            coil or holding_registers
         addr
             modbus address
         """
@@ -362,8 +360,8 @@ class PlcController:
             reply = await self.read("coil", addr)
             status = await self.parse(reply)
 
-        elif mode == "input_register":
-            reply = await self.read("input_register", addr)
+        elif mode == "holding_registers":
+            reply = await self.read("holding_registers", addr)
             status = reply
 
         else:

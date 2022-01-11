@@ -36,37 +36,34 @@ async def move(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        current_time = datetime.datetime.now()
-        print(
-            f"start the command and get initial status of device              : {current_time}"
-        )
-        current_status["enable"] = await controllers[0].send_command(
+        current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
-        if current_status["enable"] == 0:
-            # dome state == close
-            current_time = datetime.datetime.now()
-            print(f"start the send_command(ON)           : {current_time}")
+        if current_status["drive_enable"]["drive_enable"] == 0:
+            # dome brake activated
+            #await controllers[0].send_command("shutter1", "drive_brake", "off")
             await controllers[0].send_command("shutter1", "drive_enable", "on")
             await controllers[0].send_command("shutter1", "motor_direction", "on")
-        elif current_status["enable"] == 1:
-            # dome state == open
-            current_time = datetime.datetime.now()
-            print(f"start the send_command(OFF)           : {current_time}")
-            await controllers[0].send_command("shutter1", "drive_enable", "off")
+        elif current_status["drive_enable"]["drive_enable"] != 0:
+            # dome brake deactivated
             await controllers[0].send_command("shutter1", "motor_direction", "off")
+            await controllers[0].send_command("shutter1", "drive_enable", "off")
+            #await controllers[0].send_command("shutter1", "drive_brake", "on")
         else:
             raise LvmecpError(f"{current_status} is wrong value.")
 
-        current_time = datetime.datetime.now()
-        print(f"get final status of device              : {current_time}")
-
-        current_status["enable"] = await controllers[0].send_command(
+        #current_status["drive_brake"] = await controllers[0].send_command(
+        #    "shutter1", "drive_brake", "status"
+        #)
+        current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
-        current_status["drive"] = await controllers[0].send_command(
-            "shutter1", "drive_state", "status"
+        current_status["motor_direction"] = await controllers[0].send_command(
+            "shutter1", "motor_direction", "status"
         )
+        #current_status["drive_state"] = await controllers[0].send_command(
+        #    "shutter1", "drive_state", "status"
+        #)
         status["Dome"] = current_status
 
     except LvmecpError as err:
@@ -85,13 +82,10 @@ async def status(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        current_status["enable"] = await controllers[0].send_command(
-            "shutter1", "drive_enable", "status"
-        )
         current_status["drive"] = await controllers[0].send_command(
-            "shutter1", "drive_state", "status"
+            "shutter1", "all", "status"
         )
-        status["Dome"] = current_status
+        status["Dome"] = current_status["drive"]
 
     except LvmecpError as err:
         return command.fail(str(err))

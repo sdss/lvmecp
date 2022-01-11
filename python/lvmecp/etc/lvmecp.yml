@@ -167,7 +167,7 @@ plcs:
                         element: MC123
             shutter2:
                 name: "shutter2"
-                mode: input_register
+                mode: holding_registers
                 channels: 5
                 description: Elements for dome drive movement
                 elements:
@@ -224,7 +224,7 @@ plcs:
         modules:
             hvac:
                 name: "hvac"
-                mode: input_register
+                mode: holding_registers
                 channels: 2
                 description: HVAC system
                 elements:
