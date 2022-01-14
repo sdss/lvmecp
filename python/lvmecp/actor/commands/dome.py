@@ -39,22 +39,27 @@ async def move(command: Command, controllers: dict[str, PlcController]):
         current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
+        current_status["motor_direction"] = await controllers[0].send_command(
+            "shutter1", "motor_direction", "status"
+        )
         if current_status["drive_enable"]["drive_enable"] == 0:
-            # dome brake activated
-            #await controllers[0].send_command("shutter1", "drive_brake", "off")
-            await controllers[0].send_command("shutter1", "drive_enable", "on")
-            await controllers[0].send_command("shutter1", "motor_direction", "on")
-        elif current_status["drive_enable"]["drive_enable"] != 0:
-            # dome brake deactivated
-            await controllers[0].send_command("shutter1", "motor_direction", "off")
-            await controllers[0].send_command("shutter1", "drive_enable", "off")
-            #await controllers[0].send_command("shutter1", "drive_brake", "on")
-        else:
-            raise LvmecpError(f"{current_status} is wrong value.")
+            if current_status["motor_direction"]["motor_direction"] == 0:
+                await controllers[0].send_command("shutter1", "drive_enable", "on")
+                await controllers[0].send_command("shutter1", "motor_direction", "on")
+            elif current_status["motor_direction"]["motor_direction"] == 1:
+                raise LvmecpError(f"Dome motor has a wrong value.")
+            else:
+                raise LvmecpError(f"Dome motor has a wrong value.")
 
-        #current_status["drive_brake"] = await controllers[0].send_command(
-        #    "shutter1", "drive_brake", "status"
-        #)
+        elif current_status["drive_enable"]["drive_enable"] == 1:
+            if current_status["motor_direction"]["motor_direction"] == 1:
+                await controllers[0].send_command("shutter1", "motor_direction", "off")
+                await controllers[0].send_command("shutter1", "drive_enable", "off")
+            elif current_status["motor_direction"]["motor_direction"] == 0:
+                await controllers[0].send_command("shutter1", "drive_enable", "off")
+        else:
+            raise LvmecpError(f"drive_enable is wrong value.")
+
         current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
@@ -82,85 +87,19 @@ async def status(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        current_status["drive"] = await controllers[0].send_command(
+        #current_status["drive_enable"] = await controllers[0].send_command(
+        #    "shutter1", "drive_enable", "status"
+        #)
+        #current_status["motor_direction"] = await controllers[0].send_command(
+        #    "shutter1", "motor_direction", "status"
+        #)
+        current_status["dome"] = await controllers[0].send_command(
             "shutter1", "all", "status"
         )
-        status["Dome"] = current_status["drive"]
+        status["Dome"] = current_status
 
     except LvmecpError as err:
         return command.fail(str(err))
-
-    command.info(status=status)
-    return command.finish()
-
-
-@dome.command()
-@click.argument("shutters", type=int, required=True)
-@click.argument("acts", type=str, required=True)
-async def test(command: Command, controllers: dict[str, PlcController], shutters: int, acts: str):
-    """test for moving the dome parameters"""
-
-    command.info(text="testing the dome")
-    current_status={}
-    status={}
-
-    if shutters == 1:
-        if acts == "status":
-            current_status["coil"] = await controllers[0].send_command(
-                "shutter1", "all", "status"
-                )
-            status["Dome"] = current_status
-        elif acts == "move":
-            current_status["coil"] = await controllers[0].send_command(
-                "shutter1", "all", "status"
-                )
-            if current_status["coil"]["drive_enable"] == 0:
-                    current_status["coil"] = await controllers[0].send_command(
-                        "shutter1", "all", "on"
-                        )
-            elif current_status["coil"]["drive_enable"] == 1:
-                    current_status["coil"] = await controllers[0].send_command(
-                        "shutter1", "all", "off"
-                        )
-            else:
-                raise LvmecpError(f"{current_status} is wrong value.")
-            
-            current_status["coil"] = await controllers[0].send_command(
-                "shutter1", "all", "status"
-                )
-            status["Dome"] = current_status
-        else:
-            raise LvmecpError(f"{acts} is wrong value.")
-
-    elif shutters == 2:
-        if acts == "status":
-            current_status["register"] = await controllers[0].send_command(
-                "shutter2", "all", "status"
-                )
-            status["Dome"] = current_status
-        elif acts == "move":
-            current_status["register"] = await controllers[0].send_command(
-                "shutter2", "all", "status"
-                )
-            if current_status["register"]["drive_velcity2"] == 0:
-                    current_status["register"] = await controllers[0].send_command(
-                        "shutter2", "all", "on"
-                        )
-            elif current_status["register"]["drive_velcity2"] != 0:
-                    current_status["register"] = await controllers[0].send_command(
-                        "shutter2", "all", "off"
-                        )
-            else:
-                raise LvmecpError(f"{current_status} is wrong value.")
-            
-            current_status["register"] = await controllers[0].send_command(
-                "shutter2", "all", "status"
-                )
-            status["Dome"] = current_status
-        else:
-            raise LvmecpError(f"{acts} is wrong value.")
-    else:
-        raise LvmecpError(f"{shutters} is wrong value.")
 
     command.info(status=status)
     return command.finish()
