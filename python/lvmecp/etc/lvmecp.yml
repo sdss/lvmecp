@@ -160,11 +160,6 @@ plcs:
                         address: 121
                         function:
                         element: MC122
-                    close_small_timeout:
-                        name: "close_small_timeout"
-                        address: 122
-                        function:
-                        element: MC123
             shutter2:
                 name: "shutter2"
                 mode: holding_registers
@@ -196,6 +191,11 @@ plcs:
                         address: 129
                         function:
                         element: MHR130
+                    dome_counter:
+                        name: "dome_counter"
+                        address: 149
+                        function:
+                        element: MHR150
             emergency:
                 name: "emergency"
                 mode: coil
