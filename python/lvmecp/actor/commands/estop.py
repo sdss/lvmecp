@@ -29,6 +29,18 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
     if the E-stop has been triggered, a contactor and power electronic 
     will shut down.
     """
+    
+    estatus = await controllers[0].send_command(
+        "interlocks", "E_status", "status"
+    )
+    print(estatus)
+    if estatus["E_status"] == 0:
+        pass
+    elif estatus["E_status"] == 1:
+        command.info(text="[Emergency status] We can't send the command to the enclosure.")
+        return command.finish()
+    else:
+        raise LvmecpError(f"e-stop status is wrong value.")
 
     command.info(text="start emergency stop of the enclosure ... ")
     current_status = {}

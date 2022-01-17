@@ -31,6 +31,18 @@ def dome():
 async def move(command: Command, controllers: dict[str, PlcController]):
     """Turn on or off the roll-off dome of the enclosure."""
 
+    estatus = await controllers[0].send_command(
+        "interlocks", "E_status", "status"
+    )
+    print(estatus)
+    if estatus["E_status"] == 0:
+        pass
+    elif estatus["E_status"] == 1:
+        command.info(text="[Emergency status] We can't send the command to the enclosure.")
+        return command.finish()
+    else:
+        raise LvmecpError(f"e-stop status is wrong value.")
+
     command.info(text="move the Dome")
     current_status = {}
     status = {}
@@ -39,9 +51,9 @@ async def move(command: Command, controllers: dict[str, PlcController]):
         current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
-        current_status["motor_direction"] = await controllers[0].send_command(
-            "shutter1", "motor_direction", "status"
-        )
+        #current_status["motor_direction"] = await controllers[0].send_command(
+        #    "shutter1", "motor_direction", "status"
+        #)
         if current_status["drive_enable"]["drive_enable"] == 0:
             if current_status["motor_direction"]["motor_direction"] == 0:
                 await controllers[0].send_command("shutter1", "drive_enable", "on")
