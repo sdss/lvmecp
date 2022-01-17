@@ -51,36 +51,21 @@ async def move(command: Command, controllers: dict[str, PlcController]):
         current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
-        #current_status["motor_direction"] = await controllers[0].send_command(
-        #    "shutter1", "motor_direction", "status"
-        #)
         if current_status["drive_enable"]["drive_enable"] == 0:
-            if current_status["motor_direction"]["motor_direction"] == 0:
-                await controllers[0].send_command("shutter1", "drive_enable", "on")
-                await controllers[0].send_command("shutter1", "motor_direction", "on")
-            elif current_status["motor_direction"]["motor_direction"] == 1:
-                raise LvmecpError(f"Dome motor has a wrong value.")
-            else:
-                raise LvmecpError(f"Dome motor has a wrong value.")
-
+            await controllers[0].send_command("shutter1", "motor_direction", "on")
+            await controllers[0].send_command("shutter1", "drive_enable", "on")
         elif current_status["drive_enable"]["drive_enable"] == 1:
-            if current_status["motor_direction"]["motor_direction"] == 1:
-                await controllers[0].send_command("shutter1", "motor_direction", "off")
-                await controllers[0].send_command("shutter1", "drive_enable", "off")
-            elif current_status["motor_direction"]["motor_direction"] == 0:
-                await controllers[0].send_command("shutter1", "drive_enable", "off")
+            await controllers[0].send_command("shutter1", "motor_direction", "off")
+            await controllers[0].send_command("shutter1", "drive_enable", "off")
         else:
-            raise LvmecpError(f"drive_enable is wrong value.")
+            raise LvmecpError(f"Drive status returns wrong value.")
 
         current_status["drive_enable"] = await controllers[0].send_command(
             "shutter1", "drive_enable", "status"
         )
-        current_status["motor_direction"] = await controllers[0].send_command(
-            "shutter1", "motor_direction", "status"
+        current_status["drive_state"] = await controllers[0].send_command(
+            "shutter1", "drive_state", "status"
         )
-        #current_status["drive_state"] = await controllers[0].send_command(
-        #    "shutter1", "drive_state", "status"
-        #)
         status["Dome"] = current_status
 
     except LvmecpError as err:
@@ -102,8 +87,8 @@ async def status(command: Command, controllers: dict[str, PlcController]):
         #current_status["drive_enable"] = await controllers[0].send_command(
         #    "shutter1", "drive_enable", "status"
         #)
-        #current_status["motor_direction"] = await controllers[0].send_command(
-        #    "shutter1", "motor_direction", "status"
+        #current_status["drive_state"] = await controllers[0].send_command(
+        #    "shutter1", "drive_state", "status"
         #)
         current_status["dome"] = await controllers[0].send_command(
             "shutter1", "all", "status"
