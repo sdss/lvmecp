@@ -3,7 +3,7 @@
 
 plcs:
     dome:
-        name: "Dome PLC of LVM Enclosure"
+        name: "Dome PLC System"
         host: 163.180.145.123
         port: 502
         modules:
@@ -155,19 +155,14 @@ plcs:
                         address: 109
                         function:
                         element: MC110
-                    open_timeout:
-                        name: "open_timeout"
+                    open_small_timeout:
+                        name: "open_small_timeout"
                         address: 121
                         function:
                         element: MC122
-                    close_timeout:
-                        name: "close_timeout"
-                        address: 122
-                        function:
-                        element: MC123
             shutter2:
                 name: "shutter2"
-                mode: input_register
+                mode: holding_registers
                 channels: 5
                 description: Elements for dome drive movement
                 elements:
@@ -196,11 +191,16 @@ plcs:
                         address: 129
                         function:
                         element: MHR130
-            emergengy:
-                name: "emergengy"
+                    dome_counter:
+                        name: "dome_counter"
+                        address: 149
+                        function:
+                        element: MHR150
+            emergency:
+                name: "emergency"
                 mode: coil
                 channels: 3
-                description: Elements for emergengy stop
+                description: Elements for emergency stop
                 elements:
                     E_stop:
                         name: "E_stop"
@@ -212,19 +212,19 @@ plcs:
                         address: 200
                         function: "0x01"
                         element: MC201
-                    E_relay:
+                    E_reset:
                         name: "E_reset"
                         address: 101
                         function: "0x01"
                         element: MC202
     hvac:
-        name: "HVAC PLC of LVM Enclosure"
+        name: "HVAC PLC System"
         host: 163.180.145.123
         port: 502
         modules:
             hvac:
                 name: "hvac"
-                mode: input_register
+                mode: holding_registers
                 channels: 2
                 description: HVAC system
                 elements:
