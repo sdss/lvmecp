@@ -84,15 +84,15 @@ async def status(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        #current_status["drive_enable"] = await controllers[0].send_command(
-        #    "shutter1", "drive_enable", "status"
-        #)
-        #current_status["drive_state"] = await controllers[0].send_command(
-        #    "shutter1", "drive_state", "status"
-        #)
-        current_status["dome"] = await controllers[0].send_command(
-            "shutter1", "all", "status"
+        current_status["drive_enable"] = await controllers[0].send_command(
+            "shutter1", "drive_enable", "status"
         )
+        current_status["drive_state"] = await controllers[0].send_command(
+            "shutter1", "drive_state", "status"
+        )
+        #current_status["dome"] = await controllers[0].send_command(
+        #    "shutter1", "all", "status"
+        #)
         status["Dome"] = current_status
 
     except LvmecpError as err:
