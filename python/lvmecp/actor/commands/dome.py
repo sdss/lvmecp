@@ -48,21 +48,22 @@ async def move(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        current_status["drive_enable"] = await controllers[0].send_command(
-            "shutter1", "drive_enable", "status"
+        # we should check the dome state(open/close) by drive_state
+        current_status["drive_state"] = await controllers[0].send_command(
+            "shutter1", "drive_state", "status"
         )
-        if current_status["drive_enable"]["drive_enable"] == 0:
-            await controllers[0].send_command("shutter1", "motor_direction", "on")
-            await controllers[0].send_command("shutter1", "drive_enable", "on")
-        elif current_status["drive_enable"]["drive_enable"] == 1:
+
+        if current_status["drive_state"]["drive_state"] == 0:
+            await controllers[0].send_command("shutter1", "motor_direction", "on")       # Direction would be set to 1
+            await controllers[0].send_command("shutter1", "drive_enable", "on")          # Dome enable would be set to 1
+            # This would trigger a stage to start the motor
+            # and then, the dome would disable automatically
+        elif current_status["drive_state"]["drive_state"] == 1:
             await controllers[0].send_command("shutter1", "motor_direction", "off")
-            await controllers[0].send_command("shutter1", "drive_enable", "off")
+            await controllers[0].send_command("shutter1", "drive_enable", "on")
         else:
             raise LvmecpError(f"Drive status returns wrong value.")
 
-        current_status["drive_enable"] = await controllers[0].send_command(
-            "shutter1", "drive_enable", "status"
-        )
         current_status["drive_state"] = await controllers[0].send_command(
             "shutter1", "drive_state", "status"
         )
@@ -84,9 +85,6 @@ async def status(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        current_status["drive_enable"] = await controllers[0].send_command(
-            "shutter1", "drive_enable", "status"
-        )
         current_status["drive_state"] = await controllers[0].send_command(
             "shutter1", "drive_state", "status"
         )
