@@ -66,7 +66,6 @@ class PlcController:
             if module.name == "hvac":
                 self.unit[module.name] = module.get_unit()
         self.Client = None
-        #self.result = {}
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
@@ -101,23 +100,9 @@ class PlcController:
 
         try:
             if mode == "coil":
-
-                current_time = datetime.datetime.now()
-                print(f"Before write the data to address {addr}     : {current_time}")
-
                 await self.Client.protocol.write_coil(addr, data)
-
-                current_time = datetime.datetime.now()
-                print(f"After write the data to address {addr}     : {current_time}")
             elif mode == "holding_registers":
-
-                current_time = datetime.datetime.now()
-                print(f"Before write the data to address {addr}     : {current_time}")
-
                 await self.Client.protocol.write_register(addr, data)
-
-                current_time = datetime.datetime.now()
-                print(f"After write the data to address {addr}     : {current_time}")
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
@@ -138,11 +123,9 @@ class PlcController:
         try:
             if mode == "coil":
                 reply = await self.Client.protocol.read_coils(addr, 1)
-                print(reply.bits)
                 return reply.bits[0]
             elif mode == "holding_registers":
                 reply = await self.Client.protocol.read_holding_registers(addr, 10)
-                print(reply.registers)
                 return reply.registers[0]
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
