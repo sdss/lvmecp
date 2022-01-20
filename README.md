@@ -56,8 +56,8 @@ In terminal which you are turning clu on, you can use the command for lvmecp.
 ```
 $ clu
 lvmecp help
-09:57:01.762 lvmecp > 
-09:57:01.767 lvmecp : {
+13:05:25.386 lvmecp >
+13:05:25.387 lvmecp : {
     "help": [
         "Usage: lvmecp [OPTIONS] COMMAND [ARGS]...",
         "",
@@ -66,30 +66,37 @@ lvmecp help
         "",
         "Commands:",
         "  dome        tasks for Dome",
+        "  estop       activate the emergency status.",
         "  get_schema  Returns the schema of the actor as a JSON schema.",
         "  help        Shows the help.",
         "  keyword     Prints human-readable information about a keyword.",
         "  light       tasks for lights",
+        "  monitor     return the status of HVAC system and air purge system.",
         "  ping        Pings the actor.",
+        "  telemetry   return the status of the enclosure",
         "  version     Reports the version."
     ]
 }
-lvmecp light move
-09:57:05.225 lvmecp > 
-09:57:05.227 lvmecp i {
-    "text": "move the light"
+lvmecp dome status
+13:05:56.294 lvmecp >
+13:05:56.295 lvmecp i {
+    "text": "checking the Dome"
 }
-09:57:05.230 lvmecp i {
-    "text": "ON"
+13:05:56.302 lvmecp i {
+    "status": {
+        "Dome": "CLOSE"
+    }
 }
-09:57:05.231 lvmecp : 
-lvmecp light status
-09:57:14.577 lvmecp > 
-09:57:14.579 lvmecp i {
-    "text": "checking the light"
+13:05:56.302 lvmecp :
+lvmecp dome move
+13:06:21.701 lvmecp >
+13:06:21.703 lvmecp i {
+    "text": "moving the Dome"
 }
-09:57:14.581 lvmecp i {
-    "text": "ON"
+13:06:21.708 lvmecp i {
+    "status": {
+        "Dome": "OPEN"
+    }
 }
-09:57:14.583 lvmecp : 
+13:06:21.709 lvmecp :
 ```
