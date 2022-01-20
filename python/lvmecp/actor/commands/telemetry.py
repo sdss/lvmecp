@@ -25,7 +25,7 @@ __all__ = ["telemetry"]
 @parser.command()
 async def telemetry(command: Command, controllers: dict[str, PlcController]):
     """return the status of the enclosure"""
-    
+
     status = {}
     lights_status = {}
     room_point = {}
@@ -39,33 +39,26 @@ async def telemetry(command: Command, controllers: dict[str, PlcController]):
 
     command.info(text="monitoring ... ")
 
-    estatus = await controllers[0].send_command(
-        "interlocks", "E_status", "status"
-    )
+    estatus = await controllers[0].send_command("interlocks", "E_status", "status")
     status["emergency"] = estatus["E_status"]
-    
-    domestatus = await controllers[0].send_command(
-            "shutter1", "ne_limit", "status"
-    )
+
+    domestatus = await controllers[0].send_command("shutter1", "ne_limit", "status")
     status["Dome"] = domestatus["ne_limit"]
-    
-    lights_status = await controllers[0].send_command(
-        "lights", "all", "status"
-    )
+
+    lights_status = await controllers[0].send_command("lights", "all", "status")
     roomlights = {}
     for room_ins in room_list:
         roomlights[room_point[f"{room_ins}"]] = lights_status[f"{room_ins}_status"]
     status["lights"] = roomlights
 
-    status["HVAC"] = await controllers[1].send_command(
-        "hvac", "all", "status"
-    )
+    status["HVAC"] = await controllers[1].send_command("hvac", "all", "status")
 
     command.info(status=status)
     return command.finish()
 
-#@parser.command()
-#async def telemetry(command: Command, controllers: dict[str, PlcController]):
+
+# @parser.command()
+# async def telemetry(command: Command, controllers: dict[str, PlcController]):
 #    """return the status of the enclosure"""
 
 #    command.info(text="monitoring ... ")

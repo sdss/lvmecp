@@ -150,7 +150,7 @@ class PlcController:
         """
 
         self.result = {}
-        
+
         try:
             # module "interlocks" -> 0
             if module == "interlocks":
@@ -171,7 +171,7 @@ class PlcController:
 
             # module "lights" -> 1
             # 0x0000  off
-            # 0xff00  on            
+            # 0xff00  on
 
             if module == "lights":
                 elements = self.modules[1].get_element()
@@ -216,7 +216,7 @@ class PlcController:
                         for element in elements:
                             self.result[element] = await self.get_status(
                                 self.modules[2].mode, self.addr[module][element]
-                                )
+                            )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "on":
@@ -257,7 +257,7 @@ class PlcController:
                         for element in elements:
                             self.result[element] = await self.get_status(
                                 self.modules[3].mode, self.addr[module][element]
-                                )
+                            )
                     else:
                         raise LvmecpControllerError(f"{element} is not correct")
                 elif command == "on":

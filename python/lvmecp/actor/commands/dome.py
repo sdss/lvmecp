@@ -31,14 +31,14 @@ def dome():
 async def move(command: Command, controllers: dict[str, PlcController]):
     """Turn on or off the roll-off dome of the enclosure."""
 
-    estatus = await controllers[0].send_command(
-        "interlocks", "E_status", "status"
-    )
+    estatus = await controllers[0].send_command("interlocks", "E_status", "status")
     print(estatus)
     if estatus["E_status"] == 0:
         pass
     elif estatus["E_status"] == 1:
-        command.info(text="[Emergency status] We can't send the command to the enclosure.")
+        command.info(
+            text="[Emergency status] We can't send the command to the enclosure."
+        )
         return command.finish()
     else:
         raise LvmecpError(f"e-stop status is wrong value.")
@@ -49,16 +49,18 @@ async def move(command: Command, controllers: dict[str, PlcController]):
 
     try:
         # we should check the dome state(open/close) by drive_state
-        current_status = await controllers[0].send_command(
-            "shutter1", "all", "status"
-        )
+        current_status = await controllers[0].send_command("shutter1", "all", "status")
 
         if current_status["drive_state"] == 0:
             # motor state is 0
             if current_status["ne_limit"] == 0:
                 # dome is closed
-                await controllers[0].send_command("shutter1", "motor_direction", "on")       # Direction would be set to 1
-                await controllers[0].send_command("shutter1", "drive_enable", "on")          # Dome enable would be set to 1
+                await controllers[0].send_command(
+                    "shutter1", "motor_direction", "on"
+                )  # Direction would be set to 1
+                await controllers[0].send_command(
+                    "shutter1", "drive_enable", "on"
+                )  # Dome enable would be set to 1
                 status["Dome"] = "OPEN"
             # This would trigger a stage to start the motor
             # and then, the dome would disable automatically
@@ -91,9 +93,7 @@ async def status(command: Command, controllers: dict[str, PlcController]):
     status = {}
 
     try:
-        current_status = await controllers[0].send_command(
-            "shutter1", "all", "status"
-        )
+        current_status = await controllers[0].send_command("shutter1", "all", "status")
         if current_status["drive_state"] == 0:
             if current_status["ne_limit"] == 1:
                 status["Dome"] = "OPEN"
