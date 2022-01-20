@@ -65,7 +65,7 @@ async def move(command: Command, controllers: dict[str, PlcController], room: st
         )
         return command.finish()
     else:
-        raise LvmecpError(f"e-stop status is wrong value.")
+        raise LvmecpError("e-stop status is wrong value.")
 
     current_status = {}
     status = {}

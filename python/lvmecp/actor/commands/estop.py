@@ -40,7 +40,7 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
         )
         return command.finish()
     else:
-        raise LvmecpError(f"e-stop status is wrong value.")
+        raise LvmecpError("e-stop status is wrong value.")
 
     command.info(text="start emergency stop of the enclosure ... ")
     current_status = {}

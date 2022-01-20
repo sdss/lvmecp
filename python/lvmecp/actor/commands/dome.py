@@ -41,7 +41,7 @@ async def move(command: Command, controllers: dict[str, PlcController]):
         )
         return command.finish()
     else:
-        raise LvmecpError(f"e-stop status is wrong value.")
+        raise LvmecpError("e-stop status is wrong value.")
 
     command.info(text="moving the Dome")
     current_status = {}
@@ -70,12 +70,12 @@ async def move(command: Command, controllers: dict[str, PlcController]):
                 await controllers[0].send_command("shutter1", "drive_enable", "on")
                 status["Dome"] = "CLOSE"
             else:
-                raise LvmecpError(f"The status of limitswitches returns wrong value.")
+                raise LvmecpError("The status of limitswitches returns wrong value.")
         elif current_status["drive_state"] == 1:
             # motor state is 1
-            raise LvmecpError(f"the enclosure is moving.")
+            raise LvmecpError("the enclosure is moving.")
         else:
-            raise LvmecpError(f"The status of motor returns wrong value.")
+            raise LvmecpError("The status of motor returns wrong value.")
 
     except LvmecpError as err:
         return command.fail(str(err))
@@ -100,9 +100,9 @@ async def status(command: Command, controllers: dict[str, PlcController]):
             elif current_status["ne_limit"] == 0:
                 status["Dome"] = "CLOSE"
         elif current_status["drive_state"] == 1:
-            raise LvmecpError(f"the enclosure is moving.")
+            raise LvmecpError("the enclosure is moving.")
         else:
-            raise LvmecpError(f"The status of motor returns wrong value.")
+            raise LvmecpError("The status of motor returns wrong value.")
 
     except LvmecpError as err:
         return command.fail(str(err))
