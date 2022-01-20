@@ -63,8 +63,8 @@ Help command
 First you can confirm the existing commands of *lvmecp* by the *help* command ::
 
     lvmecp help
-    04:08:31.636 lvmecp > 
-    04:08:31.640 lvmecp : {
+    13:05:25.386 lvmecp >
+    13:05:25.387 lvmecp : {
         "help": [
             "Usage: lvmecp [OPTIONS] COMMAND [ARGS]...",
             "",
@@ -73,12 +73,14 @@ First you can confirm the existing commands of *lvmecp* by the *help* command ::
             "",
             "Commands:",
             "  dome        tasks for Dome",
+            "  estop       activate the emergency status.",
             "  get_schema  Returns the schema of the actor as a JSON schema.",
             "  help        Shows the help.",
             "  keyword     Prints human-readable information about a keyword.",
             "  light       tasks for lights",
-            "  monitor",
+            "  monitor     return the status of HVAC system and air purge system.",
             "  ping        Pings the actor.",
+            "  telemetry   return the status of the enclosure",
             "  version     Reports the version."
         ]
     }
@@ -94,18 +96,16 @@ If you run the dome command via lvmecp, you can control the roll-off dome in the
 will return this kind of reply.::
 
     lvmecp dome status
-    04:11:16.285 lvmecp > 
-    04:11:16.289 lvmecp i {
+    13:05:56.294 lvmecp >
+    13:05:56.295 lvmecp i {
         "text": "checking the Dome"
     }
-    04:11:16.291 lvmecp i {
+    13:05:56.302 lvmecp i {
         "status": {
-            "Dome": {
-                "enable": 0,
-                "drive": 0
-            }
+            "Dome": "CLOSE"
         }
     }
+    13:05:56.302 lvmecp :
 
 
 If you run the move command via lvmecp, you can on or off the roll-off dome in the enclosure. ::
@@ -114,6 +114,17 @@ If you run the move command via lvmecp, you can on or off the roll-off dome in t
 
 will return this kind of reply.::
 
+    lvmecp dome move
+    13:06:21.701 lvmecp >
+    13:06:21.703 lvmecp i {
+        "text": "moving the Dome"
+    }
+    13:06:21.708 lvmecp i {
+        "status": {
+            "Dome": "OPEN"
+        }
+    }
+    13:06:21.709 lvmecp :
 
 
 
@@ -191,28 +202,52 @@ if you want to turn off the light, same.::
 monitor command
 ---------------
 
-If you run the monitor command via lvmecp, you can get the status of elements in the enclosure.::
+If you run the monitor command via lvmecp, you can get the status of HVAC sensors in the enclosure.::
 
     lvmecp monitor
 
 will return this kind of reply.::
 
     lvmecp monitor
-    06:21:42.663 lvmecp > 
-    06:21:42.671 lvmecp i {
-        "text": "monitoring ... "
+    13:07:36.796 lvmecp >
+    13:07:36.797 lvmecp i {
+        "text": "monitoring HVAC system."
     }
-    06:21:42.674 lvmecp i {
+    13:07:36.798 lvmecp i {
         "status": {
-            "emergengy": {
-                "E_stop": 0,
-                "E_status": 0,
-                "E_relay": 0
-            },
             "hvac": {
-                "key1": 2366,
-                "key2": 724
+                "sensor1": {
+                    "value": 187,
+                    "unit": "TBD"
+                },
+                "sensor2": {
+                    "value": 3926,
+                    "unit": "TBD"
+                }
             }
         }
     }
+    13:07:36.799 lvmecp :
 
+estop command
+---------------
+
+If you run the estop command via lvmecp, you can you can trigger the emergency status in the enclosure.
+
+    lvmecp estop
+
+will return this kind of reply.::
+
+    lvmecp estop
+    13:09:43.624 lvmecp >
+    13:09:43.625 lvmecp i {
+        "text": "start emergency stop of the enclosure ... "
+    }
+    13:09:43.625 lvmecp i {
+        "status": {
+            "emergency": {
+                "E_status": 1
+            }
+        }
+    }
+    13:09:43.626 lvmecp :

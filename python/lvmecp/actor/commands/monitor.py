@@ -31,7 +31,7 @@ async def monitor(command: Command, controllers: dict[str, PlcController], room:
     temperature in each room.
     """
 
-    command.info(text="monitoring ... ")
+    command.info(text="monitoring HVAC system.")
     current_status = {}
     status = {}
     room_point = {}

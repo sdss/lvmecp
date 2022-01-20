@@ -24,23 +24,38 @@ __all__ = ["estop"]
 
 @parser.command()
 async def estop(command: Command, controllers: dict[str, PlcController]):
-    """return the status of emergency stop.
+    """activate the emergency status.
 
-    ECP should start the emergency stop
-    if the pressure changed outside normal range.
+    if the E-stop has been triggered, a contactor and power electronic
+    will shut down.
     """
 
-    command.info(text="monitoring ... ")
+    estatus = await controllers[0].send_command("interlocks", "E_status", "status")
+    print(estatus)
+    if estatus["E_status"] == 0:
+        pass
+    elif estatus["E_status"] == 1:
+        command.info(
+            text="[Emergency status] We can't send the command to the enclosure."
+        )
+        return command.finish()
+    else:
+        raise LvmecpError("e-stop status is wrong value.")
+
+    command.info(text="start emergency stop of the enclosure ... ")
     current_status = {}
+    status = {}
 
     try:
-        # current_status["interlocks"] = await controllers[0].send_command("interlocks","0","status")
-        current_status["emergengy"] = await controllers[0].send_command(
-            "emergengy", "0", "status"
+        current_status["E_stop"] = await controllers[0].send_command(
+            "interlocks", "E_stop", "trigger"
+        )
+        status["emergency"] = await controllers[0].send_command(
+            "interlocks", "E_status", "status"
         )
 
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=current_status)
+    command.info(status=status)
     return command.finish()

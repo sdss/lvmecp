@@ -55,6 +55,18 @@ async def move(command: Command, controllers: dict[str, PlcController], room: st
         Telescope room - red light.
     """
 
+    estatus = await controllers[0].send_command("interlocks", "E_status", "status")
+    print(estatus)
+    if estatus["E_status"] == 0:
+        pass
+    elif estatus["E_status"] == 1:
+        command.info(
+            text="[Emergency status] We can't send the command to the enclosure."
+        )
+        return command.finish()
+    else:
+        raise LvmecpError("e-stop status is wrong value.")
+
     current_status = {}
     status = {}
     room_point = {}
