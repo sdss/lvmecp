@@ -24,14 +24,8 @@
                         "unit": {"type": "string"}
                     }
                 },
-                "Dome": {
-                    "type": "object",
-                    "drive_state": {"type": "integer"}
-                },
-                "emergengy": {
-                    "type": "object",
-                    "E_status": {"type": "integer"}
-                }
+                "Dome": {"type": "string"},
+                "emergengy": {"type": "integer"}
             }
     },
     "additionalProperties": false
