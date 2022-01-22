@@ -122,10 +122,10 @@ class PlcController:
 
         try:
             if mode == "coil":
-                reply = await self.Client.protocol.read_coils(addr, 1)
+                reply = await self.Client.protocol.read_coils(addr, 8)
                 return reply.bits[0]
             elif mode == "holding_registers":
-                reply = await self.Client.protocol.read_holding_registers(addr, 10)
+                reply = await self.Client.protocol.read_holding_registers(addr, 8)
                 return reply.registers[0]
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
