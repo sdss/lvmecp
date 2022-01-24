@@ -66,10 +66,10 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest tests/test_actor.py
-        poetry run pytest tests/test_dome.py
-        poetry run pytest tests/test_light.py
         poetry run pytest tests/test_monitor.py
         poetry run pytest tests/test_telemetry.py
+        poetry run pytest tests/test_dome.py
+        poetry run pytest tests/test_light.py
         poetry run pytest tests/test_estop.py
 
     - name: Upload coverage to Codecov
