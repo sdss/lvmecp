@@ -13,6 +13,7 @@ from lvmecp.actor.actor import LvmecpActor as EcpActor
 async def test_actor(actor: EcpActor):
 
     assert actor
+    assert len(actor.plcs) == 2
 
 
 @pytest.mark.asyncio
