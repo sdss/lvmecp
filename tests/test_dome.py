@@ -10,13 +10,6 @@ from lvmecp.actor.actor import LvmecpActor as EcpActor
 
 
 @pytest.mark.asyncio
-async def test_actor(actor: EcpActor):
-
-    assert actor
-    assert len(actor.plcs) == 2
-
-
-@pytest.mark.asyncio
 async def test_dome_status(actor: EcpActor):
 
     # status check of dome
@@ -37,11 +30,25 @@ async def test_dome_enable(actor: EcpActor):
     assert len(command.replies) == 4
     assert command.replies[-2].message["status"]["Dome"] == "OPEN"
 
+    command = await actor.invoke_mock_command("dome status")
+    await command
+
+    assert command.status.did_fail
+
+    time.sleep(10)
+
+    command = await actor.invoke_mock_command("dome status")
+    await command
+
+    assert command.status.did_succeed
+    assert len(command.replies) == 4
+    assert command.replies[-2].message["status"]["Dome"] == "OPEN"
+
     command = await actor.invoke_mock_command("dome enable")
     await command
-    assert command.status.did_fail
-    # assert len(command.replies) == 4
-    # assert command.replies[-2].message["status"]["Dome"] == "CLOSE"
+    assert command.status.did_succeed
+    assert len(command.replies) == 4
+    assert command.replies[-2].message["status"]["Dome"] == "CLOSE"
 
 
 @pytest.mark.asyncio
