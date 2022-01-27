@@ -30,7 +30,7 @@ def light():
 
 @light.command()
 @click.argument("ROOM", type=str, required=True)
-async def move(command: Command, controllers: dict[str, PlcController], room: str):
+async def enable(command: Command, controllers: dict[str, PlcController], room: str):
     """Turn on or off the enclosure light. This command
     required the argument essentially. You should put the
     proper argument according to the room you want to control.

@@ -28,7 +28,7 @@ def dome():
 
 
 @dome.command()
-async def move(command: Command, controllers: dict[str, PlcController]):
+async def enable(command: Command, controllers: dict[str, PlcController]):
     """Turn on or off the roll-off dome of the enclosure."""
 
     estatus = await controllers[0].send_command("interlocks", "E_status", "status")
