@@ -23,7 +23,7 @@ __all__ = ["dome"]
 
 @parser.group()
 def dome():
-    """tasks for Dome"""
+    """Tasks for Dome which turn on or off the roll-off dome and return the current status of the dome"""
     pass
 
 

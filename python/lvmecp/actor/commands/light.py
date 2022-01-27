@@ -24,7 +24,7 @@ __all__ = ["light"]
 
 @parser.group()
 def light():
-    """tasks for lights"""
+    """Tasks for lights which turn on or off the enclosure light and return the current status of the light"""
     pass
 
 

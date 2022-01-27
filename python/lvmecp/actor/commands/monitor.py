@@ -25,7 +25,7 @@ __all__ = ["monitor"]
 @parser.command()
 @click.argument("ROOM", type=str, required=False)
 async def monitor(command: Command, controllers: dict[str, PlcController], room: str):
-    """return the status of HVAC system and air purge system.
+    """Returns the status of HVAC system and air purge system.
 
     ECP should monitor the pressure in air purge system and the
     temperature in each room.

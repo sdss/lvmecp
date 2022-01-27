@@ -24,7 +24,7 @@ __all__ = ["telemetry"]
 
 @parser.command()
 async def telemetry(command: Command, controllers: dict[str, PlcController]):
-    """return the status of the enclosure"""
+    """Returns the status of the enclosure"""
 
     status = {}
     lights_status = {}
