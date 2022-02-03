@@ -36,7 +36,7 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
         pass
     elif estatus["E_status"] == 1:
         command.info(
-            text = "[Emergency status] We can't send the command to the enclosure."
+            text="[Emergency status] We can't send the command to the enclosure."
         )
         return command.finish()
     else:

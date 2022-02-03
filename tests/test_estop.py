@@ -36,10 +36,11 @@ async def test_estop_fail_connect(actor: EcpActor):
 
     assert command.status.did_fail
 
+
 @pytest.mark.asyncio
 async def test_estop_fails(actor: EcpActor, mocker):
 
-    #mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
+    # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
     mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
 
     command = await actor.invoke_mock_command("estop")
