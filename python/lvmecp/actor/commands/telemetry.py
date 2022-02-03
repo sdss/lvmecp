@@ -43,7 +43,13 @@ async def telemetry(command: Command, controllers: dict[str, PlcController]):
     status["emergency"] = estatus["E_status"]
 
     domestatus = await controllers[0].send_command("shutter1", "ne_limit", "status")
-    status["Dome"] = domestatus["ne_limit"]
+    drivestatus = await controllers[0].send_command("shutter1", "drive_state", "status")
+    if drivestatus["drive_state"] == 0:
+        status["Dome"] = domestatus["ne_limit"]
+    elif drivestatus["drive_state"] == 1:
+        status["Dome"] = "moving"
+    else:
+        status["Dome"] = "Error"
 
     lights_status = await controllers[0].send_command("lights", "all", "status")
     roomlights = {}
