@@ -8,6 +8,7 @@ lvmecp's documentation
 
   Introduction
   Examples
+  Sequence
 
 
 .. toctree::
