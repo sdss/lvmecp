@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9]
+        python-version: [3.9, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -65,12 +65,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        poetry run pytest tests/test_actor.py
-        poetry run pytest tests/test_monitor.py
-        poetry run pytest tests/test_telemetry.py
-        poetry run pytest tests/test_dome.py
-        poetry run pytest tests/test_light.py
-        poetry run pytest tests/test_estop.py
+        poetry run pytest .
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1.0.3

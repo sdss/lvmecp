@@ -69,5 +69,13 @@ async def actor(test_config: dict, mocker):
 
     yield _actor
 
+    #_actor.mock_replies.clear()
+    #await _actor.stop()
+
+
+@pytest.fixture()
+async def actor_stop():
+    _actor = ECPActor.from_config(test_config)
+    
     _actor.mock_replies.clear()
     await _actor.stop()

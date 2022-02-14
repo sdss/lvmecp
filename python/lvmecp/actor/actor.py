@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import warnings
 from typing import ClassVar, Dict
 
 import click
@@ -19,6 +20,7 @@ from lvmecp import __version__
 from lvmecp.controller.controller import PlcController
 
 from .commands import parser as lvmecp_command_parser
+from lvmecp.exceptions import LvmecpUserWarning
 
 
 __all__ = ["LvmecpActor"]
@@ -50,23 +52,25 @@ class LvmecpActor(AMQPActor):
 
     async def start(self):
         """Start the actor and connect the controllers."""
-        await super().start()
 
         connect_timeout = self.config["timeouts"]["controller_connect"]
 
-        assert len(self.parser_args) == 1
-        for plc in self.parser_args[0]:
+        for plc in self.parser_args[0]:            
             try:
                 self.log.debug(f"Start {plc.name} ...")
                 await asyncio.wait_for(plc.start(), timeout=connect_timeout)
+            except asyncio.TimeoutError:
+                warnings.warn(
+                    f"Timeout out connecting to {plc.name!r}.",
+                    LvmecpUserWarning,
+                )
 
-            except Exception as ex:
-                self.log.error(f"Unexpected exception {type(ex)}: {ex}")
-
+        await super().start()
         self.log.debug("Start done")
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
+        plc.stop()
         return await super().stop()
 
     @classmethod
