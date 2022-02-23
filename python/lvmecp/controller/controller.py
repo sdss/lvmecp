@@ -126,17 +126,17 @@ class PlcController:
 
         try:
             if mode == "coil":
-                assert self.Client
-                assert self.Client.protocol
-                reply = await self.Client.protocol.read_coils(addr, 1)
+                #assert self.Client
+                #assert self.Client.protocol
+                reply = await self.Client.protocol.read_coils(addr, 1, unit=0X01)
                 if reply:
                     return reply.bits[0]
                 else:
                     raise LvmecpControllerError("read_coils returns a wrong value")
             elif mode == "holding_registers":
-                assert self.Client
-                assert self.Client.protocol
-                reply = await self.Client.protocol.read_holding_registers(addr, 1)
+                #assert self.Client
+                #assert self.Client.protocol
+                reply = await self.Client.protocol.read_holding_registers(addr, 1, unit=1)
                 if reply:
                     return reply.registers[0]
                 else:
