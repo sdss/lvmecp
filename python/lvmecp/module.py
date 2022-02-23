@@ -1,6 +1,6 @@
 import sys
-import uuid
 import time
+import uuid
 
 from clu.actor import AMQPClient
 from cluplus.proxy import Proxy

@@ -16,7 +16,15 @@ import os
 
 import click
 from clu.command import Command
-from clu.parsers.click import CluGroup, get_schema, help_, keyword, ping, version, command_parser
+from clu.parsers.click import (
+    CluGroup,
+    get_schema,
+    help_,
+    keyword,
+    ping,
+    version,
+    command_parser,
+)
 
 
 @click.group(cls=CluGroup)
@@ -30,6 +38,7 @@ parser.add_command(help_)
 parser.add_command(get_schema)
 parser.add_command(keyword)
 
+
 @command_parser.command(name="__commands")
 @click.pass_context
 def __commands(ctx, command: Command, *args):
@@ -37,6 +46,7 @@ def __commands(ctx, command: Command, *args):
 
     # we have to use the help key for the command list, dont want to change the standard model.
     command.finish(help=[k for k in ctx.command.commands.keys() if k[:2] != "__"])
+
 
 parser.add_command(__commands)
 
