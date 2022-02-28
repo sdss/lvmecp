@@ -20,5 +20,3 @@ async def test_dome_status(actor: EcpActor):
     assert command.status.did_succeed
     assert len(command.replies) == 4
     assert command.replies[-2].message["status"]["Dome"] == "CLOSE"
-
-
