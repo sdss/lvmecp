@@ -51,8 +51,8 @@ async def actor(test_config: dict, controllers: PlcController, mocker):
 
     yield _actor
 
-    #_actor.mock_replies.clear()
-    #await _actor.stop()
+    # _actor.mock_replies.clear()
+    # await _actor.stop()
 
 
 @pytest.fixture
