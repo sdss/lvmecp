@@ -65,7 +65,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        poetry run pytest tests/test_command_actor.py
+        poetry run pytest tests/test_actor.py
         poetry run pytest tests/test_command_dome.py
         poetry run pytest tests/test_command_light.py
         poetry run pytest tests/test_command_monitor.py
