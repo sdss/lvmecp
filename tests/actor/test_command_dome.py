@@ -15,6 +15,8 @@ from lvmecp.exceptions import LvmecpError
 @pytest.mark.asyncio
 async def test_dome_status(actor: EcpActor):
 
+    time.sleep(10)
+
     # status check of dome
     command = await actor.invoke_mock_command("dome status")
     await command
