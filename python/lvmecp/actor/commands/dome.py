@@ -23,12 +23,12 @@ __all__ = ["dome"]
 
 @parser.group()
 def dome():
-    """tasks for Dome"""
+    """Tasks for Dome which turn on or off the roll-off dome and return the current status of the dome"""
     pass
 
 
 @dome.command()
-async def move(command: Command, controllers: dict[str, PlcController]):
+async def enable(command: Command, controllers: dict[str, PlcController]):
     """Turn on or off the roll-off dome of the enclosure."""
 
     estatus = await controllers[0].send_command("interlocks", "E_status", "status")
@@ -58,16 +58,12 @@ async def move(command: Command, controllers: dict[str, PlcController]):
                 await controllers[0].send_command(
                     "shutter1", "motor_direction", "on"
                 )  # Direction would be set to 1
-                await controllers[0].send_command(
-                    "shutter1", "drive_enable", "on"
-                )  # Dome enable would be set to 1
                 status["Dome"] = "OPEN"
             # This would trigger a stage to start the motor
             # and then, the dome would disable automatically
             elif current_status["ne_limit"] == 1:
                 # dome is opened
                 await controllers[0].send_command("shutter1", "motor_direction", "off")
-                await controllers[0].send_command("shutter1", "drive_enable", "on")
                 status["Dome"] = "CLOSE"
             else:
                 raise LvmecpError("The status of limitswitches returns wrong value.")
@@ -76,6 +72,8 @@ async def move(command: Command, controllers: dict[str, PlcController]):
             raise LvmecpError("the enclosure is moving.")
         else:
             raise LvmecpError("The status of motor returns wrong value.")
+
+        await controllers[0].send_command("shutter1", "drive_enable", "on")
 
     except LvmecpError as err:
         return command.fail(str(err))

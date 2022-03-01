@@ -24,7 +24,7 @@ __all__ = ["estop"]
 
 @parser.command()
 async def estop(command: Command, controllers: dict[str, PlcController]):
-    """activate the emergency status.
+    """Activates the emergency status.
 
     if the E-stop has been triggered, a contactor and power electronic
     will shut down.

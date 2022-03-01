@@ -244,7 +244,7 @@ plcs:
                         units: TBD
 
 timeouts:
-    controller_connect: 1
+    controller_connect: 3
 
 actor:
     name: lvmecp

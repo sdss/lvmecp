@@ -65,11 +65,13 @@ class PlcController:
             self.addr[module.name] = module.get_address()
             if module.name == "hvac":
                 self.unit[module.name] = module.get_unit()
-        self.Client = None
+        # print(self.addr)
+        # self.Client = None
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
         # connection
+        self.Client = None
         try:
             self.Client = ModbusClient(self.host, self.port)
             await self.Client.connect()
@@ -79,6 +81,7 @@ class PlcController:
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
         try:
+            assert self.Client
             self.Client.protocol.close()
 
         except LvmecpControllerError:
@@ -100,6 +103,7 @@ class PlcController:
 
         try:
             if mode == "coil":
+                assert self.Client
                 await self.Client.protocol.write_coil(addr, data)
             elif mode == "holding_registers":
                 await self.Client.protocol.write_register(addr, data)
@@ -122,11 +126,25 @@ class PlcController:
 
         try:
             if mode == "coil":
-                reply = await self.Client.protocol.read_coils(addr, 1)
-                return reply.bits[0]
+                # assert self.Client
+                # assert self.Client.protocol
+                reply = await self.Client.protocol.read_coils(addr, 1, unit=0x01)
+                if reply:
+                    return reply.bits[0]
+                else:
+                    raise LvmecpControllerError("read_coils returns a wrong value")
             elif mode == "holding_registers":
-                reply = await self.Client.protocol.read_holding_registers(addr, 10)
-                return reply.registers[0]
+                # assert self.Client
+                # assert self.Client.protocol
+                reply = await self.Client.protocol.read_holding_registers(
+                    addr, 1, unit=1
+                )
+                if reply:
+                    return reply.registers[0]
+                else:
+                    raise LvmecpControllerError(
+                        "read_holding_registers returns a wrong value"
+                    )
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
