@@ -2,6 +2,8 @@
 #
 # test_monitor.py
 
+from __future__ import annotations
+
 import pytest
 
 from lvmecp.actor.actor import LvmecpActor as EcpActor

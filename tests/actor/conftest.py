@@ -30,7 +30,7 @@ from lvmecp.controller.controller import PlcController
 
 
 @pytest.fixture()
-def test_config():
+async def test_config():
 
     extra = read_yaml_file(os.path.join(os.path.dirname(__file__), "test_lvmecp.yml"))
     yield merge_config(extra, config)
@@ -51,12 +51,12 @@ async def actor(test_config: dict, controllers: PlcController, mocker):
 
     yield _actor
 
-    # _actor.mock_replies.clear()
-    # await _actor.stop()
+    _actor.mock_replies.clear()
+    await _actor.stop()
 
 
 @pytest.fixture
-def controllers():
+async def controllers():
     default_config_file = os.path.join(os.path.dirname(__file__), "test_lvmecp.yml")
     default_config = AMQPActor._parse_config(default_config_file)
 
