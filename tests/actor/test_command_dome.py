@@ -29,8 +29,6 @@ async def test_dome_status(actor: EcpActor):
 @pytest.mark.asyncio
 async def test_dome_enable(actor: EcpActor):
 
-    time.sleep(10)
-
     command = await actor.invoke_mock_command("dome enable")
     await command
     assert command.status.did_succeed
