@@ -17,15 +17,15 @@ async def test_telemetry(actor: EcpActor):
 
     assert command.status.did_succeed
     assert len(command.replies) == 4
-    # assert command.replies[-2].message["status"]["emergency"] == 0
-    # assert command.replies[-2].message["status"]["Dome"] == 0
-    # assert command.replies[-2].message["status"]["lights"]["Control room"] == 0
-    # assert command.replies[-2].message["status"]["lights"]["Utilities room"] == 0
-    # assert command.replies[-2].message["status"]["lights"]["Spectrograph room"] == 0
-    # assert command.replies[-2].message["status"]["lights"]["UMA lights"] == 0
-    # assert (
-    #    command.replies[-2].message["status"]["lights"]["Telescope room - bright"] == 0
-    # )
-    # assert command.replies[-2].message["status"]["lights"]["Telescope room - red"] == 0
-    # assert command.replies[-2].message["status"]["HVAC"]["sensor1"]
-    # assert command.replies[-2].message["status"]["HVAC"]["sensor2"]
+    assert command.replies[-2].message["status"]["emergency"] == 0
+    assert command.replies[-2].message["status"]["Dome"] == 0
+    assert command.replies[-2].message["status"]["lights"]["Control room"] == 0
+    assert command.replies[-2].message["status"]["lights"]["Utilities room"] == 0
+    assert command.replies[-2].message["status"]["lights"]["Spectrograph room"] == 0
+    assert command.replies[-2].message["status"]["lights"]["UMA lights"] == 0
+    assert (
+        command.replies[-2].message["status"]["lights"]["Telescope room - bright"] == 0
+    )
+    assert command.replies[-2].message["status"]["lights"]["Telescope room - red"] == 0
+    assert command.replies[-2].message["status"]["HVAC"]["sensor1"]
+    assert command.replies[-2].message["status"]["HVAC"]["sensor2"]
