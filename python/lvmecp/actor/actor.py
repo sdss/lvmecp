@@ -29,8 +29,8 @@ __all__ = ["LvmecpActor"]
 class LvmecpActor(AMQPActor):
     """Lvmecp controller actor.
 
-    Parametersa
-    ----------
+    Parameters
+    --------------
     controllers
         The list of `.PlcController` instances to manage.
     """
