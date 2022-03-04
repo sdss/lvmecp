@@ -128,20 +128,6 @@ async def test_light_enable(actor: EcpActor):
     assert command.replies[-2].message["status"]["Spectrograph room"] == 0
 
     # on check of light
-    command = await actor.invoke_mock_command("light enable ur")
-    await command
-    assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Utilities room"] == 1
-
-    # off check of light
-    command = await actor.invoke_mock_command("light enable ur")
-    await command
-    assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Utilities room"] == 0
-
-    # on check of light
     command = await actor.invoke_mock_command("light enable uma")
     await command
     assert command.status.did_succeed
