@@ -29,3 +29,14 @@ async def test_telemetry(actor: EcpActor):
     assert command.replies[-2].message["status"]["lights"]["Telescope room - red"] == 0
     assert command.replies[-2].message["status"]["HVAC"]["sensor1"]
     assert command.replies[-2].message["status"]["HVAC"]["sensor2"]
+
+
+# @pytest.mark.asyncio
+# async def test_telemetry_fail_connect(actor: EcpActor):
+
+# await actor.plcs[0].stop()
+
+# command = await actor.invoke_mock_command("telemetry")
+# await command
+
+# assert command.status.did_fail
