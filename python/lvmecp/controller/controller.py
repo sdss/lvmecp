@@ -85,7 +85,7 @@ class PlcController:
                 self.Client.protocol.close()
             else:
                 await self.Client.connect()
-            
+
             self.Client.protocol.close()
 
         except LvmecpControllerError:
