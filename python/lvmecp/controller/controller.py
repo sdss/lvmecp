@@ -81,7 +81,11 @@ class PlcController:
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
         try:
-            assert self.Client
+            if self.Client.protocol:
+                self.Client.protocol.close()
+            else:
+                await self.Client.connect()
+            
             self.Client.protocol.close()
 
         except LvmecpControllerError:
@@ -106,6 +110,7 @@ class PlcController:
                 assert self.Client
                 await self.Client.protocol.write_coil(addr, data)
             elif mode == "holding_registers":
+                assert self.Client
                 await self.Client.protocol.write_register(addr, data)
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
