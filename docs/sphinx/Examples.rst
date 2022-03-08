@@ -158,7 +158,7 @@ Therefore, if you want to turn on the lights in a specific room,
 you should use a appropriate argument.
 
     Parameters
-    -----------
+    
     cr
         Control room.
     ur
