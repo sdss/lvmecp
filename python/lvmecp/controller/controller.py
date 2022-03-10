@@ -457,6 +457,7 @@ class Module:
     description
         An explanation of the module
     """
+
     def __init__(
         self,
         plcname: str,
