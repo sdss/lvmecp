@@ -169,7 +169,7 @@ class PlcController:
             The elements contained by the module
 
         command
-            move/status
+            on/off/status/trigger
         """
 
         self.result = {}
@@ -439,6 +439,24 @@ class PlcController:
 
 
 class Module:
+    """Defines modules connected with an PLC.
+
+    Parameters
+    ----------
+    plcname
+        A plc name connected with the module.
+    config
+        The configuration defined on the .yaml file under /etc/lvmecp.yml
+    name
+        Module name
+    mode
+        Modbus memory type
+        coil/register
+    channels
+        Number of elements in the module
+    description
+        An explanation of the module
+    """
     def __init__(
         self,
         plcname: str,
