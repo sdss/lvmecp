@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sdss-lvmecp"
-version = "0.1.0"
+version = "0.2.0"
 description = "A library and actor to communicate with an SDSS-V LVM Enclosure"
 authors = ["mingyeong yang <mingyeong@khu.ac.kr>"]
 license = "BSD-3-Clause"
