@@ -72,8 +72,8 @@ class LvmecpActor(AMQPActor):
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
 
-        for controller in self.controllers.values():
-            await controller.stop()
+        for plc in self.parser_args[0]:
+            await plc.stop()
 
         return await super().stop()
 
