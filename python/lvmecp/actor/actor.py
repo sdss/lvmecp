@@ -38,8 +38,9 @@ class LvmecpActor(AMQPActor):
     parser: ClassVar[click.Group] = lvmecp_command_parser
     BASE_CONFIG: ClassVar[str | Dict | None] = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, controllers: tuple[PlcController, ...] = (), **kwargs):
         #: dict[str, PlcController]: A mapping of controller name to controller.
+        self.controllers = {c.name: c for c in controllers}
 
         if "schema" not in kwargs:
             kwargs["schema"] = os.path.join(
@@ -70,8 +71,10 @@ class LvmecpActor(AMQPActor):
 
     async def stop(self):
         """Stop the actor and disconnect the controllers."""
-        for plc in self.parser_args[0]:
-            await plc.stop()
+
+        for controller in self.controllers.values():
+            await controller.stop()
+
         return await super().stop()
 
     @classmethod
