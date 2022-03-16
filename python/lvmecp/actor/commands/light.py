@@ -103,7 +103,7 @@ async def enable(command: Command, controllers: dict[str, PlcController], room: 
     except LvmecpError as err:
         return command.fail(str(err))
 
-    lightstatus["light"] = status 
+    lightstatus["light"] = status
     return command.finish(lightstatus)
 
 
@@ -167,5 +167,5 @@ async def status(command: Command, controllers: dict[str, PlcController], room: 
     except LvmecpError as err:
         return command.fail(str(err))
 
-    lightstatus["light"] = status 
+    lightstatus["light"] = status
     return command.finish(lightstatus)

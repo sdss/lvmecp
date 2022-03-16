@@ -64,7 +64,9 @@ async def telemetry(command: Command, controllers: dict[str, PlcController]):
             roomlights[room_point[f"{room_ins}"]] = lights_status[f"{room_ins}_status"]
         enclosure_status["lights"] = roomlights
 
-        enclosure_status["hvac"] = await controllers[1].send_command("hvac", "all", "status")
+        enclosure_status["hvac"] = await controllers[1].send_command(
+            "hvac", "all", "status"
+        )
 
     except LvmecpError as err:
         return command.fail(str(err))
