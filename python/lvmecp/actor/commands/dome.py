@@ -45,7 +45,7 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
 
     command.info(text="moving the Dome")
     current_status = {}
-    status = {}
+    domestatus = {}
 
     try:
         # we should check the dome state(open/close) by drive_state
@@ -58,13 +58,13 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
                 await controllers[0].send_command(
                     "shutter1", "motor_direction", "on"
                 )  # Direction would be set to 1
-                status["Dome"] = "OPEN"
+                domestatus["Dome"] = "OPEN"
             # This would trigger a stage to start the motor
             # and then, the dome would disable automatically
             elif current_status["ne_limit"] == 1:
                 # dome is opened
                 await controllers[0].send_command("shutter1", "motor_direction", "off")
-                status["Dome"] = "CLOSE"
+                domestatus["Dome"] = "CLOSE"
             else:
                 raise LvmecpError("The status of limitswitches returns wrong value.")
         elif current_status["drive_state"] == 1:
@@ -78,8 +78,7 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=status)
-    return command.finish()
+    return command.finish(domestatus)
 
 
 @dome.command()
@@ -88,15 +87,15 @@ async def status(command: Command, controllers: dict[str, PlcController]):
 
     command.info(text="checking the Dome")
     current_status = {}
-    status = {}
+    domestatus = {}
 
     try:
         current_status = await controllers[0].send_command("shutter1", "all", "status")
         if current_status["drive_state"] == 0:
             if current_status["ne_limit"] == 1:
-                status["Dome"] = "OPEN"
+                domestatus["Dome"] = "OPEN"
             elif current_status["ne_limit"] == 0:
-                status["Dome"] = "CLOSE"
+                domestatus["Dome"] = "CLOSE"
         elif current_status["drive_state"] == 1:
             raise LvmecpError("the enclosure is moving.")
         else:
@@ -105,5 +104,4 @@ async def status(command: Command, controllers: dict[str, PlcController]):
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=status)
-    return command.finish()
+    return command.finish(domestatus)

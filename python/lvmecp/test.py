@@ -11,9 +11,9 @@ This is the example code for telemetry
 """
 
 enclosure_interface.telemetry()
-enclosure_interface.monitor()
-# enclosure_interface.domenable()
-enclosure_interface.domestatus()
-enclosure_interface.lightenable(room="cr")
-enclosure_interface.lightstatus()
+#enclosure_interface.monitor()
+#enclosure_interface.domenable()
+#enclosure_interface.domestatus()
+#enclosure_interface.lightenable(room="cr")
+#enclosure_interface.lightstatus()
 # enclosure_interface.estop()

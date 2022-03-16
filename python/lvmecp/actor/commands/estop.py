@@ -50,12 +50,13 @@ async def estop(command: Command, controllers: dict[str, PlcController]):
         current_status["E_stop"] = await controllers[0].send_command(
             "interlocks", "E_stop", "trigger"
         )
-        status["emergency"] = await controllers[0].send_command(
+        current_status["E_status"] = await controllers[0].send_command(
             "interlocks", "E_status", "status"
         )
+        status["emergency"] = current_status["E_status"]["E_status"]
 
     except LvmecpError as err:
         return command.fail(str(err))
-
-    command.info(status=status)
-    return command.finish()
+    
+    print(status)
+    return command.finish(status)

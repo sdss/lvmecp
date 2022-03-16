@@ -60,5 +60,4 @@ async def monitor(command: Command, controllers: dict[str, PlcController], room:
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=current_status)
-    return command.finish()
+    return command.finish(current_status)

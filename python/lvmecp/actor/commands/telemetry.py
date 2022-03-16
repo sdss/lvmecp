@@ -26,7 +26,8 @@ __all__ = ["telemetry"]
 async def telemetry(command: Command, controllers: dict[str, PlcController]):
     """Returns the status of the enclosure"""
 
-    status = {}
+    enclosure_status = {}
+    final = {}
     lights_status = {}
     room_point = {}
     room_point["cr"] = "Control room"
@@ -41,29 +42,32 @@ async def telemetry(command: Command, controllers: dict[str, PlcController]):
 
     try:
         estatus = await controllers[0].send_command("interlocks", "E_status", "status")
-        status["emergency"] = estatus["E_status"]
+        enclosure_status["emergency"] = estatus["E_status"]
 
         domestatus = await controllers[0].send_command("shutter1", "ne_limit", "status")
         drivestatus = await controllers[0].send_command(
             "shutter1", "drive_state", "status"
         )
         if drivestatus["drive_state"] == 0:
-            status["Dome"] = domestatus["ne_limit"]
+            if domestatus["ne_limit"] == 1:
+                enclosure_status["Dome"] = "OPEN"
+            elif domestatus["ne_limit"] == 0:
+                enclosure_status["Dome"] = "CLOSE"
         elif drivestatus["drive_state"] == 1:
-            status["Dome"] = "moving"
+            enclosure_status["Dome"] = "moving"
         else:
-            status["Dome"] = "Error"
+            enclosure_status["Dome"] = "Error"
 
         lights_status = await controllers[0].send_command("lights", "all", "status")
         roomlights = {}
         for room_ins in room_list:
             roomlights[room_point[f"{room_ins}"]] = lights_status[f"{room_ins}_status"]
-        status["lights"] = roomlights
+        enclosure_status["lights"] = roomlights
 
-        status["HVAC"] = await controllers[1].send_command("hvac", "all", "status")
+        enclosure_status["hvac"] = await controllers[1].send_command("hvac", "all", "status")
 
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=status)
-    return command.finish()
+    final["status"] = enclosure_status
+    return command.finish(final)
