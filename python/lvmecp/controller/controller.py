@@ -76,7 +76,7 @@ class PlcController:
             self.Client = ModbusClient(self.host, self.port)
             await self.Client.connect()
         except LvmecpControllerError:
-            print(f"fail to open connection with {self.host}")
+            self.log.warnings(f"fail to open connection with {self.host}")
 
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
@@ -89,7 +89,7 @@ class PlcController:
             self.Client.protocol.close()
 
         except LvmecpControllerError:
-            print(f"fail to close connection with {self.host}")
+            self.log.warnings(f"fail to close connection with {self.host}")
 
     async def write(self, mode: str, addr: int, data):
         """write the data to devices
@@ -116,7 +116,7 @@ class PlcController:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
-            print(f"fail to write coil to {addr}")
+            self.log.warnings(f"fail to write coil to {addr}")
 
     async def read(self, mode: str, addr: int):
         """read the data from devices
@@ -154,7 +154,7 @@ class PlcController:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
-            print(f"fail to read coils to {addr}")
+            self.log.warnings(f"fail to read coils to {addr}")
 
     async def send_command(self, module: str, element: str, command: str):
         """send command to PLC
@@ -349,7 +349,7 @@ class PlcController:
             return self.result
 
         except LvmecpControllerError as err:
-            warnings.warn(str(err), LvmecpControllerWarning)
+            self.log.warnings(str(err), LvmecpControllerWarning)
 
     async def get_status(self, mode: str, addr: int):
         """get the status of the device
@@ -490,7 +490,7 @@ class Module:
             for element in elements_list:
                 addr[element] = elements[element]["address"]
         except LvmecpControllerError:
-            print("You cannot get addresses.")
+            self.log.warnings("You cannot get addresses.")
 
         return addr
 
@@ -506,7 +506,7 @@ class Module:
             for element in elements_list:
                 unit[element] = elements[element]["units"]
         except LvmecpControllerError:
-            print("You cannot get units.")
+            self.log.warnings("You cannot get units.")
 
         return unit
 
