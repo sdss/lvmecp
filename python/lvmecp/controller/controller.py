@@ -76,7 +76,7 @@ class PlcController:
             self.Client = ModbusClient(self.host, self.port)
             await self.Client.connect()
         except LvmecpControllerError:
-            self.log.warnings(f"fail to open connection with {self.host}")
+            self.log.error(f"fail to open connection with {self.host}")
 
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
@@ -89,7 +89,7 @@ class PlcController:
             self.Client.protocol.close()
 
         except LvmecpControllerError:
-            self.log.warnings(f"fail to close connection with {self.host}")
+            self.log.error(f"fail to close connection with {self.host}")
 
     async def write(self, mode: str, addr: int, data):
         """write the data to devices
@@ -116,7 +116,7 @@ class PlcController:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
-            self.log.warnings(f"fail to write coil to {addr}")
+            self.log.error(f"fail to write coil to {addr}")
 
     async def read(self, mode: str, addr: int):
         """read the data from devices
@@ -349,7 +349,7 @@ class PlcController:
             return self.result
 
         except LvmecpControllerError as err:
-            self.log.warnings(str(err), LvmecpControllerWarning)
+            self.log.error(f"We cannot send command to the PLC {module}")
 
     async def get_status(self, mode: str, addr: int):
         """get the status of the device
@@ -486,11 +486,8 @@ class Module:
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())
 
-        try:
-            for element in elements_list:
-                addr[element] = elements[element]["address"]
-        except LvmecpControllerError:
-            self.log.warnings("You cannot get addresses.")
+        for element in elements_list:
+            addr[element] = elements[element]["address"]
 
         return addr
 
@@ -502,11 +499,8 @@ class Module:
         elements = self.config_get(f"modules.{self.name}.elements")
         elements_list = list(elements.keys())
 
-        try:
-            for element in elements_list:
-                unit[element] = elements[element]["units"]
-        except LvmecpControllerError:
-            self.log.warnings("You cannot get units.")
+        for element in elements_list:
+            unit[element] = elements[element]["units"]
 
         return unit
 
