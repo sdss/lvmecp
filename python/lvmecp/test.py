@@ -1,7 +1,7 @@
 # this is the example code of how to use the lvmscp as an API
 import time
 
-from lvmecp.module import API as enclosure_interface
+from lvmecp.module2 import API as enclosure_interface
 
 
 enclosure_interface.ping()
