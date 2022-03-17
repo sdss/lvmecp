@@ -17,7 +17,7 @@ async def test_monitor(actor: EcpActor):
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
+    assert len(command.replies) == 3
 
 
 @pytest.mark.asyncio

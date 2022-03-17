@@ -69,6 +69,7 @@ async def enable(command: Command, controllers: dict[str, PlcController], room: 
 
     current_status = {}
     status = {}
+    lightstatus = {}
     room_point = {}
     room_point["cr"] = "Control room"
     room_point["ur"] = "Utilities room"
@@ -102,8 +103,8 @@ async def enable(command: Command, controllers: dict[str, PlcController], room: 
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=status)
-    return command.finish()
+    lightstatus["light"] = status
+    return command.finish(lightstatus)
 
 
 @light.command()
@@ -137,6 +138,7 @@ async def status(command: Command, controllers: dict[str, PlcController], room: 
     command.info(text="checking the light")
     current_status = {}
     status = {}
+    lightstatus = {}
     room_point = {}
     room_point["cr"] = "Control room"
     room_point["ur"] = "Utilities room"
@@ -165,5 +167,5 @@ async def status(command: Command, controllers: dict[str, PlcController], room: 
     except LvmecpError as err:
         return command.fail(str(err))
 
-    command.info(status=status)
-    return command.finish()
+    lightstatus["light"] = status
+    return command.finish(lightstatus)

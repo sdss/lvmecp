@@ -2,8 +2,32 @@
     "type": "object",
     "properties": {
             "text": {"type": "string"},
-            "status": {
+            "emergency": {"type":"integer"},
+            "Dome": {"type": "string"},
+            "light": {
                 "type": "object",
+                "Control room": {"type": "integer"},
+                "Utilities room": {"type": "integer"},
+                "Spectrograph room": {"type": "integer"},
+                "UMA lights": {"type": "integer"},
+                "Telescope room - bright": {"type": "integer"},
+                "Telescope room - red": {"type": "integer"}
+            },
+            "hvac": {
+                "type": "object",
+                "sensor1": {
+                    "value": {"type": "integer"},
+                    "unit": {"type": "string"}
+                },
+                "sensor2": {
+                    "value": {"type": "integer"},
+                    "unit": {"type": "string"}
+                }
+            },
+            "status":{
+                "type":"object",
+                "emergency": {"type":"integer"},
+                "Dome": {"type": "string"},
                 "light": {
                     "type": "object",
                     "Control room": {"type": "integer"},
@@ -23,9 +47,7 @@
                         "value": {"type": "integer"},
                         "unit": {"type": "string"}
                     }
-                },
-                "Dome": {"type": "string"},
-                "emergengy": {"type": "integer"}
+                }
             }
     },
     "additionalProperties": false

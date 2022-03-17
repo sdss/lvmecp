@@ -18,62 +18,61 @@ async def test_light_status(actor: EcpActor):
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    # test with CK 20211213
-    assert command.replies[-2].message["status"]["Control room"] == 0
-    assert command.replies[-2].message["status"]["Utilities room"] == 0
-    assert command.replies[-2].message["status"]["Spectrograph room"] == 0
-    assert command.replies[-2].message["status"]["UMA lights"] == 0
-    assert command.replies[-2].message["status"]["Telescope room - bright"] == 0
-    assert command.replies[-2].message["status"]["Telescope room - red"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Control room"] == 0
+    assert command.replies[-1].message["light"]["Utilities room"] == 0
+    assert command.replies[-1].message["light"]["Spectrograph room"] == 0
+    assert command.replies[-1].message["light"]["UMA lights"] == 0
+    assert command.replies[-1].message["light"]["Telescope room - bright"] == 0
+    assert command.replies[-1].message["light"]["Telescope room - red"] == 0
 
     # status check of light
     command = await actor.invoke_mock_command("light status cr")
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Control room"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Control room"] == 0
 
     # status check of light
     command = await actor.invoke_mock_command("light status ur")
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Utilities room"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Utilities room"] == 0
 
     # status check of light
     command = await actor.invoke_mock_command("light status sr")
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Spectrograph room"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Spectrograph room"] == 0
 
     # status check of light
     command = await actor.invoke_mock_command("light status uma")
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["UMA lights"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["UMA lights"] == 0
 
     # status check of light
     command = await actor.invoke_mock_command("light status tb")
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Telescope room - bright"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Telescope room - bright"] == 0
 
     # status check of light
     command = await actor.invoke_mock_command("light status tr")
     await command
 
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Telescope room - red"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Telescope room - red"] == 0
 
 
 @pytest.mark.asyncio
@@ -83,85 +82,85 @@ async def test_light_enable(actor: EcpActor):
     command = await actor.invoke_mock_command("light enable cr")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Control room"] == 1
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Control room"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("light enable cr")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Control room"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Control room"] == 0
 
     # on check of light
     command = await actor.invoke_mock_command("light enable ur")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Utilities room"] == 1
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Utilities room"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("light enable ur")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Utilities room"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Utilities room"] == 0
 
     # on check of light
     command = await actor.invoke_mock_command("light enable sr")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Spectrograph room"] == 1
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Spectrograph room"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("light enable sr")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Spectrograph room"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Spectrograph room"] == 0
 
     # on check of light
     command = await actor.invoke_mock_command("light enable uma")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["UMA lights"] == 1
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["UMA lights"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("light enable uma")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["UMA lights"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["UMA lights"] == 0
 
     # on check of light
     command = await actor.invoke_mock_command("light enable tb")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Telescope room - bright"] == 1
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Telescope room - bright"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("light enable tb")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Telescope room - bright"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Telescope room - bright"] == 0
 
     # on check of light
     command = await actor.invoke_mock_command("light enable tr")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Telescope room - red"] == 1
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Telescope room - red"] == 1
 
     # off check of light
     command = await actor.invoke_mock_command("light enable tr")
     await command
     assert command.status.did_succeed
-    assert len(command.replies) == 4
-    assert command.replies[-2].message["status"]["Telescope room - red"] == 0
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["light"]["Telescope room - red"] == 0
 
 
 @pytest.mark.asyncio
