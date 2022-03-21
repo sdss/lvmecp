@@ -348,7 +348,7 @@ class PlcController:
 
             return self.result
 
-        except LvmecpControllerError as err:
+        except LvmecpControllerError:
             self.log.error(f"We cannot send command to the PLC {module}")
 
     async def get_status(self, mode: str, addr: int):
