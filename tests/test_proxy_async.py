@@ -15,7 +15,7 @@ import pytest
 from clu import AMQPClient, CommandStatus
 
 from lvmecp.actor import LvmecpActor as ECPActor
-from lvmecp.proxy import LvmecpProxy
+from lvmecp.proxy_async import LvmecpProxy
 
 
 @pytest.mark.asyncio
@@ -42,9 +42,8 @@ async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
     print(result)
     assert result["hvac"]
 
-
-# @pytest.mark.asyncio
-# async def test_proxy_async_light(async_proxy: LvmecpProxy):
+#@pytest.mark.asyncio
+#async def test_proxy_async_light(async_proxy: LvmecpProxy):
 
 #    result = await async_proxy.lightstatus(room="cr")
 #    assert result
@@ -54,13 +53,18 @@ async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
 #    assert result
 #    assert result == {"Control room": 1}
 
-# @pytest.mark.asyncio
-# async def test_proxy_async_dome(async_proxy: LvmecpProxy):
+#@pytest.mark.asyncio
+#async def test_proxy_async_dome(async_proxy: LvmecpProxy):
 
 #    result = await async_proxy.domestatus()
 #    print(result)
 #    assert result
 #    assert result == {'Dome': 'CLOSE'}
+
+#    result = await async_proxy.domenable()
+#    print(result)
+#    assert result
+#    assert result == {'Dome': 'OPEN'}
 
 # @pytest.mark.asyncio
 # async def test_proxy_async_estop(async_proxy: LvmecpProxy):
