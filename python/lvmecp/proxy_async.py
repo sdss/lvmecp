@@ -14,78 +14,78 @@ lvmecp.start()
 
 
 class LvmecpProxy:
-    def ping():
+    async def ping():
 
         # sequential
         try:
-            result = lvmecp.ping()
+            result = await lvmecp.ping()
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def telemetry():
+    async def telemetry():
 
         # sequential
         try:
-            result = lvmecp.telemetry()
+            result = await lvmecp.telemetry()
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def monitor():
+    async def monitor():
 
         # sequential
         try:
-            result = lvmecp.monitor()
+            result = await lvmecp.monitor()
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def domenable():
+    async def domenable():
 
         # sequential
         try:
-            result = lvmecp.dome("enable")
+            result = await lvmecp.dome("enable")
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def domestatus():
+    async def domestatus():
 
         # sequential
         try:
-            result = lvmecp.dome("status")
+            result = await lvmecp.dome("status")
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def lightenable(room):
+    async def lightenable(room):
 
         # sequential
         try:
-            result = lvmecp.light("enable", room)
+            result = await lvmecp.light("enable", room)
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def lightstatus(room=None):
+    async def lightstatus(room=None):
 
         # sequential
         try:
             if room:
-                result = lvmecp.light("status", room)
+                result = await lvmecp.light("status", room)
             else:
                 result = lvmecp.light("status")
 
@@ -94,11 +94,11 @@ class LvmecpProxy:
 
         return result
 
-    def estop():
+    async def estop():
 
         # sequential
         try:
-            result = lvmecp.estop()
+            result = await lvmecp.estop()
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
