@@ -42,8 +42,9 @@ async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
     print(result)
     assert result["hvac"]
 
-#@pytest.mark.asyncio
-#async def test_proxy_async_light(async_proxy: LvmecpProxy):
+
+# @pytest.mark.asyncio
+# async def test_proxy_async_light(async_proxy: LvmecpProxy):
 
 #    result = await async_proxy.lightstatus(room="cr")
 #    assert result
@@ -53,8 +54,8 @@ async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
 #    assert result
 #    assert result == {"Control room": 1}
 
-#@pytest.mark.asyncio
-#async def test_proxy_async_dome(async_proxy: LvmecpProxy):
+# @pytest.mark.asyncio
+# async def test_proxy_async_dome(async_proxy: LvmecpProxy):
 
 #    result = await async_proxy.domestatus()
 #    print(result)

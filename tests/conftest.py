@@ -97,6 +97,7 @@ def test_proxy(amqp_client, actor: ECPActor):
 
     yield proxy
 
+
 @pytest.fixture()
 async def async_amqp_client(actor: ECPActor):
 

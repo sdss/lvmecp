@@ -40,7 +40,7 @@ def test_proxy_monitor(test_proxy: LvmecpProxy):
     assert result["hvac"]
 
 
-#def test_proxy_light(test_proxy: LvmecpProxy):
+# def test_proxy_light(test_proxy: LvmecpProxy):
 
 #    result = test_proxy.lightstatus(room="cr")
 #    assert result
@@ -51,7 +51,7 @@ def test_proxy_monitor(test_proxy: LvmecpProxy):
 #    assert result == {"Control room": 1}
 
 
-#def test_proxy_dome(test_proxy: LvmecpProxy):
+# def test_proxy_dome(test_proxy: LvmecpProxy):
 
 #    result = test_proxy.domestatus()
 #    print(result)
