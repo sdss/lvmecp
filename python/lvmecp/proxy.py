@@ -6,48 +6,73 @@ from clu.actor import AMQPClient
 from cluplus.proxy import Proxy
 
 
-actor = "lvmecp"
+# actor = "lvmecp"
 
-amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
-lvmecp = Proxy(amqpc, actor)
-lvmecp.start()
+# amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
+# lvmecp = Proxy(amqpc, actor)
+# lvmecp.start()
 
 
 class LvmecpProxy:
-    def ping():
+    def __init__(self):
+        self.actor = "lvmecp"
+        self.amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
+
+    def ping(self):
+
+        try:
+            lvmecp = Proxy(self.amqpc, self.actor)
+            lvmecp.start()
+
+        except Exception as e:
+            self.amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
             result = lvmecp.ping()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def telemetry():
+    def telemetry(self):
+
+        try:
+            lvmecp = Proxy(self.amqpc, self.actor)
+            lvmecp.start()
+
+        except Exception as e:
+            self.amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
             result = lvmecp.telemetry()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def monitor():
+    def monitor(self):
+
+        try:
+            lvmecp = Proxy(self.amqpc, self.actor)
+            lvmecp.start()
+
+        except Exception as e:
+            self.amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
             result = lvmecp.monitor()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def dome(command: str):
+    def dome(self, command: str):
         """
         parameters
         ------------
@@ -55,17 +80,24 @@ class LvmecpProxy:
             enable
             status
         """
+
+        try:
+            lvmecp = Proxy(self.amqpc, self.actor)
+            lvmecp.start()
+
+        except Exception as e:
+            self.amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
             result = lvmecp.dome(command)
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def light(command: str, room=None):
+    def light(self, command: str, room=None):
         """
         parameters
         ------------
@@ -74,22 +106,36 @@ class LvmecpProxy:
             status
         """
 
+        try:
+            lvmecp = Proxy(self.amqpc, self.actor)
+            lvmecp.start()
+
+        except Exception as e:
+            self.amqpc.log.error(f"Exception: {e}")
+
         # sequential
         try:
             result = lvmecp.light(command, room)
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def estop():
+    def estop(self):
+
+        try:
+            lvmecp = Proxy(self.amqpc, self.actor)
+            lvmecp.start()
+
+        except Exception as e:
+            self.amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
             result = lvmecp.estop()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
         return result
