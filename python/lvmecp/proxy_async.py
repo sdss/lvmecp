@@ -8,7 +8,7 @@ from cluplus.proxy import Proxy
 
 actor = "lvmecp"
 
-amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}", host="localhost")
+amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
 lvmecp = Proxy(amqpc, actor)
 lvmecp.start()
 
