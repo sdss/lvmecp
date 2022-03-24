@@ -79,26 +79,6 @@ async def controllers():
 
 
 @pytest.fixture()
-def amqp_client(actor: ECPActor):
-
-    client = AMQPClient(name=f"{actor.name}_client-{uuid.uuid4().hex[:8]}")
-    client.start()
-
-    yield client
-
-    client.stop()
-
-
-@pytest.fixture()
-def test_proxy(amqp_client, actor: ECPActor):
-
-    proxy = Proxy(amqp_client, actor.name)
-    proxy.start()
-
-    yield proxy
-
-
-@pytest.fixture()
 async def async_amqp_client(actor: ECPActor):
 
     client = AMQPClient(name=f"{actor.name}_client-{uuid.uuid4().hex[:8]}")
