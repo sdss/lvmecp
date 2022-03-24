@@ -24,9 +24,10 @@ lvmecp's documentation
 
 
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 2
+  :caption: Development
 
-  Changelog <changelog>
+  changelog
   GitHub Repository <https://github.com/sdss/lvmecp>
   Issues  <https://github.com/sdss/lvmecp/issues>
 
