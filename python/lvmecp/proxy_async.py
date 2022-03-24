@@ -6,8 +6,15 @@ from clu.actor import AMQPClient
 from cluplus.proxy import Proxy
 
 
-class API:
-    def ping():
+# actor = "lvmecp"
+
+# amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
+# lvmecp = Proxy(amqpc, actor)
+# lvmecp.start()
+
+
+class LvmecpProxy:
+    async def ping(self):
 
         try:
             amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
@@ -20,15 +27,14 @@ class API:
 
         # sequential
         try:
-            result = lvmecp.ping()
+            result = await lvmecp.ping()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
-        print(result)
         return result
 
-    def telemetry():
+    async def telemetry(self):
 
         try:
             amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
@@ -41,15 +47,14 @@ class API:
 
         # sequential
         try:
-            result = lvmecp.telemetry()
+            result = await lvmecp.telemetry()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
-        print(result)
         return result
 
-    def monitor():
+    async def monitor(self):
 
         try:
             amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
@@ -62,16 +67,21 @@ class API:
 
         # sequential
         try:
-            result = lvmecp.monitor()
+            result = await lvmecp.monitor()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
-        print(result)
         return result
 
-    def domenable():
-
+    async def dome(self, command: str):
+        """
+        parameters
+        ------------
+        command
+            enable
+            status
+        """
         try:
             amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
 
@@ -83,16 +93,21 @@ class API:
 
         # sequential
         try:
-            result = lvmecp.dome("enable")
+            result = await lvmecp.dome(command)
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
-        print(result)
         return result
 
-    def domestatus():
-
+    async def light(self, command: str, room=None):
+        """
+        parameters
+        ------------
+        command
+            enable
+            status
+        """
         try:
             amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
 
@@ -104,15 +119,14 @@ class API:
 
         # sequential
         try:
-            result = lvmecp.dome("status")
+            result = await lvmecp.light(command, room)
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
-        print(result)
         return result
 
-    def lightenable(room):
+    async def estop(self):
 
         try:
             amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
@@ -125,55 +139,9 @@ class API:
 
         # sequential
         try:
-            result = lvmecp.light("enable", room)
+            result = await lvmecp.estop()
 
         except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
+            self.amqpc.log.error(f"Exception: {e}")
 
-        print(result)
-        return result
-
-    def lightstatus(room=None):
-
-        try:
-            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
-
-            lvmecp = Proxy(amqpc, "lvmecp")
-            lvmecp.start()
-
-        except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
-
-        # sequential
-        try:
-            if room:
-                result = lvmecp.light("status", room)
-            else:
-                result = lvmecp.light("status")
-
-        except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
-
-        print(result)
-        return result
-
-    def estop():
-
-        try:
-            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
-
-            lvmecp = Proxy(amqpc, "lvmecp")
-            lvmecp.start()
-
-        except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
-
-        # sequential
-        try:
-            result = lvmecp.estop()
-
-        except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
-
-        print(result)
         return result

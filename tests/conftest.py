@@ -16,10 +16,13 @@ import asyncio
 import os
 import re
 import tempfile
+import uuid
 
 import clu.testing
 import pytest
+from clu import AMQPClient
 from clu.actor import AMQPActor
+from cluplus.proxy import Proxy
 
 from sdsstools import merge_config, read_yaml_file
 from sdsstools.logger import get_logger
@@ -27,6 +30,7 @@ from sdsstools.logger import get_logger
 from lvmecp import config
 from lvmecp.actor import LvmecpActor as ECPActor
 from lvmecp.controller.controller import PlcController
+from lvmecp.proxy import LvmecpProxy
 
 
 @pytest.fixture()
@@ -36,7 +40,7 @@ async def test_config():
     yield merge_config(extra, config)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def actor(test_config: dict, controllers: PlcController, mocker):
 
     mocker.patch.object(AMQPActor, "start")
@@ -55,7 +59,7 @@ async def actor(test_config: dict, controllers: PlcController, mocker):
     await _actor.stop()
 
 
-@pytest.fixture
+@pytest.fixture()
 async def controllers():
     default_config_file = os.path.join(os.path.dirname(__file__), "test_lvmecp.yml")
     default_config = AMQPActor._parse_config(default_config_file)
@@ -72,3 +76,43 @@ async def controllers():
             print(f"Error in {type(ex)}: {ex}")
 
     return plcs
+
+
+@pytest.fixture()
+def amqp_client(actor: ECPActor):
+
+    client = AMQPClient(name=f"{actor.name}_client-{uuid.uuid4().hex[:8]}")
+    client.start()
+
+    yield client
+
+    client.stop()
+
+
+@pytest.fixture()
+def test_proxy(amqp_client, actor: ECPActor):
+
+    proxy = Proxy(amqp_client, actor.name)
+    proxy.start()
+
+    yield proxy
+
+
+@pytest.fixture()
+async def async_amqp_client(actor: ECPActor):
+
+    client = AMQPClient(name=f"{actor.name}_client-{uuid.uuid4().hex[:8]}")
+    await client.start()
+
+    yield client
+
+    await client.stop()
+
+
+@pytest.fixture()
+async def async_proxy(async_amqp_client, actor: ECPActor):
+
+    proxy = Proxy(async_amqp_client, actor.name)
+    await proxy.start()
+
+    yield proxy
