@@ -14,18 +14,16 @@ from cluplus.proxy import Proxy
 
 
 class LvmecpProxy:
-    def __init__(self):
-        self.actor = "lvmecp"
-        self.amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
-
     def ping(self):
 
         try:
-            lvmecp = Proxy(self.amqpc, self.actor)
+            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+
+            lvmecp = Proxy(amqpc, "lvmecp")
             lvmecp.start()
 
         except Exception as e:
-            self.amqpc.log.error(f"Exception: {e}")
+            amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
@@ -39,11 +37,13 @@ class LvmecpProxy:
     def telemetry(self):
 
         try:
-            lvmecp = Proxy(self.amqpc, self.actor)
+            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+
+            lvmecp = Proxy(amqpc, "lvmecp")
             lvmecp.start()
 
         except Exception as e:
-            self.amqpc.log.error(f"Exception: {e}")
+            amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
@@ -57,11 +57,13 @@ class LvmecpProxy:
     def monitor(self):
 
         try:
-            lvmecp = Proxy(self.amqpc, self.actor)
+            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+
+            lvmecp = Proxy(amqpc, "lvmecp")
             lvmecp.start()
 
         except Exception as e:
-            self.amqpc.log.error(f"Exception: {e}")
+            amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
@@ -82,11 +84,13 @@ class LvmecpProxy:
         """
 
         try:
-            lvmecp = Proxy(self.amqpc, self.actor)
+            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+
+            lvmecp = Proxy(amqpc, "lvmecp")
             lvmecp.start()
 
         except Exception as e:
-            self.amqpc.log.error(f"Exception: {e}")
+            amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
@@ -107,11 +111,13 @@ class LvmecpProxy:
         """
 
         try:
-            lvmecp = Proxy(self.amqpc, self.actor)
+            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+
+            lvmecp = Proxy(amqpc, "lvmecp")
             lvmecp.start()
 
         except Exception as e:
-            self.amqpc.log.error(f"Exception: {e}")
+            amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
@@ -125,11 +131,13 @@ class LvmecpProxy:
     def estop(self):
 
         try:
-            lvmecp = Proxy(self.amqpc, self.actor)
+            amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+
+            lvmecp = Proxy(amqpc, "lvmecp")
             lvmecp.start()
 
         except Exception as e:
-            self.amqpc.log.error(f"Exception: {e}")
+            amqpc.log.error(f"Exception: {e}")
 
         # sequential
         try:
