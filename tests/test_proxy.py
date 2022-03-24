@@ -40,28 +40,37 @@ def test_proxy_monitor(test_proxy: LvmecpProxy):
     assert result["hvac"]
 
 
-# def test_proxy_light(test_proxy: LvmecpProxy):
+def test_proxy_light(test_proxy: LvmecpProxy):
 
-#    result = test_proxy.lightstatus(room="cr")
-#    assert result
-#    assert result == {"Control room": 0}
+    result = test_proxy.light("status")
+    assert result
 
-#    result = test_proxy.lightenable(room="cr")
-#    assert result
-#    assert result == {"Control room": 1}
+    result = test_proxy.light("enable", "cr")
+    assert result
+    assert result["light"] == {"Control room": 1}
+
+    result = test_proxy.light("enable", "cr")
+    assert result
+    assert result["light"] == {"Control room": 0}
 
 
-# def test_proxy_dome(test_proxy: LvmecpProxy):
+def test_proxy_dome(test_proxy: LvmecpProxy):
 
-#    result = test_proxy.domestatus()
-#    print(result)
-#    assert result
-#    assert result == {'Dome': 'CLOSE'}
+    sleep(10)
 
-#    result = test_proxy.domenable()
-#    print(result)
-#    assert result
-#    assert result == {'Dome': 'OPEN'}
+    result = test_proxy.dome("status")
+    assert result
+    assert result == {"Dome": "CLOSE"}
+
+    result = test_proxy.dome("enable")
+    assert result
+    assert result == {"Dome": "OPEN"}
+
+    sleep(10)
+
+    result = test_proxy.dome("enable")
+    assert result
+    assert result == {"Dome": "CLOSE"}
 
 
 # def test_proxy_estop(proxy: LvmecpProxy):

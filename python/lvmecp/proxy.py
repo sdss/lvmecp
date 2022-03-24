@@ -47,47 +47,36 @@ class LvmecpProxy:
 
         return result
 
-    def domenable():
+    def dome(command: str):
+        """
+        parameters
+        ------------
+        command
+            enable
+            status
+        """
 
         # sequential
         try:
-            result = lvmecp.dome("enable")
+            result = lvmecp.dome(command)
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")
 
         return result
 
-    def domestatus():
+    def light(command: str, room=None):
+        """
+        parameters
+        ------------
+        command
+            enable
+            status
+        """
 
         # sequential
         try:
-            result = lvmecp.dome("status")
-
-        except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
-
-        return result
-
-    def lightenable(room):
-
-        # sequential
-        try:
-            result = lvmecp.light("enable", room)
-
-        except Exception as e:
-            amqpc.log.error(f"Exception: {e}")
-
-        return result
-
-    def lightstatus(room=None):
-
-        # sequential
-        try:
-            if room:
-                result = lvmecp.light("status", room)
-            else:
-                result = lvmecp.light("status")
+            result = lvmecp.light(command, room)
 
         except Exception as e:
             amqpc.log.error(f"Exception: {e}")

@@ -43,29 +43,40 @@ async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
     assert result["hvac"]
 
 
-# @pytest.mark.asyncio
-# async def test_proxy_async_light(async_proxy: LvmecpProxy):
+@pytest.mark.asyncio
+async def test_proxy_async_light(async_proxy: LvmecpProxy):
 
-#    result = await async_proxy.lightstatus(room="cr")
-#    assert result
-#    assert result == {"Control room": 0}
+    result = await async_proxy.light("status")
+    assert result
 
-#    result = await async_proxy.lightenable(room="cr")
-#    assert result
-#    assert result == {"Control room": 1}
+    result = await async_proxy.light("enable", "cr")
+    assert result
+    assert result["light"] == {"Control room": 1}
 
-# @pytest.mark.asyncio
-# async def test_proxy_async_dome(async_proxy: LvmecpProxy):
+    result = await async_proxy.light("enable", "cr")
+    assert result
+    assert result["light"] == {"Control room": 0}
 
-#    result = await async_proxy.domestatus()
-#    print(result)
-#    assert result
-#    assert result == {'Dome': 'CLOSE'}
 
-#    result = await async_proxy.domenable()
-#    print(result)
-#    assert result
-#    assert result == {'Dome': 'OPEN'}
+@pytest.mark.asyncio
+async def test_proxy_async_dome(async_proxy: LvmecpProxy):
+
+    sleep(10)
+
+    result = await async_proxy.dome("status")
+    assert result
+    assert result == {"Dome": "CLOSE"}
+
+    result = await async_proxy.dome("enable")
+    assert result
+    assert result == {"Dome": "OPEN"}
+
+    sleep(10)
+
+    result = await async_proxy.dome("enable")
+    assert result
+    assert result == {"Dome": "CLOSE"}
+
 
 # @pytest.mark.asyncio
 # async def test_proxy_async_estop(async_proxy: LvmecpProxy):
