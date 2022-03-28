@@ -66,6 +66,7 @@ class LvmecpActor(AMQPActor):
                     f"Timeout out connecting to {plc.name!r}.",
                     LvmecpUserWarning,
                 )
+                raise LvmecpUserWarning(f"We cannot connect with {plc.name}")
 
         await super().start()
         self.log.debug("Start done")
