@@ -41,7 +41,7 @@ async def test_config():
 
 
 @pytest.fixture()
-async def actor(test_config: dict, controllers: PlcController, mocker):
+async def actor(test_config: dict, controller: PlcController, mocker):
 
     mocker.patch.object(AMQPActor, "start")
 
@@ -60,7 +60,7 @@ async def actor(test_config: dict, controllers: PlcController, mocker):
 
 
 @pytest.fixture()
-async def controllers():
+async def controller():
     default_config_file = os.path.join(os.path.dirname(__file__), "test_lvmecp.yml")
     default_config = AMQPActor._parse_config(default_config_file)
 
