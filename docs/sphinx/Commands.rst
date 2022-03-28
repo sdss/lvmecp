@@ -1,7 +1,7 @@
 .. _Commands:
 
-Commands
-=============
+Actor Commands
+=================
 
 The ``lvmecp`` replies to the follwing commands.
 

@@ -12,13 +12,14 @@ lvmecp's documentation
 
 
 .. toctree::
-  :caption: api
-  :maxdepth: 3
+  :caption: REFERENCE
+  :maxdepth: 2
   :hidden:
 
   lvmecp
   Controller
   Commands
+  proxy
   actor-schema
   Exceptions
 
