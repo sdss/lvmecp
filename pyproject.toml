@@ -43,7 +43,6 @@ pymodbus = "^2.5.3"
 sphinx-click = "^3.0.2"
 myst-parser = "^0.15.2"
 sphinx-jsonschema = "^1.17.1"
-sphinx-bootstrap-theme = "^0.8.0"
 codecov = "^2.1.12"
 pytest-cov = "^3.0.0"
 black = "^21.11b1"
@@ -68,7 +67,7 @@ rstcheck = "^3.3.1"
 Sphinx = "^3.0.0"
 
 [tool.poetry.extras]
-docs = ["Sphinx", "sphinx_bootstrap_theme"]
+docs = ["Sphinx"]
 
 [tool.isort]
 line_length = 79
