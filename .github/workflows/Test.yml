@@ -65,11 +65,11 @@ jobs:
 
     - name: Test with pytest
       run: |
-        poetry run pytest test_actor.py
-        poetry run pytest test_command_telemetry.py
-        poetry run pytest test_command_monitor.py
-        poetry run pytest test_command_dome.py
-        poetry run pytest test_command_light.py
+        poetry run pytest tests/test_actor.py
+        poetry run pytest tests/test_command_telemetry.py
+        poetry run pytest tests/test_command_monitor.py
+        poetry run pytest tests/test_command_dome.py
+        poetry run pytest tests/test_command_light.py
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1.0.3
