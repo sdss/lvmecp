@@ -250,3 +250,4 @@ actor:
     name: lvmecp
     host: localhost
     port: 5672
+    log_dir: '~/data/logs/lvmecp'
