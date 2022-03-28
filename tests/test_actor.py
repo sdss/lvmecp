@@ -6,7 +6,9 @@ import pytest
 
 from lvmecp.actor.actor import LvmecpActor as EcpActor
 
+
 pytestmark = [pytest.mark.asyncio]
+
 
 async def test_actor(actor: EcpActor):
 
