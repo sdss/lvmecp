@@ -71,12 +71,12 @@ async def enable(command: Command, controllers: dict[str, PlcController], room: 
     status = {}
     lightstatus = {}
     room_point = {}
-    room_point["cr"] = "Control room"
-    room_point["ur"] = "Utilities room"
-    room_point["sr"] = "Spectrograph room"
-    room_point["uma"] = "UMA lights"
-    room_point["tb"] = "Telescope room - bright"
-    room_point["tr"] = "Telescope room - red"
+    room_point["cr"] = "control room"
+    room_point["ur"] = "utilities room"
+    room_point["sr"] = "spectrograph room"
+    room_point["uma"] = "uma lights"
+    room_point["tb"] = "telescope room - bright"
+    room_point["tr"] = "telescope room - red"
     room_list = list(room_point.keys())
 
     try:
@@ -140,12 +140,12 @@ async def status(command: Command, controllers: dict[str, PlcController], room: 
     status = {}
     lightstatus = {}
     room_point = {}
-    room_point["cr"] = "Control room"
-    room_point["ur"] = "Utilities room"
-    room_point["sr"] = "Spectrograph room"
-    room_point["uma"] = "UMA lights"
-    room_point["tb"] = "Telescope room - bright"
-    room_point["tr"] = "Telescope room - red"
+    room_point["cr"] = "control room"
+    room_point["ur"] = "utilities room"
+    room_point["sr"] = "spectrograph room"
+    room_point["uma"] = "uma lights"
+    room_point["tb"] = "telescope room - bright"
+    room_point["tr"] = "telescope room - red"
     room_list = list(room_point.keys())
 
     try:

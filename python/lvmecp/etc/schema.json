@@ -3,15 +3,15 @@
     "properties": {
             "text": {"type": "string"},
             "emergency": {"type":"integer"},
-            "Dome": {"type": "string"},
+            "dome": {"type": "string"},
             "light": {
                 "type": "object",
-                "Control room": {"type": "integer"},
-                "Utilities room": {"type": "integer"},
-                "Spectrograph room": {"type": "integer"},
-                "UMA lights": {"type": "integer"},
-                "Telescope room - bright": {"type": "integer"},
-                "Telescope room - red": {"type": "integer"}
+                "control room": {"type": "integer"},
+                "utilities room": {"type": "integer"},
+                "spectrograph room": {"type": "integer"},
+                "uma lights": {"type": "integer"},
+                "telescope room - bright": {"type": "integer"},
+                "telescope room - red": {"type": "integer"}
             },
             "hvac": {
                 "type": "object",
@@ -27,15 +27,15 @@
             "status":{
                 "type":"object",
                 "emergency": {"type":"integer"},
-                "Dome": {"type": "string"},
+                "dome": {"type": "string"},
                 "light": {
                     "type": "object",
-                    "Control room": {"type": "integer"},
-                    "Utilities room": {"type": "integer"},
-                    "Spectrograph room": {"type": "integer"},
-                    "UMA lights": {"type": "integer"},
-                    "Telescope room - bright": {"type": "integer"},
-                    "Telescope room - red": {"type": "integer"}
+                    "control room": {"type": "integer"},
+                    "utilities room": {"type": "integer"},
+                    "spectrograph room": {"type": "integer"},
+                    "uma lights": {"type": "integer"},
+                    "telescope room - bright": {"type": "integer"},
+                    "telescope room - red": {"type": "integer"}
                 },
                 "hvac": {
                     "type": "object",
