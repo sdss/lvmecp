@@ -63,17 +63,6 @@ async def test_proxy_async_dome(async_proxy: LvmecpProxy):
 
     result = await async_proxy.dome("status")
     assert result
-    assert result == {"dome": "CLOSE"}
-
-    result = await async_proxy.dome("enable")
-    assert result
-    assert result == {"dome": "OPEN"}
-
-    sleep(10)
-
-    result = await async_proxy.dome("enable")
-    assert result
-    assert result == {"dome": "CLOSE"}
 
 
 # async def test_proxy_async_estop(async_proxy: LvmecpProxy):
