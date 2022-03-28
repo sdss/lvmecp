@@ -28,7 +28,12 @@ async def test_dome_status(actor: EcpActor):
         pass
     elif dome_status == "moving":
         time.sleep(10)
-        assert dome_status == "CLOSE"
+        command = await actor.invoke_mock_command("dome status")
+        await command
+
+        assert command.status.did_succeed
+        assert len(command.replies) == 3
+        assert command.replies[-1].message["dome"] == "CLOSE"
         pass
 
 
