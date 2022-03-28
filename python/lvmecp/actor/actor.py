@@ -55,6 +55,7 @@ class LvmecpActor(AMQPActor):
         """Start the actor and connect the controllers."""
 
         connect_timeout = self.config["timeouts"]["controller_connect"]
+        print(self.parser_args[0])
 
         for plc in self.parser_args[0]:
             try:
@@ -65,6 +66,7 @@ class LvmecpActor(AMQPActor):
                     f"Timeout out connecting to {plc.name!r}.",
                     LvmecpUserWarning,
                 )
+                raise LvmecpUserWarning(f"We cannot connect with {plc.name}")
 
         await super().start()
         self.log.debug("Start done")

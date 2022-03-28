@@ -10,7 +10,9 @@ from lvmecp.actor.actor import LvmecpActor as EcpActor
 from lvmecp.exceptions import LvmecpError
 
 
-@pytest.mark.asyncio
+pytestmark = [pytest.mark.asyncio]
+
+
 async def test_monitor(actor: EcpActor):
 
     command = await actor.invoke_mock_command("monitor")
@@ -20,7 +22,6 @@ async def test_monitor(actor: EcpActor):
     assert len(command.replies) == 3
 
 
-@pytest.mark.asyncio
 async def test_monitor_bad_name(actor: EcpActor):
 
     command = await actor.invoke_mock_command("monitor ar")

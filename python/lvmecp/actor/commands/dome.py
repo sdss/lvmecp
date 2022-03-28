@@ -36,10 +36,9 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
     if estatus["E_status"] == 0:
         pass
     elif estatus["E_status"] == 1:
-        command.info(
+        return command.finish(
             text="[Emergency status] We can't send the command to the enclosure."
         )
-        return command.finish()
     else:
         raise LvmecpError("e-stop status is wrong value.")
 
@@ -58,18 +57,18 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
                 await controllers[0].send_command(
                     "shutter1", "motor_direction", "on"
                 )  # Direction would be set to 1
-                domestatus["Dome"] = "OPEN"
+                domestatus["dome"] = "OPEN"
             # This would trigger a stage to start the motor
             # and then, the dome would disable automatically
             elif current_status["ne_limit"] == 1:
                 # dome is opened
                 await controllers[0].send_command("shutter1", "motor_direction", "off")
-                domestatus["Dome"] = "CLOSE"
+                domestatus["dome"] = "CLOSE"
             else:
                 raise LvmecpError("The status of limitswitches returns wrong value.")
         elif current_status["drive_state"] == 1:
             # motor state is 1
-            raise LvmecpError("the enclosure is moving.")
+            domestatus["dome"] = "moving"
         else:
             raise LvmecpError("The status of motor returns wrong value.")
 
@@ -93,11 +92,11 @@ async def status(command: Command, controllers: dict[str, PlcController]):
         current_status = await controllers[0].send_command("shutter1", "all", "status")
         if current_status["drive_state"] == 0:
             if current_status["ne_limit"] == 1:
-                domestatus["Dome"] = "OPEN"
+                domestatus["dome"] = "OPEN"
             elif current_status["ne_limit"] == 0:
-                domestatus["Dome"] = "CLOSE"
+                domestatus["dome"] = "CLOSE"
         elif current_status["drive_state"] == 1:
-            raise LvmecpError("the enclosure is moving.")
+            domestatus["dome"] = "moving"
         else:
             raise LvmecpError("The status of motor returns wrong value.")
 

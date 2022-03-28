@@ -47,11 +47,11 @@ def test_proxy_light(test_proxy: LvmecpProxy):
 
     result = test_proxy.light("enable", "cr")
     assert result
-    assert result["light"] == {"Control room": 1}
+    assert result["light"] == {"control room": 1}
 
     result = test_proxy.light("enable", "cr")
     assert result
-    assert result["light"] == {"Control room": 0}
+    assert result["light"] == {"control room": 0}
 
 
 def test_proxy_dome(test_proxy: LvmecpProxy):
@@ -60,17 +60,9 @@ def test_proxy_dome(test_proxy: LvmecpProxy):
 
     result = test_proxy.dome("status")
     assert result
-    assert result == {"Dome": "CLOSE"}
 
     result = test_proxy.dome("enable")
     assert result
-    assert result == {"Dome": "OPEN"}
-
-    sleep(10)
-
-    result = test_proxy.dome("enable")
-    assert result
-    assert result == {"Dome": "CLOSE"}
 
 
 # def test_proxy_estop(proxy: LvmecpProxy):

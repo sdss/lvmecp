@@ -14,7 +14,32 @@ SDSS-V LVM Enclosure Control Package
 - CLU Actor based interface
 - Supports [DirectLogic 205 (Micro Modular PLC)](https://www.automationdirect.com/adc/overview/catalog/programmable_controllers/directlogic_series_plcs_(micro_to_small,_brick_-a-_modular)/directlogic_205_(micro_modular_plc))
 
+## Prerequisite
+
+Install [Poetry](https://python-poetry.org/) by using PyPI.
+
+```
+$ pip install poetry
+$ python create_setup.py
+$ pip install -e .
+```
+
+Install [RabbitMQ](https://www.rabbitmq.com/) by using apt-get.
+
+```
+$ sudo apt-get install -y erlang
+$ sudo apt-get install -y rabbitmq-server
+$ sudo systemctl enable rabbitmq-server
+$ sudo systemctl start rabbitmq-server
+```
+
+Install [CLU](https://clu.readthedocs.io/en/latest/) by using PyPI.
+```
+$ pip install sdss-clu
+```
+
 ## Installation
+
 
 Clone this repository.
 ```
