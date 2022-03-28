@@ -75,21 +75,35 @@ class PlcController:
         try:
             self.Client = ModbusClient(self.host, self.port)
             await self.Client.connect()
+            connection = self.Client.protocol_made_connection
+            assert connection
+            print(connection)
+
         except LvmecpControllerError:
+            raise LvmecpControllerError(f"fail to open connection with {self.host}")
             self.log.error(f"fail to open connection with {self.host}")
+
+        self.log.info("Client made a connection properly.")
+
+        return connection
 
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
         try:
             if self.Client.protocol:
-                self.Client.protocol.close()
+                close_connection = self.Client.protocol.close()
             else:
                 await self.Client.connect()
 
-            self.Client.protocol.close()
+            close_connection = self.Client.protocol.close()
 
         except LvmecpControllerError:
+            raise LvmecpControllerError(f"fail to close connection with {self.host}")
             self.log.error(f"fail to close connection with {self.host}")
+
+        self.log.info("Client close a connection properly.")
+
+        return close_connection
 
     async def write(self, mode: str, addr: int, data):
         """write the data to devices
@@ -107,15 +121,14 @@ class PlcController:
 
         try:
             if mode == "coil":
-                assert self.Client
                 await self.Client.protocol.write_coil(addr, data)
             elif mode == "holding_registers":
-                assert self.Client
                 await self.Client.protocol.write_register(addr, data)
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
+            raise LvmecpControllerError(f"fail to write coil to {addr}")
             self.log.error(f"fail to write coil to {addr}")
 
     async def read(self, mode: str, addr: int):
@@ -132,29 +145,30 @@ class PlcController:
         try:
             if mode == "coil":
                 # assert self.Client
-                # assert self.Client.protocol
-                reply = await self.Client.protocol.read_coils(addr, 1, unit=0x01)
-                if reply:
+                if self.Client.protocol:
+                    reply = await self.Client.protocol.read_coils(addr, 1, unit=0x01)
                     return reply.bits[0]
                 else:
-                    raise LvmecpControllerError("read_coils returns a wrong value")
+                    raise LvmecpControllerError("protocol returns no values.")
+                    self.log.warning(f"protocol returns {self.Client.protocol}")
+
             elif mode == "holding_registers":
                 # assert self.Client
-                # assert self.Client.protocol
-                reply = await self.Client.protocol.read_holding_registers(
-                    addr, 1, unit=1
-                )
-                if reply:
+                if self.Client.protocol:
+                    reply = await self.Client.protocol.read_holding_registers(
+                        addr, 1, unit=1
+                    )
                     return reply.registers[0]
                 else:
-                    raise LvmecpControllerError(
-                        "read_holding_registers returns a wrong value"
-                    )
+                    raise LvmecpControllerError("protocol returns no values.")
+                    self.log.warning(f"protocol returns {self.Client.protocol}")
+
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
 
         except LvmecpControllerError:
-            self.log.warnings(f"fail to read coils to {addr}")
+            raise LvmecpControllerError(f"fail to read coils to {addr}")
+            self.log.warning(f"fail to read coils to {addr}")
 
     async def send_command(self, module: str, element: str, command: str):
         """send command to PLC
@@ -349,6 +363,7 @@ class PlcController:
             return self.result
 
         except LvmecpControllerError:
+            raise LvmecpControllerError(f"We cannot send command to the PLC {module}")
             self.log.error(f"We cannot send command to the PLC {module}")
 
     async def get_status(self, mode: str, addr: int):
