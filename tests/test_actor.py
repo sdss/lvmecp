@@ -7,14 +7,12 @@ import pytest
 from lvmecp.actor.actor import LvmecpActor as EcpActor
 
 
-@pytest.mark.asyncio
 async def test_actor(actor: EcpActor):
 
     assert actor
     assert len(actor.plcs) == 2
 
 
-@pytest.mark.asyncio
 async def test_ping(actor: EcpActor):
 
     command = await actor.invoke_mock_command("ping")
@@ -25,7 +23,6 @@ async def test_ping(actor: EcpActor):
     assert command.replies[1].message["text"] == "Pong."
 
 
-@pytest.mark.asyncio
 async def test_actor_no_config():
 
     with pytest.raises(RuntimeError):
