@@ -18,7 +18,9 @@ from lvmecp.actor import LvmecpActor as ECPActor
 from lvmecp.proxy_async import LvmecpProxy
 
 
-@pytest.mark.asyncio
+pytestmark = [pytest.mark.asyncio]
+
+
 async def test_proxy_async_single_basic(async_proxy: LvmecpProxy):
 
     result = await async_proxy.ping()
@@ -27,7 +29,6 @@ async def test_proxy_async_single_basic(async_proxy: LvmecpProxy):
     assert result == {"text": "Pong."}
 
 
-@pytest.mark.asyncio
 async def test_proxy_async_telemetry(async_proxy: LvmecpProxy):
 
     result = await async_proxy.telemetry()
@@ -35,7 +36,6 @@ async def test_proxy_async_telemetry(async_proxy: LvmecpProxy):
     assert result
 
 
-@pytest.mark.asyncio
 async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
 
     result = await async_proxy.monitor()
@@ -43,7 +43,6 @@ async def test_proxy_async_monitor(async_proxy: LvmecpProxy):
     assert result["hvac"]
 
 
-@pytest.mark.asyncio
 async def test_proxy_async_light(async_proxy: LvmecpProxy):
 
     result = await async_proxy.light("status")
@@ -58,7 +57,6 @@ async def test_proxy_async_light(async_proxy: LvmecpProxy):
     assert result["light"] == {"control room": 0}
 
 
-@pytest.mark.asyncio
 async def test_proxy_async_dome(async_proxy: LvmecpProxy):
 
     sleep(10)
@@ -78,7 +76,6 @@ async def test_proxy_async_dome(async_proxy: LvmecpProxy):
     assert result == {"dome": "CLOSE"}
 
 
-# @pytest.mark.asyncio
 # async def test_proxy_async_estop(async_proxy: LvmecpProxy):
 
 #    result = await async_proxy.estop()

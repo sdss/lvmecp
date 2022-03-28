@@ -36,10 +36,9 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
     if estatus["E_status"] == 0:
         pass
     elif estatus["E_status"] == 1:
-        command.info(
+        return command.finish(
             text="[Emergency status] We can't send the command to the enclosure."
         )
-        return command.finish()
     else:
         raise LvmecpError("e-stop status is wrong value.")
 
@@ -69,7 +68,7 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
                 raise LvmecpError("The status of limitswitches returns wrong value.")
         elif current_status["drive_state"] == 1:
             # motor state is 1
-            raise LvmecpError("the enclosure is moving.")
+            domestatus["dome"] = "moving"
         else:
             raise LvmecpError("The status of motor returns wrong value.")
 
@@ -97,7 +96,7 @@ async def status(command: Command, controllers: dict[str, PlcController]):
             elif current_status["ne_limit"] == 0:
                 domestatus["dome"] = "CLOSE"
         elif current_status["drive_state"] == 1:
-            raise LvmecpError("the enclosure is moving.")
+            domestatus["dome"] = "moving"
         else:
             raise LvmecpError("The status of motor returns wrong value.")
 

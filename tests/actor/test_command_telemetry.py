@@ -9,7 +9,9 @@ import pytest
 from lvmecp.actor.actor import LvmecpActor as EcpActor
 
 
-@pytest.mark.asyncio
+pytestmark = [pytest.mark.asyncio]
+
+
 async def test_telemetry(actor: EcpActor):
 
     command = await actor.invoke_mock_command("telemetry")
@@ -31,7 +33,6 @@ async def test_telemetry(actor: EcpActor):
     assert command.replies[-1].message["status"]["hvac"]["sensor2"]
 
 
-# @pytest.mark.asyncio
 # async def test_telemetry_fail_connect(actor: EcpActor):
 
 # await actor.plcs[0].stop()

@@ -10,7 +10,9 @@ from lvmecp.actor.actor import LvmecpActor as EcpActor
 from lvmecp.exceptions import LvmecpError
 
 
-@pytest.mark.asyncio
+pytestmark = [pytest.mark.asyncio]
+
+
 async def test_light_status(actor: EcpActor):
 
     # status check of light
@@ -75,7 +77,6 @@ async def test_light_status(actor: EcpActor):
     assert command.replies[-1].message["light"]["telescope room - red"] == 0
 
 
-@pytest.mark.asyncio
 async def test_light_enable(actor: EcpActor):
 
     # on check of light
@@ -163,7 +164,6 @@ async def test_light_enable(actor: EcpActor):
     assert command.replies[-1].message["light"]["telescope room - red"] == 0
 
 
-@pytest.mark.asyncio
 async def test_light_fail_bad_name(actor: EcpActor):
 
     command = await actor.invoke_mock_command("light status ar")
@@ -172,7 +172,6 @@ async def test_light_fail_bad_name(actor: EcpActor):
     assert command.status.did_fail
 
 
-@pytest.mark.asyncio
 async def test_light_fail_no_argument(actor: EcpActor):
 
     command = await actor.invoke_mock_command("light enable")
