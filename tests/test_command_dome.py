@@ -23,7 +23,7 @@ async def test_dome_status(actor: EcpActor):
 
     assert command.status.did_succeed
     assert len(command.replies) == 3
-    assert command.replies[-1].message["Dome"] == "CLOSE"
+    assert command.replies[-1].message["dome"] == "CLOSE"
 
 
 @pytest.mark.asyncio
@@ -35,7 +35,7 @@ async def test_dome_enable(actor: EcpActor):
     await command
     assert command.status.did_succeed
     assert len(command.replies) == 3
-    assert command.replies[-1].message["Dome"] == "OPEN"
+    assert command.replies[-1].message["dome"] == "OPEN"
 
     command = await actor.invoke_mock_command("dome status")
     await command
@@ -49,10 +49,10 @@ async def test_dome_enable(actor: EcpActor):
 
     assert command.status.did_succeed
     assert len(command.replies) == 3
-    assert command.replies[-1].message["Dome"] == "OPEN"
+    assert command.replies[-1].message["dome"] == "OPEN"
 
     command = await actor.invoke_mock_command("dome enable")
     await command
     assert command.status.did_succeed
     assert len(command.replies) == 3
-    assert command.replies[-1].message["Dome"] == "CLOSE"
+    assert command.replies[-1].message["dome"] == "CLOSE"

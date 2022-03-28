@@ -58,13 +58,13 @@ async def enable(command: Command, controllers: dict[str, PlcController]):
                 await controllers[0].send_command(
                     "shutter1", "motor_direction", "on"
                 )  # Direction would be set to 1
-                domestatus["Dome"] = "OPEN"
+                domestatus["dome"] = "OPEN"
             # This would trigger a stage to start the motor
             # and then, the dome would disable automatically
             elif current_status["ne_limit"] == 1:
                 # dome is opened
                 await controllers[0].send_command("shutter1", "motor_direction", "off")
-                domestatus["Dome"] = "CLOSE"
+                domestatus["dome"] = "CLOSE"
             else:
                 raise LvmecpError("The status of limitswitches returns wrong value.")
         elif current_status["drive_state"] == 1:
@@ -93,9 +93,9 @@ async def status(command: Command, controllers: dict[str, PlcController]):
         current_status = await controllers[0].send_command("shutter1", "all", "status")
         if current_status["drive_state"] == 0:
             if current_status["ne_limit"] == 1:
-                domestatus["Dome"] = "OPEN"
+                domestatus["dome"] = "OPEN"
             elif current_status["ne_limit"] == 0:
-                domestatus["Dome"] = "CLOSE"
+                domestatus["dome"] = "CLOSE"
         elif current_status["drive_state"] == 1:
             raise LvmecpError("the enclosure is moving.")
         else:

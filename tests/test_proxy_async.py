@@ -51,11 +51,11 @@ async def test_proxy_async_light(async_proxy: LvmecpProxy):
 
     result = await async_proxy.light("enable", "cr")
     assert result
-    assert result["light"] == {"Control room": 1}
+    assert result["light"] == {"control room": 1}
 
     result = await async_proxy.light("enable", "cr")
     assert result
-    assert result["light"] == {"Control room": 0}
+    assert result["light"] == {"control room": 0}
 
 
 @pytest.mark.asyncio
@@ -65,17 +65,17 @@ async def test_proxy_async_dome(async_proxy: LvmecpProxy):
 
     result = await async_proxy.dome("status")
     assert result
-    assert result == {"Dome": "CLOSE"}
+    assert result == {"dome": "CLOSE"}
 
     result = await async_proxy.dome("enable")
     assert result
-    assert result == {"Dome": "OPEN"}
+    assert result == {"dome": "OPEN"}
 
     sleep(10)
 
     result = await async_proxy.dome("enable")
     assert result
-    assert result == {"Dome": "CLOSE"}
+    assert result == {"dome": "CLOSE"}
 
 
 # @pytest.mark.asyncio
