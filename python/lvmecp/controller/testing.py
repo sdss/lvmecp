@@ -143,44 +143,9 @@ class TestPlcController(PlcController):
             elif command == "on":
                 if element in elements:
                     self.result[element] = self.write()
-                elif element == "all":
-                    for element in elements:
-                        self.result[element] = self.write()
             elif command == "off":
                 if element in elements:
                     self.result[element] = self.write()
-                elif element == "all":
-                    for element in elements:
-                        self.result[element] = self.write()
-
-        if module == "shutter2":
-            elements = self.modules[3].get_element()
-            if command == "status":
-                if element in elements:
-                    self.result[element] = self.read()
-                elif element == "all":
-                    for element in elements:
-                        self.result[element] = self.read()
-            elif command == "on":
-                if element in elements:
-                    self.result[element] = self.write()
-                elif element == "all":
-                    for element in elements:
-                        self.result[element] = self.write()
-            elif command == "off":
-                if element in elements:
-                    self.result[element] = self.write()
-                elif element == "all":
-                    for element in elements:
-                        self.result[element] = self.write()
-
-        # module "emergengy_stop" -> 4
-        if module == "emergency":
-            if element == "0":
-                if command == "status":
-                    elements = self.modules[4].get_element()
-                    for element in elements:
-                        self.result[element] = self.read()
 
         # module "hvac" -> 0
         if module == "hvac":
