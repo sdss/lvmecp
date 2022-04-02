@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import datetime
 import warnings
+import sys
+import types
 
 from pymodbus.client.asynchronous.async_io import AsyncioModbusTcpClient as ModbusClient
 
@@ -21,6 +23,12 @@ from sdsstools.logger import SDSSLogger
 
 from lvmecp.exceptions import LvmecpControllerError, LvmecpControllerWarning
 
+if sys.version_info.major < 3:
+    raise ValueError("Python 2 is not supported.")
+if sys.version_info.minor <= 7:
+    from asyncmock import AsyncMock
+else:
+    from unittest.mock import AsyncMock
 
 __all__ = ["PlcController", "Module"]
 
@@ -56,7 +64,7 @@ class PlcController:
             )
             for module in modules_list
         ]
-
+        # self.test = self.config_get("test")
         self.host = self.config_get("host")
         self.port = self.config_get("port")
         self.addr = {}
@@ -66,18 +74,17 @@ class PlcController:
             if module.name == "hvac":
                 self.unit[module.name] = module.get_unit()
         # print(self.addr)
-        # self.Client = None
+        self.Client = ModbusClient(self.host, self.port)
 
     async def start(self, *argv):
         """open the ModbusTCP connection with PLC"""
         # connection
-        self.Client = None
         try:
-            self.Client = ModbusClient(self.host, self.port)
             await self.Client.connect()
-            connection = self.Client.protocol_made_connection
-            assert connection
-            print(connection)
+            # connection = await self.Client.connect()
+            # connection = self.Client.protocol_made_connection
+            # assert connection
+            # print(connection)
 
         except LvmecpControllerError:
             raise LvmecpControllerError(f"fail to open connection with {self.host}")
@@ -85,16 +92,11 @@ class PlcController:
 
         self.log.info("Client made a connection properly.")
 
-        return connection
+        # return connection
 
     async def stop(self):
         """close the ModbusTCP connection with PLC"""
         try:
-            if self.Client.protocol:
-                close_connection = self.Client.protocol.close()
-            else:
-                await self.Client.connect()
-
             close_connection = self.Client.protocol.close()
 
         except LvmecpControllerError:
@@ -579,3 +581,30 @@ class Module:
             )
 
         return g(self.config, key, default)
+
+
+async def read_mocker(state, address, coil=False, count=1):
+
+    response = types.SimpleNamespace()
+    response.function_code = 0
+    response.bits = []
+    response.registers = []
+
+    value = state[address]
+
+    if coil:
+        response.bits.append(value)
+    else:
+        response.registers.append(value)
+
+    return response
+
+
+async def write_mocker(state, address, value):
+
+    response = types.SimpleNamespace()
+    response.function_code = 0
+
+    state[address] = value
+
+    return response

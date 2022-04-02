@@ -31,6 +31,16 @@ class LvmecpControllerError(LvmecpError):
         super(LvmecpError, self).__init__(message)
 
 
+class LvmecpTestControllerError(LvmecpError):
+    """An exception raised by an '.testing'."""
+
+    def __init__(self, message=None):
+
+        message = "Error with response from testing" if not message else message
+
+        super(LvmecpError, self).__init__(message)
+
+
 class LvmecpNotImplemented(LvmecpError):
     """A custom exception for not yet implemented features."""
 
