@@ -53,21 +53,20 @@ class TestPlcController(PlcController):
         # self.port = unused_tcp_port_factory()
         self.Client = ModbusClient(self.host, self.port)
 
-        self.Client.protocol = AsyncMock()
-        self.protocol = self.Client.protocol
-        # self.call = 0
-
     async def start(self):
+        """Make a mock connection"""
 
         self.Client.connect = AsyncMock()
         self.call = 0
         self.estop_call = 0
 
     async def stop(self):
+        """Close a mock connection"""
 
         self.Client.close = AsyncMock()
 
     def read(self, estop=None):
+        """Set mock replies from PLC"""
 
         # call = self.call
 
@@ -85,6 +84,7 @@ class TestPlcController(PlcController):
         return mock_result()
 
     def write(self, estop=None):
+        """Set mock replies from PLC"""
 
         # call = self.call
 
@@ -100,6 +100,20 @@ class TestPlcController(PlcController):
                 self.call = 1
 
     async def send_command(self, module: str, element: str, command: str):
+        """send command to PLC
+
+        Parameters
+        -----------
+        module
+            The devices controlled by lvmecp
+            which are "interlocks", "light", "shutter" and "emergengy".
+
+        element
+            The elements contained by the module
+
+        command
+            on/off/status/trigger
+        """
 
         self.result = {}
 
