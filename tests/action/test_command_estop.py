@@ -8,7 +8,6 @@ from lvmecp.actor.actor import LvmecpActor as EcpActor
 from lvmecp.exceptions import LvmecpError
 
 
-"""
 @pytest.mark.asyncio
 async def test_estop(actor: EcpActor):
 
@@ -25,4 +24,3 @@ async def test_estop(actor: EcpActor):
     assert command.status.did_succeed
     assert len(command.replies) == 3
     assert isinstance(command.replies[-2].message["text"], str)
-"""
