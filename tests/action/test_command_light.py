@@ -203,12 +203,23 @@ async def test_light_estop_fail(actor: EcpActor):
     assert isinstance(command.replies[-2].message["text"], str)
 
 
-async def test_light_fails(actor: EcpActor, mocker):
+async def test_light_status_fails(actor: EcpActor, mocker):
 
     # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
     mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
 
     command = await actor.invoke_mock_command("light status")
+    await command
+
+    assert command.status.did_fail
+
+
+async def test_light_enable_fails(actor: EcpActor, mocker):
+
+    # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
+    mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
+
+    command = await actor.invoke_mock_command("light enable cr")
     await command
 
     assert command.status.did_fail

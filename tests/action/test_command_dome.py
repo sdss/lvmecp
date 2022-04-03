@@ -72,12 +72,23 @@ async def test_dome_enable(actor: EcpActor):
     #    pass
 
 
-async def test_dome_fails(actor: EcpActor, mocker):
+async def test_dome_enable_fails(actor: EcpActor, mocker):
 
     # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
     mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
 
     command = await actor.invoke_mock_command("dome enable")
+    await command
+
+    assert command.status.did_fail
+
+
+async def test_dome_status_fails(actor: EcpActor, mocker):
+
+    # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
+    mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
+
+    command = await actor.invoke_mock_command("dome status")
     await command
 
     assert command.status.did_fail
