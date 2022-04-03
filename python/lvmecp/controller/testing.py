@@ -65,25 +65,15 @@ class TestPlcController(PlcController):
 
         self.Client.close = AsyncMock()
 
-    def read(self, estop=None):
+    async def read(self, estop=None):
         """Set mock replies from PLC"""
 
-        # call = self.call
-
         if estop:
-            if self.estop_call == 1:
-                mock_result = Mock(return_value=1)
-            elif self.estop_call == 0:
-                mock_result = Mock(return_value=0)
+            return self.estop_call
         else:
-            if self.call == 1:
-                mock_result = Mock(return_value=1)
-            elif self.call == 0:
-                mock_result = Mock(return_value=0)
+            return self.call
 
-        return mock_result()
-
-    def write(self, estop=None):
+    async def write(self, estop=None):
         """Set mock replies from PLC"""
 
         # call = self.call
@@ -93,11 +83,13 @@ class TestPlcController(PlcController):
                 self.estop_call = 0
             elif self.estop_call == 0:
                 self.estop_call = 1
+            return self.estop_call
         else:
             if self.call == 1:
                 self.call = 0
             elif self.call == 0:
                 self.call = 1
+            return self.call
 
     async def send_command(self, module: str, element: str, command: str):
         """send command to PLC
@@ -122,9 +114,9 @@ class TestPlcController(PlcController):
             elements = self.modules[0].get_element()
             if element in elements:
                 if command == "status":
-                    self.result[element] = self.read(estop=True)
+                    self.result[element] = await self.read(estop=True)
                 elif command == "trigger":
-                    self.result[element] = self.write(estop=True)
+                    self.result[element] = await self.write(estop=True)
 
         # module "lights" -> 1
         # 0x0000  off
@@ -134,45 +126,46 @@ class TestPlcController(PlcController):
             elements = self.modules[1].get_element()
             if command == "status":
                 if element in elements:
-                    self.result[element] = self.read()
+                    self.result[element] = await self.read()
                 elif element == "all":
                     for element in elements:
-                        self.result[element] = self.read()
+                        self.result[element] = await self.read()
             elif command == "on":
                 if element in elements:
-                    self.result[element] = self.write()
+                    self.result[element] = await self.write()
             elif command == "off":
                 if element in elements:
-                    self.result[element] = self.write()
+                    self.result[element] = await self.write()
 
         # module "dome" -> 2, 3
         if module == "shutter1":
             elements = self.modules[2].get_element()
             if command == "status":
                 if element in elements:
-                    self.result[element] = self.read()
+                    self.result[element] = await self.read()
                 elif element == "all":
                     for element in elements:
-                        self.result[element] = self.read()
+                        self.result[element] = await self.read()
             elif command == "on":
-                if element in elements:
-                    self.result[element] = self.write()
+                for element in elements:
+                    self.result[element] = await self.write()
             elif command == "off":
-                if element in elements:
-                    self.result[element] = self.write()
+                for element in elements:
+                    self.result[element] = await self.write()
 
         # module "hvac" -> 0
         if module == "hvac":
             if command == "status":
                 elements = self.modules[0].get_element()
                 if element in elements:
-                    self.result[element] = self.read()
+                    self.result[element] = await self.read()
                     self.result["unit"] = self.unit[module][element]
                 elif element == "all":
                     for element in elements:
                         see = {}
-                        see["value"] = self.read()
+                        see["value"] = await self.read()
                         see["unit"] = self.unit[module][element]
                         self.result[element] = see
 
+        print(f"----------------{self.result}--------------------------")
         return self.result

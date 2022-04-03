@@ -7,6 +7,7 @@ from __future__ import annotations
 import pytest
 
 from lvmecp.actor.actor import LvmecpTestActor as EcpActor
+from lvmecp.exceptions import LvmecpError
 
 
 pytestmark = [pytest.mark.asyncio]
@@ -33,11 +34,12 @@ async def test_telemetry(actor: EcpActor):
     assert command.replies[-1].message["status"]["hvac"]["sensor2"]
 
 
-# async def test_telemetry_fail_connect(actor: EcpActor):
+async def test_telemetry_fails(actor: EcpActor, mocker):
 
-# await actor.plcs[0].stop()
+    # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
+    mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
 
-# command = await actor.invoke_mock_command("telemetry")
-# await command
+    command = await actor.invoke_mock_command("telemetry")
+    await command
 
-# assert command.status.did_fail
+    assert command.status.did_fail

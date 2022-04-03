@@ -581,30 +581,3 @@ class Module:
             )
 
         return g(self.config, key, default)
-
-
-async def read_mocker(state, address, coil=False, count=1):
-
-    response = types.SimpleNamespace()
-    response.function_code = 0
-    response.bits = []
-    response.registers = []
-
-    value = state[address]
-
-    if coil:
-        response.bits.append(value)
-    else:
-        response.registers.append(value)
-
-    return response
-
-
-async def write_mocker(state, address, value):
-
-    response = types.SimpleNamespace()
-    response.function_code = 0
-
-    state[address] = value
-
-    return response

@@ -7,6 +7,7 @@ from __future__ import annotations
 import pytest
 
 from lvmecp.actor.actor import LvmecpTestActor as EcpActor
+from lvmecp.exceptions import LvmecpError
 
 
 pytestmark = [pytest.mark.asyncio]
@@ -174,6 +175,40 @@ async def test_light_fail_bad_name(actor: EcpActor):
 async def test_light_fail_no_argument(actor: EcpActor):
 
     command = await actor.invoke_mock_command("light enable")
+    await command
+
+    assert command.status.did_fail
+
+
+async def test_light_estop_fail(actor: EcpActor):
+
+    command = await actor.invoke_mock_command("estop")
+    await command
+
+    assert command.status.did_succeed
+    assert len(command.replies) == 3
+    assert command.replies[-1].message["emergency"] == 1
+
+    command = await actor.invoke_mock_command("light status")
+    await command
+
+    assert command.status.did_succeed
+    assert len(command.replies) == 3
+
+    command = await actor.invoke_mock_command("light enable cr")
+    await command
+
+    assert command.status.did_succeed
+    assert len(command.replies) == 3
+    assert isinstance(command.replies[-2].message["text"], str)
+
+
+async def test_light_fails(actor: EcpActor, mocker):
+
+    # mocker.patch.object(actor.plcs[0], "send_command", return_value=None)
+    mocker.patch.object(actor.plcs[0], "send_command", side_effect=LvmecpError)
+
+    command = await actor.invoke_mock_command("light status")
     await command
 
     assert command.status.did_fail
