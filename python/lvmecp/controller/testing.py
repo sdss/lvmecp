@@ -15,7 +15,6 @@ from __future__ import annotations
 import sys
 import pytest
 
-from unittest.mock import Mock
 from pymodbus.client.asynchronous.async_io import AsyncioModbusTcpClient as ModbusClient
 from sdsstools.logger import SDSSLogger
 
@@ -65,13 +64,17 @@ class TestPlcController(PlcController):
 
         self.Client.close = AsyncMock()
 
-    async def read(self, estop=None):
+    async def read(self, mode: str, addr: int, estop=None):
         """Set mock replies from PLC"""
 
         if estop:
-            return self.estop_call
+            PlcController.read = AsyncMock(return_value=self.estop_call)
         else:
-            return self.call
+            PlcController.read = AsyncMock(return_value=self.call)
+
+        reply = await PlcController.read(mode, addr)
+
+        return reply
 
     async def write(self, estop=None):
         """Set mock replies from PLC"""
@@ -81,15 +84,21 @@ class TestPlcController(PlcController):
         if estop:
             if self.estop_call == 1:
                 self.estop_call = 0
+                PlcController.write = AsyncMock(return_value=self.estop_call)
             elif self.estop_call == 0:
                 self.estop_call = 1
-            return self.estop_call
+                PlcController.write = AsyncMock(return_value=self.estop_call)
         else:
             if self.call == 1:
                 self.call = 0
+                PlcController.write = AsyncMock(return_value=self.call)
             elif self.call == 0:
                 self.call = 1
-            return self.call
+                PlcController.write = AsyncMock(return_value=self.call)
+
+        reply = await PlcController.write()
+
+        return reply
 
     async def send_command(self, module: str, element: str, command: str):
         """send command to PLC
@@ -114,7 +123,9 @@ class TestPlcController(PlcController):
             elements = self.modules[0].get_element()
             if element in elements:
                 if command == "status":
-                    self.result[element] = await self.read(estop=True)
+                    self.result[element] = await self.read(
+                        self.modules[0].mode, self.addr[module][element], estop=True
+                    )
                 elif command == "trigger":
                     self.result[element] = await self.write(estop=True)
 
@@ -126,10 +137,14 @@ class TestPlcController(PlcController):
             elements = self.modules[1].get_element()
             if command == "status":
                 if element in elements:
-                    self.result[element] = await self.read()
+                    self.result[element] = await self.read(
+                        self.modules[1].mode, self.addr[module][element]
+                    )
                 elif element == "all":
                     for element in elements:
-                        self.result[element] = await self.read()
+                        self.result[element] = await self.read(
+                            self.modules[1].mode, self.addr[module][element]
+                        )
             elif command == "on":
                 if element in elements:
                     self.result[element] = await self.write()
@@ -142,10 +157,14 @@ class TestPlcController(PlcController):
             elements = self.modules[2].get_element()
             if command == "status":
                 if element in elements:
-                    self.result[element] = await self.read()
+                    self.result[element] = await self.read(
+                        self.modules[2].mode, self.addr[module][element]
+                    )
                 elif element == "all":
                     for element in elements:
-                        self.result[element] = await self.read()
+                        self.result[element] = await self.read(
+                            self.modules[2].mode, self.addr[module][element]
+                        )
             elif command == "on":
                 for element in elements:
                     self.result[element] = await self.write()
@@ -158,12 +177,16 @@ class TestPlcController(PlcController):
             if command == "status":
                 elements = self.modules[0].get_element()
                 if element in elements:
-                    self.result[element] = await self.read()
+                    self.result[element] = await self.read(
+                        self.modules[0].mode, self.addr[module][element]
+                    )
                     self.result["unit"] = self.unit[module][element]
                 elif element == "all":
                     for element in elements:
                         see = {}
-                        see["value"] = await self.read()
+                        see["value"] = await self.read(
+                            self.modules[0].mode, self.addr[module][element]
+                        )
                         see["unit"] = self.unit[module][element]
                         self.result[element] = see
 

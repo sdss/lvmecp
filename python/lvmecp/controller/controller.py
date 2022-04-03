@@ -149,7 +149,7 @@ class PlcController:
                 # assert self.Client
                 if self.Client.protocol:
                     reply = await self.Client.protocol.read_coils(addr, 1, unit=0x01)
-                    return reply.bits[0]
+                    result = reply.bits[0]
                 else:
                     raise LvmecpControllerError("protocol returns no values.")
                     self.log.warning(f"protocol returns {self.Client.protocol}")
@@ -160,13 +160,15 @@ class PlcController:
                     reply = await self.Client.protocol.read_holding_registers(
                         addr, 1, unit=1
                     )
-                    return reply.registers[0]
+                    result = reply.registers[0]
                 else:
                     raise LvmecpControllerError("protocol returns no values.")
                     self.log.warning(f"protocol returns {self.Client.protocol}")
 
             else:
                 raise LvmecpControllerError(f"{mode} is a wrong value")
+
+            return result
 
         except LvmecpControllerError:
             raise LvmecpControllerError(f"fail to read coils to {addr}")
