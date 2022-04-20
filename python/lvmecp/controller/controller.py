@@ -81,7 +81,6 @@ class PlcController:
         # connection
         try:
             await self.Client.connect()
-            assert connection
 
         except LvmecpControllerError:
             raise LvmecpControllerError(f"fail to open connection with {self.host}")
