@@ -17,7 +17,6 @@ lvmecp's documentation
   actor
   controller
   commands
-  proxy
   actor-schema
   exceptions
 
