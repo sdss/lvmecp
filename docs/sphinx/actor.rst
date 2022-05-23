@@ -1,10 +1,7 @@
-.. _lvmecp:
-
-lvmecp
-================
+.. _actor:
 
 Actor
------
+=====
 
 .. automodule:: lvmecp.actor.actor
    :members:

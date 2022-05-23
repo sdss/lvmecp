@@ -1,7 +1,7 @@
-.. _Controller:
+.. _controller:
 
 Controller
-================
+==========
 
 .. automodule:: lvmecp.controller.controller
    :members:

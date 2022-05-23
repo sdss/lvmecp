@@ -6,15 +6,10 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
-import asyncio
-import logging
-import uuid
 from time import sleep
 
 import pytest
-from clu import AMQPClient, CommandStatus
 
-from lvmecp.actor import LvmecpActor as ECPActor
 from lvmecp.proxy_async import LvmecpProxy
 
 

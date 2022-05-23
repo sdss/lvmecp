@@ -1,7 +1,7 @@
 .. _proxy:
 
 LvmecpProxy
-================
+===========
 
 .. automodule:: lvmecp.proxy_async
    :members:

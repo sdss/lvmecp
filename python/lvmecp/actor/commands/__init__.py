@@ -44,7 +44,8 @@ parser.add_command(keyword)
 def __commands(ctx, command: Command, *args):
     # Returns all commands.
 
-    # we have to use the help key for the command list, dont want to change the standard model.
+    # we have to use the help key for the command list,
+    # don't want to change the standard model.
     command.finish(help=[k for k in ctx.command.commands.keys() if k[:2] != "__"])
 
 

@@ -12,25 +12,18 @@ more information.
 
 from __future__ import annotations
 
-import asyncio
 import os
-import re
-import tempfile
-import uuid
+
+import pytest
 
 import clu.testing
-import pytest
-from clu import AMQPClient
 from clu.actor import AMQPActor
-from cluplus.proxy import Proxy
-
 from sdsstools import merge_config, read_yaml_file
 from sdsstools.logger import get_logger
 
 from lvmecp import config
 from lvmecp.actor import LvmecpActor as ECPActor
 from lvmecp.controller.controller import PlcController
-from lvmecp.proxy import LvmecpProxy
 
 
 @pytest.fixture()

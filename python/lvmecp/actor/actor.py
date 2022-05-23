@@ -14,6 +14,7 @@ import warnings
 from typing import ClassVar, Dict
 
 import click
+
 from clu.actor import AMQPActor
 
 from lvmecp import __version__

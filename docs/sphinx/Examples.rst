@@ -1,10 +1,10 @@
-.. _Examples:
+.. _examples:
 
 Examples
-=====================
+========
 
-Starting the Actor
-----------------------
+Starting the actor
+------------------
 
 lvmecp actor provides the control system to manage the enclosure of LVM.
 First you have to start the actor by the terminal command line in the python virtual environment that you installed the lvmnps package. ::
@@ -34,7 +34,7 @@ Finally, you can restart(stop -> start) the actor when the actor is running by t
 
 
 Interface with the Actor
-----------------------------------
+------------------------
 
 If you started the actor by the *lvmecp start* command, you can interface with the actor by the clu CLI(Command Line Interface) ::
 
@@ -46,20 +46,20 @@ If you want to ignore the status message from other actors, you can use this com
   $ clu -b
 
 
-Then you will enter to the clu CLI. 
+Then you will enter to the clu CLI.
 You can check if the actor is running by the ping-pong commands. ::
 
     lvmecp ping
-    04:08:06.973 lvmecp > 
+    04:08:06.973 lvmecp >
     04:08:06.977 lvmecp : {
         "text": "Pong."
     }
- 
+
 
 
 Help command
-----------------------
-          
+------------
+
 First you can confirm the existing commands of *lvmecp* by the *help* command ::
 
     lvmecp help
@@ -87,7 +87,7 @@ First you can confirm the existing commands of *lvmecp* by the *help* command ::
 
 
 dome command
--------------------
+------------
 
 If you run the dome command via lvmecp, you can control the roll-off dome in the enclosure. ::
 
@@ -129,7 +129,7 @@ will return this kind of reply.::
 
 
 light command
------------------
+-------------
 
 If you run the light command via lvmecp, you can control the light in the enclosure. ::
 
@@ -138,7 +138,7 @@ If you run the light command via lvmecp, you can control the light in the enclos
 will return this kind of reply.::
 
     lvmecp light status
-    04:14:05.039 lvmecp > 
+    04:14:05.039 lvmecp >
     04:14:05.040 lvmecp i {
         "text": "checking the light"
     }
@@ -158,7 +158,7 @@ Therefore, if you want to turn on the lights in a specific room,
 you should use a appropriate argument.
 
     Parameters
-    
+
     cr
         Control room.
     ur
@@ -175,7 +175,7 @@ you should use a appropriate argument.
 For example, if you want to turn on the light of Control room,::
 
     lvmecp light move cr
-    04:19:37.540 lvmecp > 
+    04:19:37.540 lvmecp >
     04:19:37.542 lvmecp i {
         "text": "move the Control room"
     }
@@ -188,7 +188,7 @@ For example, if you want to turn on the light of Control room,::
 if you want to turn off the light, same.::
 
     lvmecp light move cr
-    04:19:44.837 lvmecp > 
+    04:19:44.837 lvmecp >
     04:19:44.839 lvmecp i {
         "text": "move the Control room"
     }
@@ -230,7 +230,7 @@ will return this kind of reply.::
     13:07:36.799 lvmecp :
 
 estop command
----------------
+-------------
 
 If you run the estop command via lvmecp, you can you can trigger the emergency status in the enclosure.
 

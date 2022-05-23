@@ -6,20 +6,15 @@
 # @Filename: Controller.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
-"""
-isort:skip_file
-"""
-
 from __future__ import annotations
 
-import datetime
-import warnings
-
-from pymodbus.client.asynchronous.async_io import AsyncioModbusTcpClient as ModbusClient
+from pymodbus.client.asynchronous.async_io import (
+    AsyncioModbusTcpClient as ModbusClient,
+)
 
 from sdsstools.logger import SDSSLogger
 
-from lvmecp.exceptions import LvmecpControllerError, LvmecpControllerWarning
+from lvmecp.exceptions import LvmecpControllerError
 
 
 __all__ = ["PlcController", "Module"]
@@ -434,7 +429,8 @@ class PlcController:
                         desc: "Hg-Ar spectral callibration lamp"
 
                 You can input the key as
-                "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+                "ports.1.desc" to take the information "Hg-Ar spectral
+                callibration lamp"
             """
             k = key.split(".", maxsplit=1)
             c = config.get(
@@ -562,7 +558,8 @@ class Module:
                         desc: "Hg-Ar spectral callibration lamp"
 
                 You can input the key as
-                "ports.1.desc" to take the information "Hg-Ar spectral callibration lamp"
+                "ports.1.desc" to take the information "Hg-Ar spectral
+                callibration lamp"
             """
             k = key.split(".", maxsplit=1)
             c = config.get(

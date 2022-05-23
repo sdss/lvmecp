@@ -7,7 +7,6 @@ from __future__ import annotations
 import pytest
 
 from lvmecp.actor.actor import LvmecpActor as EcpActor
-from lvmecp.exceptions import LvmecpError
 
 
 pytestmark = [pytest.mark.asyncio]

@@ -8,9 +8,8 @@
 
 from __future__ import absolute_import, annotations, division, print_function
 
-import datetime
-
 import click
+
 from clu.command import Command
 
 from lvmecp.controller.controller import PlcController
@@ -24,7 +23,9 @@ __all__ = ["light"]
 
 @parser.group()
 def light():
-    """Tasks for lights which turn on or off the enclosure light and return the current status of the light"""
+    """Tasks for lights which turn on or off the enclosure light and return the current
+    status of the light
+    """
     pass
 
 

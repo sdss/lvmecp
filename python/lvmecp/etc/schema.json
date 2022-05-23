@@ -1,54 +1,54 @@
 {
-    "type": "object",
-    "properties": {
-            "text": {"type": "string"},
-            "emergency": {"type":"integer"},
-            "dome": {"type": "string"},
-            "light": {
-                "type": "object",
-                "control room": {"type": "integer"},
-                "utilities room": {"type": "integer"},
-                "spectrograph room": {"type": "integer"},
-                "uma lights": {"type": "integer"},
-                "telescope room - bright": {"type": "integer"},
-                "telescope room - red": {"type": "integer"}
-            },
-            "hvac": {
-                "type": "object",
-                "sensor1": {
-                    "value": {"type": "integer"},
-                    "unit": {"type": "string"}
-                },
-                "sensor2": {
-                    "value": {"type": "integer"},
-                    "unit": {"type": "string"}
-                }
-            },
-            "status":{
-                "type":"object",
-                "emergency": {"type":"integer"},
-                "dome": {"type": "string"},
-                "light": {
-                    "type": "object",
-                    "control room": {"type": "integer"},
-                    "utilities room": {"type": "integer"},
-                    "spectrograph room": {"type": "integer"},
-                    "uma lights": {"type": "integer"},
-                    "telescope room - bright": {"type": "integer"},
-                    "telescope room - red": {"type": "integer"}
-                },
-                "hvac": {
-                    "type": "object",
-                    "sensor1": {
-                        "value": {"type": "integer"},
-                        "unit": {"type": "string"}
-                    },
-                    "sensor2": {
-                        "value": {"type": "integer"},
-                        "unit": {"type": "string"}
-                    }
-                }
-            }
+  "type": "object",
+  "properties": {
+    "text": { "type": "string" },
+    "emergency": { "type": "integer" },
+    "dome": { "type": "string" },
+    "light": {
+      "type": "object",
+      "control room": { "type": "integer" },
+      "utilities room": { "type": "integer" },
+      "spectrograph room": { "type": "integer" },
+      "uma lights": { "type": "integer" },
+      "telescope room - bright": { "type": "integer" },
+      "telescope room - red": { "type": "integer" }
     },
-    "additionalProperties": false
+    "hvac": {
+      "type": "object",
+      "sensor1": {
+        "value": { "type": "integer" },
+        "unit": { "type": "string" }
+      },
+      "sensor2": {
+        "value": { "type": "integer" },
+        "unit": { "type": "string" }
+      }
+    },
+    "status": {
+      "type": "object",
+      "emergency": { "type": "integer" },
+      "dome": { "type": "string" },
+      "light": {
+        "type": "object",
+        "control room": { "type": "integer" },
+        "utilities room": { "type": "integer" },
+        "spectrograph room": { "type": "integer" },
+        "uma lights": { "type": "integer" },
+        "telescope room - bright": { "type": "integer" },
+        "telescope room - red": { "type": "integer" }
+      },
+      "hvac": {
+        "type": "object",
+        "sensor1": {
+          "value": { "type": "integer" },
+          "unit": { "type": "string" }
+        },
+        "sensor2": {
+          "value": { "type": "integer" },
+          "unit": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
 }

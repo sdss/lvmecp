@@ -8,9 +8,6 @@
 
 from __future__ import absolute_import, annotations, division, print_function
 
-import datetime
-
-import click
 from clu.command import Command
 
 from lvmecp.controller.controller import PlcController

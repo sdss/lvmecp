@@ -1,9 +1,9 @@
 import sys
-import time
 import uuid
 
-from clu.actor import AMQPClient
 from cluplus.proxy import Proxy
+
+from clu.actor import AMQPClient
 
 
 # actor = "lvmecp"

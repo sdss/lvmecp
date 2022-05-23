@@ -7,9 +7,6 @@
 
 from __future__ import absolute_import, annotations, division, print_function
 
-import datetime
-
-import click
 from clu.command import Command
 
 from lvmecp.controller.controller import PlcController
@@ -23,7 +20,9 @@ __all__ = ["dome"]
 
 @parser.group()
 def dome():
-    """Tasks for Dome which turn on or off the roll-off dome and return the current status of the dome"""
+    """Tasks for Dome which turn on or off the roll-off dome and
+    return the current status of the dome.
+    """
     pass
 
 
