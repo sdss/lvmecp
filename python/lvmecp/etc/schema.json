@@ -1,51 +1,18 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
   "properties": {
-    "text": { "type": "string" },
-    "emergency": { "type": "integer" },
-    "dome": { "type": "string" },
-    "light": {
+    "lights": {
       "type": "object",
-      "control room": { "type": "integer" },
-      "utilities room": { "type": "integer" },
-      "spectrograph room": { "type": "integer" },
-      "uma lights": { "type": "integer" },
-      "telescope room - bright": { "type": "integer" },
-      "telescope room - red": { "type": "integer" }
-    },
-    "hvac": {
-      "type": "object",
-      "sensor1": {
-        "value": { "type": "integer" },
-        "unit": { "type": "string" }
-      },
-      "sensor2": {
-        "value": { "type": "integer" },
-        "unit": { "type": "string" }
+      "patternProperties": {
+        "[a-z]+": { "type": "boolean" }
       }
     },
-    "status": {
+    "registers": {
       "type": "object",
-      "emergency": { "type": "integer" },
-      "dome": { "type": "string" },
-      "light": {
-        "type": "object",
-        "control room": { "type": "integer" },
-        "utilities room": { "type": "integer" },
-        "spectrograph room": { "type": "integer" },
-        "uma lights": { "type": "integer" },
-        "telescope room - bright": { "type": "integer" },
-        "telescope room - red": { "type": "integer" }
-      },
-      "hvac": {
-        "type": "object",
-        "sensor1": {
-          "value": { "type": "integer" },
-          "unit": { "type": "string" }
-        },
-        "sensor2": {
-          "value": { "type": "integer" },
-          "unit": { "type": "string" }
+      "patternProperties": {
+        "[a-z]+.[a-z]+": {
+          "oneOf": [{ "type": "boolean" }, { "type": "integer" }]
         }
       }
     }

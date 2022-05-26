@@ -6,19 +6,15 @@ lvmecp's documentation
   :caption: Contents
 
   introduction
-  examples
-  sequence
 
 
 .. toctree::
   :caption: Reference
   :maxdepth: 2
 
-  actor
-  controller
+  api
   commands
   actor-schema
-  exceptions
 
 
 .. toctree::

@@ -33,7 +33,8 @@ sdsstools = ">=0.4.0"
 click = "^8.0.1"
 sdss-clu = "^1.4.0"
 click-default-group = "^1.2.2"
-pymodbus = "^2.5.3"
+sdss-drift = ">=0.4.0"
+pyserial-asyncio = "^0.6"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=7.11.0"
@@ -91,6 +92,8 @@ asyncio_mode = "auto"
 branch = true
 omit = [
     "python/lvmecp/__main__.py",
+    "python/lvmecp/simulator.py",
+    "python/lvmecp/tools.py"
 ]
 
 [tool.coverage.report]
