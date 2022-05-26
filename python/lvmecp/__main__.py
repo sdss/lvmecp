@@ -49,6 +49,7 @@ async def actor(ctx, with_simulator: bool = False):
     ecp_config = deepcopy(config)
     if with_simulator:
         ecp_config["plc"]["address"] = "127.0.0.1"
+        ecp_config["plc"]["port"] = 5020
 
     if not os.path.isabs(ecp_config["actor"]["schema"]):
         schema_rel = ecp_config["actor"]["schema"]

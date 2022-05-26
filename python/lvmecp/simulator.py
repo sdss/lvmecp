@@ -35,7 +35,7 @@ class Simulator:
         self,
         modules: dict,
         address: str = "",
-        port: int = 502,
+        port: int = 5020,
         overrides={},
     ):
 
