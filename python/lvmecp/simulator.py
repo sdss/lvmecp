@@ -34,7 +34,7 @@ class Simulator:
     def __init__(
         self,
         modules: dict,
-        address: str = "0.0.0.0",
+        address: str = "",
         port: int = 502,
         overrides={},
     ):
