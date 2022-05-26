@@ -164,7 +164,7 @@ class Simulator:
 
                 if device.endswith("_new"):
                     # For lights. When we change the value of the XX_new
-                    # register the light is switched and XX_status chages value.
+                    # register the light is switched and XX_status changes value.
                     status_name = device.replace("_new", "_status")
                     asyncio.create_task(set_value(status_name, new_value, 0.0))
 
