@@ -1,9 +1,8 @@
-
 name: Docker
 
 on:
   push:
-    branches: [master, develop]
+    branches: [main]
     tags:
       - '*'
     paths-ignore:

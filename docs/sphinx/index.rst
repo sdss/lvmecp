@@ -1,27 +1,20 @@
 
 lvmecp's documentation
-=============================================
+======================
 
+.. toctree::
+  :caption: Contents
+
+  introduction
 
 
 .. toctree::
-
-  Introduction
-  Examples
-  Sequence
-
-
-.. toctree::
-  :caption: REFERENCE
+  :caption: Reference
   :maxdepth: 2
-  :hidden:
 
-  lvmecp
-  Controller
-  Commands
-  proxy
+  api
+  commands
   actor-schema
-  Exceptions
 
 
 .. toctree::
@@ -31,7 +24,6 @@ lvmecp's documentation
   changelog
   GitHub Repository <https://github.com/sdss/lvmecp>
   Issues  <https://github.com/sdss/lvmecp/issues>
-
 
 
 Indices and tables

@@ -1,38 +1,19 @@
 [flake8]
 
-ignore =
-    E121,
-    E126,
-    E127,
-    E128,
-    E203,
-    E225,
-    E226,
-    E231,
-    E241,
-    E251,
-    E261,
-    E265,
-    E302,
-    E303,
-    E305,
-    E402,
-    E501,
-    E741,
-    W291,
-    W292,
-    W293,
-    W391,
-    W503,
-    W504,
-    F403,
-    B007,
-    B950,
-    F401,
-    F405,
+extend-ignore =
+    H101
+    N
+    W504
+    E203
+    W503
 
-max-line-length = 200
+max-line-length = 88
+
+exclude =
+    .nox/
 
 per-file-ignores =
-    */__init__.py:E,W
-
+    *lib.py:E221,E501
+    setup.py:E
+    __init__.py:E402,F401,F403
+    *.pyi:E,W
