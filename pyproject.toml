@@ -28,7 +28,7 @@ include = ["python/lvmecp/etc/*"]
 lvmecp = "lvmecp.__main__:lvmecp"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.7,<3.11"
 sdsstools = ">=0.4.0"
 click = "^8.0.1"
 sdss-clu = "^1.4.0"
@@ -103,5 +103,5 @@ exclude_lines = [
 ]
 
 [build-system]
-requires = ["poetry-core>=1.1.0a7"]
+requires = ["poetry-core>=1.1.0b2"]
 build-backend = "poetry.core.masonry.api"
