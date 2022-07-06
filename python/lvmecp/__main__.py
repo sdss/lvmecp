@@ -26,16 +26,24 @@ from lvmecp.actor.actor import LvmecpActor as ECPActorInstance
     help="Path to the user configuration file.",
 )
 @click.option(
+    "-r",
+    "--rmq_url",
+    "rmq_url",
+    default=None,
+    type=str,
+    help="rabbitmq url, eg: amqp://guest:guest@localhost:5672/",
+)
+@click.option(
     "-v",
     "--verbose",
     count=True,
     help="Debug mode. Use additional v for more details.",
 )
 @click.pass_context
-def lvmecp(ctx, config_file, verbose):
+def lvmecp(ctx, config_file, rmq_url, verbose):
     """ECP controller"""
 
-    ctx.obj = {"verbose": verbose, "config_file": config_file}
+    ctx.obj = {"verbose": verbose, "config_file": config_file, "rmq_url": rmq_url}
 
 
 @lvmecp.group(cls=DaemonGroup, prog="ecp_actor", workdir=os.getcwd())
@@ -46,7 +54,7 @@ async def actor(ctx):
     default_config_file = os.path.join(os.path.dirname(__file__), "etc/lvmecp.yml")
     config_file = ctx.obj["config_file"] or default_config_file
 
-    lvmecp_obj = ECPActorInstance.from_config(config_file)
+    lvmecp_obj = ECPActorInstance.from_config(config_file, url=ctx.obj["rmq_url"], verbose=ctx.obj["verbose"])
 
     if ctx.obj["verbose"]:
         lvmecp_obj.log.fh.setLevel(0)
