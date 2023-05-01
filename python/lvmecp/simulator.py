@@ -18,7 +18,7 @@ from pymodbus.datastore import (
     ModbusSlaveContext,
     ModbusSparseDataBlock,
 )
-from pymodbus.server.async_io import ModbusTcpServer
+from pymodbus.server import StartAsyncTcpServer
 
 from lvmecp import config
 
@@ -38,7 +38,6 @@ class Simulator:
         port: int = 5020,
         overrides={},
     ):
-
         self.address = address
         self.port = port
 
@@ -58,7 +57,6 @@ class Simulator:
         self.__task: asyncio.Task | None = None
 
     def reset(self):
-
         di = {}
         co = {}
         hr = {}
@@ -105,18 +103,25 @@ class Simulator:
 
         self.__task = asyncio.create_task(self._monitor_context(monitor_interval))
 
-        self.server = ModbusTcpServer(
+        self.server = await StartAsyncTcpServer(
             self.context,
             address=(self.address, self.port),
             allow_reuse_address=True,
+            defer_start=True,
         )
+        assert self.server
 
         if serve_forever:
             await self.server.serve_forever()
         else:
-            if self.server.server is None:
-                self.server.server = await self.server.server_factory
-                self.server.serving.set_result(True)
+            if self.server is not None and self.server.server is None:
+                self.server.server = await self.server.loop.create_server(
+                    lambda: self.server.handler(self.server),  # type: ignore
+                    self.address,
+                    self.port,
+                    **self.server.factory_parms,
+                )
+            self.server.serving.set_result(True)
 
     async def stop(self):
         """Stops the simulator."""
@@ -153,7 +158,6 @@ class Simulator:
 
         while True:
             for device in self.current_values:
-
                 address, code, current_value = self.current_values[device]
                 new_value = int(context.getValues(code, address, count=1)[0])
 
