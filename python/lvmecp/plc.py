@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 from drift import Drift
 
 from .dome import DomeController
+from .lights import LightsController
 
 
 if TYPE_CHECKING:
@@ -64,6 +65,8 @@ class PLC(Drift):
             self,
             notifier=create_actor_notifier(actor, "dome_status"),
         )
+
+        self.lights = LightsController(self)
 
     async def read_all_registers(self):
         """Reads all the connected devices/registers and returns a dictionary."""
