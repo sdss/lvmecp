@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import abc
 import asyncio
-from typing import TYPE_CHECKING, Callable, Generic, Type, TypeVar
+from typing import TYPE_CHECKING, Callable, Coroutine, Generic, Type, TypeVar
 
 from lvmecp import log
 from lvmecp.tools import cancel_tasks_by_name
@@ -34,7 +34,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         plc: PLC,
         interval: float = 1,
         start: bool = True,
-        notifier: Callable[[int, str], None] | None = None,
+        notifier: Callable[[int, str], Callable | Coroutine] | None = None,
     ):
         self.name = name
         self.plc = plc

@@ -23,7 +23,6 @@ from lvmecp.simulator import Simulator, plc_simulator
 
 @pytest.fixture()
 async def simulator():
-
     plc_simulator.reset()
     await plc_simulator.start(serve_forever=False)
 
@@ -37,7 +36,6 @@ async def simulator():
 
 @pytest.fixture()
 async def actor(simulator: Simulator):
-
     ecp_config = deepcopy(config)
     ecp_config["plc"]["address"] = "127.0.0.1"
     ecp_config["plc"]["port"] = 5020

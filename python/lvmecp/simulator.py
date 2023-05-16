@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 from copy import deepcopy
-from typing import ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from pymodbus.datastore import (
     ModbusServerContext,
@@ -21,6 +21,10 @@ from pymodbus.datastore import (
 from pymodbus.server import StartAsyncTcpServer
 
 from lvmecp import config
+
+
+if TYPE_CHECKING:
+    from pymodbus.server import ModbusTcpServer
 
 
 __all__ = ["Simulator", "plc_simulator"]
