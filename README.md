@@ -2,9 +2,9 @@
 
 ![Versions](https://img.shields.io/badge/python->3.7-blue)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Test](https://github.com/sdss/lvmecp/actions/workflows/Test.yml/badge.svg?branch=develop)](https://github.com/sdss/lvmecp/actions/workflows/Test.yml)
+[![Test](https://github.com/sdss/lvmecp/actions/workflows/test.yml/badge.svg)](https://github.com/sdss/lvmecp/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/lvmecp/badge/?version=latest)](https://lvmecp.readthedocs.io/en/latest/?badge=latest)
-[![Docker](https://github.com/sdss/lvmecp/actions/workflows/Docker.yml/badge.svg)](https://github.com/sdss/lvmecp/actions/workflows/Docker.yml)
+[![Docker](https://github.com/sdss/lvmecp/actions/workflows/docker.yml/badge.svg)](https://github.com/sdss/lvmecp/actions/workflows/docker.yml)
 [![codecov](https://codecov.io/gh/sdss/lvmecp/branch/develop/graphs/badge.svg)](https://codecov.io/gh/sdss/lvmecp)
 
 SDSS-V LVM Enclosure Control Package
@@ -63,7 +63,7 @@ In another terminal, type `clu` and `lvmecp ping` for test.
 ```
 $ clu
 lvmecp ping
-     07:41:22.636 lvmecp > 
+     07:41:22.636 lvmecp >
      07:41:22.645 lvmecp : {
          "text": "Pong."
          }
