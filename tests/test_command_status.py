@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 
 async def test_command_status(actor: ECPActor):
-
     cmd = await actor.invoke_mock_command("status")
     await cmd
 

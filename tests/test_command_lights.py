@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
 
 async def test_command_lights(actor: ECPActor):
-
     cmd = await actor.invoke_mock_command("lights")
     await cmd
 
@@ -27,7 +26,6 @@ async def test_command_lights(actor: ECPActor):
 
 
 async def test_command_lights_one(actor: ECPActor):
-
     cmd = await actor.invoke_mock_command("lights tr")
     await cmd
 
@@ -38,7 +36,6 @@ async def test_command_lights_one(actor: ECPActor):
 @pytest.mark.parametrize("action", ["on", "off", "switch"])
 @pytest.mark.parametrize("light", ["telescope_bright", "tb", "telescope bright"])
 async def test_command_lights_action(actor: ECPActor, action: str, light: str):
-
     cmd = await actor.invoke_mock_command(f'lights "{light}" {action}')
     await cmd
 
