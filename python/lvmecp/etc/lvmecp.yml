@@ -1,5 +1,5 @@
 plc:
-  host: 127.0.0.1
+  host: 10.8.38.51
   port: 502
   modules:
     INTERLOCKS:
@@ -13,9 +13,11 @@ plc:
         drive_interlock_state:
           address: 2
         e_status:
-          address: 3
+          address: 200
         e_stop:
-          address: 4
+          address: 199
+        e_relay_reset:
+          address: 201
     LIGHTS:
       mode: coil
       description: Ligths status and setting
@@ -44,11 +46,11 @@ plc:
           address: 239
         tr_status:
           address: 339
-    SHUTTER1:
+    ROLLOFF:
       mode: coil
       description: Dome drive control
       devices:
-        drive_enable:
+        drive_enabled:
           address: 99
         drive_state:
           address: 100
@@ -66,12 +68,6 @@ plc:
           address: 107
         overcurrent:
           address: 109
-        open_small_timeout:
-          address: 121
-    SHUTTER2:
-      mode: holding_register
-      description: Dome drive parameters
-      devices:
         drive_velocity1:
           address: 103
         drive_velocity2:
@@ -84,31 +80,6 @@ plc:
           address: 129
         dome_counter:
           address: 149
-    emergency:
-      mode: coil
-      description: Emergency stop and reset
-      devices:
-        e_stop:
-          address: 199
-        e_status:
-          address: 200
-        e_reset:
-          address: 101
-
-hvac:
-  host: 127.0.0.1
-  port: 503
-  modules:
-    HVAC:
-      mode: holding_register
-      description: HVAC system
-      devices:
-        sensor1:
-          address: 49
-          unit: ''
-        sensor2:
-          address: 50
-          unit: ''
 
 actor:
   name: lvmecp

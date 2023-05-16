@@ -13,8 +13,7 @@ from copy import deepcopy
 import click
 from click_default_group import DefaultGroup
 
-from clu.tools import cli_coro
-from sdsstools.daemonizer import DaemonGroup
+from sdsstools.daemonizer import DaemonGroup, cli_coro
 
 from lvmecp import config
 from lvmecp.actor import ECPActor
@@ -42,13 +41,13 @@ def lvmecp(ctx, verbose):
     help="Runs the actor aginst the simulator.",
 )
 @click.pass_context
-@cli_coro
+@cli_coro()
 async def actor(ctx, with_simulator: bool = False):
     """Runs the actor."""
 
     ecp_config = deepcopy(config)
     if with_simulator:
-        ecp_config["plc"]["address"] = "127.0.0.1"
+        ecp_config["plc"]["host"] = "127.0.0.1"
         ecp_config["plc"]["port"] = 5020
 
     if not os.path.isabs(ecp_config["actor"]["schema"]):
@@ -63,7 +62,6 @@ async def actor(ctx, with_simulator: bool = False):
             actor_obj.log.fh.setLevel(0)
 
     if with_simulator:
-
         await plc_simulator.start(serve_forever=False)
 
         assert plc_simulator.server and plc_simulator.server.server
@@ -74,7 +72,7 @@ async def actor(ctx, with_simulator: bool = False):
 
 
 @lvmecp.command()
-@cli_coro
+@cli_coro()
 async def simulator():
     """Runs the PLC simulator."""
 

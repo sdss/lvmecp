@@ -44,16 +44,14 @@ class LightsController:
     """Controller for the light settings."""
 
     def __init__(self, plc: PLC):
-
         self.plc = plc
         self.client = plc.client
 
         self.status = LightStatus(0)
 
-        self.__update_loop_task = loop_coro(self.update, 10)
+        self.__update_loop_task = loop_coro(self.update, 1)
 
     def __del__(self):
-
         self.__update_loop_task.cancel()
 
     async def update(self):

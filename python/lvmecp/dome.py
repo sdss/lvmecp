@@ -8,33 +8,39 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from types import SimpleNamespace
 
 from lvmecp.maskbits import DomeStatus
-from lvmecp.tools import loop_coro
+from lvmecp.module import PLCModule
 
 
-if TYPE_CHECKING:
-    from .plc import PLC
-
-
-class DomeController:
+class DomeController(PLCModule[DomeStatus]):
     """Controller for the rolling dome."""
 
-    def __init__(self, plc: PLC):
+    flag = DomeStatus
 
-        self.plc = plc
-        self.client = plc.client
+    async def _update_internal(self):
+        dome_devices = list(self.plc.modules["ROLLOFF"].devices)
+        dome_bits = await self.plc.read_devices(dome_devices, adapt=False)
 
-        self.status = DomeStatus.UNKNOWN
+        dome_status = SimpleNamespace(**dict(zip(*[dome_devices, dome_bits])))
 
-        self.__update_loop_task = loop_coro(self.update, 10)
+        new_status = self.flag(0)
 
-    def __del__(self):
+        if dome_status.drive_enabled:
+            new_status |= self.flag.DRIVE_ENABLED
+            if dome_status.motor_direction:
+                new_status |= self.flag.MOTOR_OPENING
+            else:
+                new_status |= self.flag.MOTOR_CLOSING
 
-        self.__update_loop_task.cancel()
+        if dome_status.drive_state:
+            new_status |= self.flag.DRIVE_CONNECTED
 
-    async def update(self):
-        """Refreshes the dome status."""
+        if dome_status.drive_brake:
+            new_status |= self.flag.BRAKE_ENABLED
 
-        return self.status
+        if dome_status.overcurrent:
+            new_status |= self.flag.OVERCURRENT
+
+        return new_status

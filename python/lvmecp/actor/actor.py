@@ -8,13 +8,9 @@
 
 from __future__ import annotations
 
-import pathlib
-from copy import deepcopy
-
 from clu.actor import AMQPActor
-from sdsstools import read_yaml_file
 
-from lvmecp import config as lvmecp_config
+from lvmecp import __version__
 from lvmecp.actor.commands import parser
 from lvmecp.plc import PLC
 
@@ -27,25 +23,23 @@ class ECPActor(AMQPActor):
 
     parser = parser
 
-    def __init__(self, plc: PLC, *args, **kwargs):
+    def __init__(
+        self,
+        plc: PLC | None = None,
+        *args,
+        plc_config: dict | None = None,
+        **kwargs,
+    ):
+        if "version" not in kwargs:
+            kwargs["version"] = __version__
 
         super().__init__(*args, **kwargs)
 
-        self.plc = plc
+        if plc is None:
+            if plc_config is None and self.config.get("plc", None) is None:
+                raise ValueError("PLC configuraton must be defined at initialisation.")
+            plc_config = plc_config or self.config["plc"]
 
-    @classmethod
-    def from_config(
-        cls,
-        config: dict | pathlib.Path | str | None = None,
-        *args,
-        **kwargs,
-    ):
-
-        if config is None:
-            config = deepcopy(lvmecp_config)
-        elif isinstance(config, (pathlib.Path, str)):
-            config = read_yaml_file(config)
-
-        plc = PLC.from_config(config["plc"])
-
-        return super().from_config(config, plc, *args, **kwargs)
+            self.plc = PLC.from_config(plc_config, actor=self)
+        else:
+            self.plc = plc

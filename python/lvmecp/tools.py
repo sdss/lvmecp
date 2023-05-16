@@ -9,10 +9,11 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 from typing import Any, Callable, Coroutine
 
 
-__all__ = ["loop_coro"]
+__all__ = ["loop_coro", "cancel_tasks_by_name"]
 
 
 def loop_coro(
@@ -22,7 +23,6 @@ def loop_coro(
     """Creates a task that calls a function or coroutine on an interval."""
 
     async def _task_body():
-
         while True:
             if asyncio.iscoroutine(coro):
                 await coro
@@ -35,3 +35,13 @@ def loop_coro(
             await asyncio.sleep(interval)
 
     return asyncio.create_task(_task_body())
+
+
+async def cancel_tasks_by_name(name: str):
+    """Cancels all tasks with ``name``."""
+
+    tasks = [tasks for tasks in asyncio.all_tasks() if tasks.get_name() == name]
+    for task in tasks:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task

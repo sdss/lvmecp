@@ -21,6 +21,12 @@ if TYPE_CHECKING:
 async def status(command: ECPCommand):
     """Returns the enclosure status."""
 
-    command.info(registers=(await command.actor.plc.read_all_registers()))
+    plc = command.actor.plc
+
+    command.info(registers=(await plc.read_all_registers()))
+
+    modules = [plc.dome]
+    for module in modules:
+        await module.notify_status(wait=True, command=command)
 
     return command.finish()
