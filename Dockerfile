@@ -1,18 +1,14 @@
-FROM ubuntu:20.04
+FROM python:3.10-slim-bullseye
 
-LABEL maintainer="mingyeong@khu.ac.kr"
+MAINTAINER Jose Sanchez-Gallego, gallegoj@uw.edu
+LABEL org.opencontainers.image.source https://github.com/sdss/lvmecp
 
 WORKDIR /opt
 
 COPY . lvmecp
 
-RUN apt-get -y update
-RUN apt-get -y install python3 python3-pip build-essential libbz2-dev
-
 RUN pip3 install -U pip setuptools wheel
 RUN cd lvmecp && pip3 install .
-
-# Connect repo to package
-LABEL org.opencontainers.image.source https://github.com/sdss/lvmecp
+RUN rm -Rf lvmecp
 
 ENTRYPOINT lvmecp actor start --debug
