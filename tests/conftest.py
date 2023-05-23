@@ -8,7 +8,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
+from contextlib import suppress
 from copy import deepcopy
 
 import pytest
@@ -24,20 +26,21 @@ from lvmecp.simulator import Simulator, plc_simulator
 @pytest.fixture()
 async def simulator():
     plc_simulator.reset()
-    await plc_simulator.start(serve_forever=False)
-
-    assert plc_simulator.server and plc_simulator.server.server
-    await plc_simulator.server.server.start_serving()
+    simulator_task = asyncio.create_task(plc_simulator.start())
 
     yield plc_simulator
 
     await plc_simulator.stop()
 
+    with suppress(asyncio.CancelledError):
+        simulator_task.cancel()
+        await simulator_task
+
 
 @pytest.fixture()
 async def actor(simulator: Simulator):
     ecp_config = deepcopy(config)
-    ecp_config["plc"]["address"] = "127.0.0.1"
+    ecp_config["plc"]["host"] = "127.0.0.1"
     ecp_config["plc"]["port"] = 5020
 
     schema_path = ecp_config["actor"]["schema"]

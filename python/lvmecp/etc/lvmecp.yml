@@ -1,85 +1,106 @@
 plc:
   host: 10.8.38.51
   port: 502
-  modules:
-    INTERLOCKS:
-      mode: coil
-      description: Dome drive interlocks
-      devices:
-        key:
-          address: 0
-        door_status:
-          address: 1
-        drive_interlock_state:
-          address: 2
-        e_status:
-          address: 200
-        e_stop:
-          address: 199
-        e_relay_reset:
-          address: 201
-    LIGHTS:
-      mode: coil
-      description: Ligths status and setting
-      devices:
-        cr_new:
-          address: 234
-        cr_status:
-          address: 334
-        ur_new:
-          address: 235
-        ur_status:
-          address: 335
-        sr_new:
-          address: 236
-        sr_status:
-          address: 336
-        uma_new:
-          address: 237
-        uma_status:
-          address: 337
-        tb_new:
-          address: 238
-        tb_status:
-          address: 338
-        tr_new:
-          address: 239
-        tr_status:
-          address: 339
-    ROLLOFF:
-      mode: coil
-      description: Dome drive control
-      devices:
-        drive_enabled:
-          address: 99
-        drive_state:
-          address: 100
-        motor_direction:
-          address: 101
-        drive_brake:
-          address: 102
-        ne_limit:
-          address: 104
-        nw_limit:
-          address: 105
-        se_limit:
-          address: 106
-        sw_limit:
-          address: 107
-        overcurrent:
-          address: 109
-        drive_velocity1:
-          address: 103
-        drive_velocity2:
-          address: 104
-        open_timeout:
-          address: 119
-        close_timeout:
-          address: 120
-        drive_current:
-          address: 129
-        dome_counter:
-          address: 149
+  registers:
+    key:
+      address: 0
+    door_status:
+      address: 1
+    drive_interlock_state:
+      address: 2
+    e_status:
+      address: 200
+    e_stop:
+      address: 199
+    e_relay_reset:
+      address: 201
+    cr_new:
+      address: 234
+      group: lights
+    cr_status:
+      address: 334
+      group: lights
+    ur_new:
+      address: 235
+      group: lights
+    ur_status:
+      address: 335
+      group: lights
+    sr_new:
+      address: 236
+      group: lights
+    sr_status:
+      address: 336
+      group: lights
+    uma_new:
+      address: 237
+      group: lights
+    uma_status:
+      address: 337
+      group: lights
+    tb_new:
+      address: 238
+      group: lights
+    tb_status:
+      address: 338
+      group: lights
+    tr_new:
+      address: 239
+      group: lights
+    tr_status:
+      address: 339
+      group: lights
+    drive_enabled:
+      address: 99
+      group: dome
+    drive_state:
+      address: 100
+      group: dome
+    motor_direction:
+      address: 101
+      group: dome
+    drive_brake:
+      address: 102
+      group: dome
+    ne_limit:
+      address: 104
+      group: dome
+    nw_limit:
+      address: 105
+      group: dome
+    se_limit:
+      address: 106
+      group: dome
+    sw_limit:
+      address: 107
+      group: dome
+    overcurrent:
+      address: 109
+      group: dome
+    drive_velocity1:
+      address: 103
+      mode: holding_register
+      group: dome
+    drive_velocity2:
+      address: 104
+      mode: holding_register
+      group: dome
+    open_timeout:
+      address: 119
+      mode: holding_register
+      group: dome
+    close_timeout:
+      address: 120
+      mode: holding_register
+      group: dome
+    drive_current:
+      address: 129
+      mode: holding_register
+      group: dome
+    dome_counter:
+      address: 149
+      mode: holding_register
+      group: dome
 
 actor:
   name: lvmecp

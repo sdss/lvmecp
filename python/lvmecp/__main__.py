@@ -6,6 +6,7 @@
 # @Filename: __main__.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
+import asyncio
 import os
 import pathlib
 from copy import deepcopy
@@ -62,10 +63,7 @@ async def actor(ctx, with_simulator: bool = False):
             actor_obj.log.fh.setLevel(0)
 
     if with_simulator:
-        await plc_simulator.start(serve_forever=False)
-
-        assert plc_simulator.server and plc_simulator.server.server
-        await plc_simulator.server.server.start_serving()
+        asyncio.create_task(plc_simulator.start())
 
     await actor_obj.start()
     await actor_obj.run_forever()

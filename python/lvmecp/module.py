@@ -38,7 +38,6 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
     ):
         self.name = name
         self.plc = plc
-        self.client = plc.client
 
         assert hasattr(self, "flag"), "flag not defined."
 

@@ -40,6 +40,6 @@ class ECPActor(AMQPActor):
                 raise ValueError("PLC configuraton must be defined at initialisation.")
             plc_config = plc_config or self.config["plc"]
 
-            self.plc = PLC.from_config(plc_config, actor=self)
+            self.plc = PLC(config=self.config["plc"], actor=self)
         else:
             self.plc = plc

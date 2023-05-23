@@ -20,10 +20,9 @@ class DomeController(PLCModule[DomeStatus]):
     flag = DomeStatus
 
     async def _update_internal(self):
-        dome_devices = list(self.plc.modules["ROLLOFF"].devices)
-        dome_bits = await self.plc.read_devices(dome_devices, adapt=False)
+        dome_registers = await self.plc.modbus.read_group("dome")
 
-        dome_status = SimpleNamespace(**dict(zip(*[dome_devices, dome_bits])))
+        dome_status = SimpleNamespace(**dome_registers)
 
         new_status = self.flag(0)
 

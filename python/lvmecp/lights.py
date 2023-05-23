@@ -45,7 +45,7 @@ class LightsController:
 
     def __init__(self, plc: PLC):
         self.plc = plc
-        self.client = plc.client
+        self.client = plc.modbus.client
 
         self.status = LightStatus(0)
 
@@ -57,13 +57,11 @@ class LightsController:
     async def update(self):
         """Refreshes the lights status."""
 
-        lights = [dev for dev in self.plc["LIGHTS"].devices if dev.endswith("_status")]
-        values = await self.plc.read_devices(lights, adapt=False)
+        lights = await self.plc.modbus.read_group("lights")
 
-        for ii, light in enumerate(lights):
+        for light, value in lights.items():
             code = light.split("_")[0]
             flag = CODE_TO_FLAG[code]
-            value = values[ii]
 
             if value is True:
                 self.status |= flag
@@ -209,8 +207,7 @@ class LightsController:
         if current == action:
             return
 
-        dev_new = self.plc.get_device(code_new)
-        await dev_new.write(action)
+        await self.plc.modbus[code_new].set(action)
 
         flag = self.get_flag(light)
         if action is True:

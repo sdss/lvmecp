@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING
 
-from drift import Drift
+from lvmecp.modbus import Modbus
 
 from .dome import DomeController
 from .lights import LightsController
@@ -54,11 +54,11 @@ def create_actor_notifier(
     return notifier if actor else None
 
 
-class PLC(Drift):
+class PLC:
     """Class for the enclosure programmable logic controller."""
 
-    def __init__(self, address: str, port: int = 502, actor: ECPActor | None = None):
-        super().__init__(address, port)
+    def __init__(self, config: dict | None = None, actor: ECPActor | None = None):
+        self.modbus = Modbus(config=config)
 
         self.dome = DomeController(
             "dome",
@@ -69,17 +69,6 @@ class PLC(Drift):
         self.lights = LightsController(self)
 
     async def read_all_registers(self):
-        """Reads all the connected devices/registers and returns a dictionary."""
+        """Reads all the connected registers and returns a dictionary."""
 
-        devices = []
-        for module in self.modules:
-            for device in self[module].devices:
-                devices.append(f"{module}.{device}")
-
-        values = await self.read_devices(devices, adapt=False)
-
-        registers = {}
-        for ii in range(len(devices)):
-            registers[devices[ii].lower()] = values[ii]
-
-        return registers
+        return await self.modbus.get_all()
