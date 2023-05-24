@@ -75,3 +75,13 @@ async def status(command: ECPCommand):
         command.warning("Dome position is unknown!!!")
 
     return command.finish(dome_open=bool(status & DomeStatus.OPEN))
+
+
+@dome.command()
+async def stop(command: ECPCommand):
+    """Stops the dome if it's moving."""
+
+    command.warning("Stopping the dome.")
+    await command.actor.plc.dome.stop()
+
+    return command.finish()

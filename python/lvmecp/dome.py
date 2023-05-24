@@ -106,6 +106,8 @@ class DomeController(PLCModule[DomeStatus]):
         log.debug("Setting drive_enabled.")
         await self.modbus["drive_enabled"].set(True)
 
+        self.dome_is_open = None
+
         await asyncio.sleep(0.5)
         while await self.modbus["drive_enabled"].get():
             # Still moving.
@@ -124,3 +126,20 @@ class DomeController(PLCModule[DomeStatus]):
         """Close the dome."""
 
         await self._move(False, force=force)
+
+    async def stop(self):
+        """Stops the dome."""
+
+        drive_enabled = await self.plc.modbus["drive_enabled"].get()
+        status = await self.update()
+
+        if not drive_enabled:
+            return
+
+        is_moving = status & self.flag.MOVING
+        await self.plc.modbus["drive_enabled"].set(False)
+
+        if is_moving:
+            self.dome_is_open = None
+
+        await self.update()
