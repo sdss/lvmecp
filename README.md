@@ -1,6 +1,6 @@
 # lvmecp
 
-![Versions](https://img.shields.io/badge/python->3.7-blue)
+![Versions](https://img.shields.io/badge/python->3.10-blue)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Test](https://github.com/sdss/lvmecp/actions/workflows/test.yml/badge.svg)](https://github.com/sdss/lvmecp/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/lvmecp/badge/?version=latest)](https://lvmecp.readthedocs.io/en/latest/?badge=latest)
