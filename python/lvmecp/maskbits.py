@@ -45,7 +45,7 @@ class DomeStatus(Maskbit):
     OPEN = 0x1
     CLOSED = 0x2
     MOVING = 0x4
-    DRIVE_CONNECTED = 0x10
+    POSITION_UNKNOWN = 0x10
     DRIVE_ENABLED = 0x20
     MOTOR_CLOSING = 0x40
     MOTOR_OPENING = 0x80

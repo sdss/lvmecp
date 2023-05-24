@@ -16,7 +16,7 @@ from click_default_group import DefaultGroup
 
 from sdsstools.daemonizer import DaemonGroup, cli_coro
 
-from lvmecp import config
+from lvmecp import config, log
 from lvmecp.actor import ECPActor
 from lvmecp.simulator import plc_simulator
 
@@ -58,9 +58,10 @@ async def actor(ctx, with_simulator: bool = False):
     actor_obj = ECPActor.from_config(ecp_config)
 
     if ctx.obj["verbose"]:
-        actor_obj.log.sh.setLevel(0)
+        actor_obj.log.sh.setLevel(10)
+        log.sh.setLevel(10)
         if actor_obj.log.fh:
-            actor_obj.log.fh.setLevel(0)
+            actor_obj.log.fh.setLevel(10)
 
     if with_simulator:
         asyncio.create_task(plc_simulator.start())

@@ -8,8 +8,12 @@
 
 from __future__ import annotations
 
+import asyncio
+import warnings
 from types import SimpleNamespace
 
+from lvmecp import log
+from lvmecp.exceptions import DomeError, ECPWarning
 from lvmecp.maskbits import DomeStatus
 from lvmecp.module import PLCModule
 
@@ -19,6 +23,13 @@ class DomeController(PLCModule[DomeStatus]):
 
     flag = DomeStatus
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Temporary, until we have proximity sensors that tell
+        # us whether we are open or closed.
+        self.dome_is_open: bool | None = None
+
     async def _update_internal(self):
         dome_registers = await self.plc.modbus.read_group("dome")
 
@@ -26,15 +37,15 @@ class DomeController(PLCModule[DomeStatus]):
 
         new_status = self.flag(0)
 
-        if dome_status.drive_enabled:
+        if dome_status.drive_state:
             new_status |= self.flag.DRIVE_ENABLED
+
+        if dome_status.drive_enabled:
+            new_status |= self.flag.MOVING
             if dome_status.motor_direction:
                 new_status |= self.flag.MOTOR_OPENING
             else:
                 new_status |= self.flag.MOTOR_CLOSING
-
-        if dome_status.drive_state:
-            new_status |= self.flag.DRIVE_CONNECTED
 
         if dome_status.drive_brake:
             new_status |= self.flag.BRAKE_ENABLED
@@ -42,4 +53,74 @@ class DomeController(PLCModule[DomeStatus]):
         if dome_status.overcurrent:
             new_status |= self.flag.OVERCURRENT
 
+        if self.dome_is_open is True:
+            new_status |= self.flag.OPEN
+        elif self.dome_is_open is False:
+            new_status |= self.flag.CLOSED
+        else:
+            new_status |= self.flag.POSITION_UNKNOWN
+
         return new_status
+
+    async def set_direction(self, open: bool):
+        """Sets the motor direction (`True` means open, `False` close)."""
+
+        await self.modbus["drive_direction"].set(open)
+        await self.update()
+
+    async def _move(self, open: bool, force: bool = False):
+        """Moves the dome to open/close position."""
+
+        await self.update()
+
+        if self.status & self.flag.UNKNOWN:
+            raise DomeError("Dome is in unknown state.")
+
+        if not (self.status & self.flag.DRIVE_ENABLED):
+            raise DomeError("Dome drive not enabled.")
+
+        # TODO: in the future this may not be an error and we may
+        # want to override the direction of the move.
+        if self.status & self.flag.MOVING:
+            raise DomeError("Dome is moving.")
+
+        already_at_position = False
+        if (self.status & self.flag.OPEN) and open:
+            already_at_position = True
+        elif (self.status & self.flag.CLOSED) and not open:
+            already_at_position = True
+        else:
+            warnings.warn("Dome in unknown or intermediate position.", ECPWarning)
+
+        if already_at_position:
+            if force is False:
+                return
+            else:
+                warnings.warn("Dome already at position, but forcing.", ECPWarning)
+
+        log.debug("Setting motor_direction.")
+        await self.modbus["motor_direction"].set(open)
+
+        await asyncio.sleep(0.5)
+
+        log.debug("Setting drive_enabled.")
+        await self.modbus["drive_enabled"].set(True)
+
+        await asyncio.sleep(0.5)
+        while await self.modbus["drive_enabled"].get():
+            # Still moving.
+            await asyncio.sleep(1)
+
+        self.dome_is_open = open
+
+        await self.update()
+
+    async def open(self, force: bool = False):
+        """Open the dome."""
+
+        await self._move(True, force=force)
+
+    async def close(self, force: bool = False):
+        """Close the dome."""
+
+        await self._move(False, force=force)

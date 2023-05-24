@@ -199,7 +199,7 @@ class Modbus(dict[str, ModbusRegister]):
 
             results = await asyncio.gather(*tasks)
 
-            return dict(zip(names, results))
+        return dict(zip(names, results))
 
     async def read_group(self, group: str):
         """Returns a dictionary of all read registers that match a ``group``."""

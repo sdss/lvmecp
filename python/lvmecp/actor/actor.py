@@ -8,10 +8,14 @@
 
 from __future__ import annotations
 
-from clu.actor import AMQPActor
+import logging
 
-from lvmecp import __version__
+from clu.actor import AMQPActor
+from clu.tools import ActorHandler
+
+from lvmecp import __version__, log
 from lvmecp.actor.commands import parser
+from lvmecp.exceptions import ECPWarning
 from lvmecp.plc import PLC
 
 
@@ -34,6 +38,15 @@ class ECPActor(AMQPActor):
             kwargs["version"] = __version__
 
         super().__init__(*args, **kwargs)
+
+        self.actor_handler = ActorHandler(
+            self,
+            level=logging.WARNING,
+            filter_warnings=[ECPWarning],
+        )
+        log.addHandler(self.actor_handler)
+        if log.warnings_logger:
+            log.warnings_logger.addHandler(self.actor_handler)
 
         if plc is None:
             if plc_config is None and self.config.get("plc", None) is None:
