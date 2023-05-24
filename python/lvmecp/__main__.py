@@ -6,6 +6,8 @@
 # @Filename: __main__.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
+from __future__ import annotations
+
 import asyncio
 import os
 import pathlib
@@ -14,6 +16,7 @@ from copy import deepcopy
 import click
 from click_default_group import DefaultGroup
 
+from sdsstools import read_yaml_file
 from sdsstools.daemonizer import DaemonGroup, cli_coro
 
 from lvmecp import config, log
@@ -23,16 +26,26 @@ from lvmecp.simulator import plc_simulator
 
 @click.group(cls=DefaultGroup, default="actor", default_if_no_args=True)
 @click.option(
+    "-c",
+    "--config",
+    "config_file",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Path to the user configuration file.",
+)
+@click.option(
     "-v",
     "--verbose",
     count=True,
     help="Debug mode. Use additional v for more details.",
 )
 @click.pass_context
-def lvmecp(ctx, verbose):
+def lvmecp(ctx, verbose, config_file: str | None):
     """LCM enclosure control software."""
 
-    ctx.obj = {"verbose": verbose}
+    ctx.obj = {
+        "verbose": verbose,
+        "config_file": config_file,
+    }
 
 
 @lvmecp.group(cls=DaemonGroup, prog="ecp-actor", workdir=os.getcwd())
@@ -46,7 +59,14 @@ def lvmecp(ctx, verbose):
 async def actor(ctx, with_simulator: bool = False):
     """Runs the actor."""
 
-    ecp_config = deepcopy(config)
+    config_file = ctx.obj["config_file"]
+    if config_file:
+        ecp_config = read_yaml_file(config_file)
+        log.info(f"Using config file {config_file}")
+    else:
+        ecp_config = deepcopy(config)
+        log.info("Using internal configuration.")
+
     if with_simulator:
         ecp_config["plc"]["host"] = "127.0.0.1"
         ecp_config["plc"]["port"] = 5020
@@ -78,5 +98,9 @@ async def simulator():
     await plc_simulator.start()
 
 
+def main():
+    lvmecp(auto_envvar_prefix="LVMECP")
+
+
 if __name__ == "__main__":
-    lvmecp()
+    main()
