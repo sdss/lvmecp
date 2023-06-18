@@ -49,7 +49,7 @@ class LightsController:
 
         self.status = LightStatus(0)
 
-        self.__update_loop_task = loop_coro(self.update, 1)
+        self.__update_loop_task = loop_coro(self.update, 60)
 
     def __del__(self):
         self.__update_loop_task.cancel()

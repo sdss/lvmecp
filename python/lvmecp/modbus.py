@@ -131,7 +131,7 @@ class Modbus(dict[str, ModbusRegister]):
 
     def __init__(self, config: dict | pathlib.Path | str | None = None):
         if isinstance(config, (str, pathlib.Path)):
-            config = read_yaml_file(config)
+            config = read_yaml_file(str(config))
         elif config is None:
             config = lvmecp_config["plc"]
             assert isinstance(config, dict)
@@ -165,7 +165,7 @@ class Modbus(dict[str, ModbusRegister]):
             await self.lock.acquire()
 
         hp = f"{self.host}:{self.port}"
-        log.debug(f"Trying to connect to modbus serveron {hp}")
+        log.debug(f"Trying to connect to modbus server on {hp}")
 
         try:
             # After a self.client.close() pymodbus sets the host to None.
@@ -184,7 +184,9 @@ class Modbus(dict[str, ModbusRegister]):
     async def __aexit__(self, exc_type, exc, tb):
         """Closes the connection to the server."""
 
-        await self.client.close()
+        if self.client:
+            self.client.close()
+
         log.debug(f"Disonnected from {self.host}:{self.port}.")
 
         if self.lock and self.lock.locked():
