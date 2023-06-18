@@ -56,8 +56,9 @@ class DomeStatus(Maskbit):
     SW_LIMIT = 0x1000
     OVERCURRENT = 0x2000
     ERROR = 0x4000
-    NODRIVE = 0x8000
-    UNKNOWN = 0x10000
+    DRIVE_AVAILABLE = 0x8000
+    NODRIVE = 0x10000
+    UNKNOWN = 0x100000
 
 
 class LightStatus(Maskbit):
@@ -71,4 +72,4 @@ class LightStatus(Maskbit):
     UMA_ROOM = 0x8
     TELESCOPE_BRIGHT = 0x10
     TELESCOPE_RED = 0x20
-    UNKNOWN = 0x10000
+    UNKNOWN = 0x100000

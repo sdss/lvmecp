@@ -37,7 +37,9 @@ class DomeController(PLCModule[DomeStatus]):
 
         new_status = self.flag(0)
 
-        if not dome_status.drive_state:
+        if dome_status.drive_state:
+            new_status |= self.flag.DRIVE_AVAILABLE
+        else:
             new_status |= self.flag.NODRIVE
 
         if dome_status.drive_enabled:
