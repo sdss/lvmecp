@@ -37,6 +37,9 @@ class DomeController(PLCModule[DomeStatus]):
 
         new_status = self.flag(0)
 
+        if not dome_status.drive_state:
+            new_status |= self.flag.NODRIVE
+
         if dome_status.drive_enabled:
             new_status |= self.flag.DRIVE_ENABLED
 
@@ -76,8 +79,8 @@ class DomeController(PLCModule[DomeStatus]):
         if self.status & self.flag.UNKNOWN:
             raise DomeError("Dome is in unknown state.")
 
-        if not (self.status & self.flag.DRIVE_ENABLED):
-            raise DomeError("Dome drive not enabled.")
+        if self.status & self.flag.NODRIVE:
+            raise DomeError("Dome drive is not available.")
 
         # TODO: in the future this may not be an error and we may
         # want to override the direction of the move.
