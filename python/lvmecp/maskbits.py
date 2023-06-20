@@ -18,7 +18,7 @@ class Maskbit(enum.Flag):
     """A maskbit enumeration. Intended for subclassing."""
 
     __version__ = None
-    __unknown__ = 0x10000
+    __unknown__ = 0x100000
 
     def __str__(self):
         enabled = [bit.name for bit in self.__class__ if bit.value & self.value]
@@ -45,6 +45,7 @@ class SafetyStatus(Maskbit):
     LOCAL = 0x1
     DOOR_CLOSED = 0x2
     DOOR_LOCKED = 0x4
+    UNKNOWN = 0x100000
 
 
 class DomeStatus(Maskbit):
