@@ -4,16 +4,22 @@ plc:
   registers:
     door_locked:
       address: 0
+      group: safety
     door_closed:
       address: 1
+      group: safety
     local:
       address: 2
+      group: safety
     e_status:
       address: 200
+      group: safety
     e_stop:
       address: 199
+      group: safety
     e_relay_reset:
       address: 201
+      group: safety
     cr_new:
       address: 234
       group: lights
@@ -99,6 +105,14 @@ plc:
       group: dome
     dome_counter:
       address: 149
+      mode: holding_register
+      group: dome
+    dome_status1:
+      address: 410
+      mode: holding_register
+      group: dome
+    dome_status2:
+      address: 411
       mode: holding_register
       group: dome
 

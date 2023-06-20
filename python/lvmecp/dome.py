@@ -76,6 +76,9 @@ class DomeController(PLCModule[DomeStatus]):
     async def _move(self, open: bool, force: bool = False):
         """Moves the dome to open/close position."""
 
+        if not (await self.plc.safety.is_remote()):
+            raise DomeError("Cannot move dome while in local mode.")
+
         await self.update()
 
         if self.status & self.flag.UNKNOWN:

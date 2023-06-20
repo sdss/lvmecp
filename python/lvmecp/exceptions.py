@@ -21,6 +21,12 @@ class DomeError(ECPError):
     pass
 
 
+class SafetyError(ECPError):
+    """A safety-related error."""
+
+    pass
+
+
 class ECPWarning(UserWarning):
     """General warnings for ``lvmecp.``"""
 

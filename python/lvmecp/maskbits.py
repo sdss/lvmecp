@@ -11,7 +11,7 @@ from __future__ import annotations
 import enum
 
 
-__all__ = ["DomeStatus", "LightStatus"]
+__all__ = ["DomeStatus", "LightStatus", "SafetyStatus"]
 
 
 class Maskbit(enum.Flag):
@@ -35,6 +35,16 @@ class Maskbit(enum.Flag):
         """Returns a list of flags that match the value."""
 
         return [bit for bit in self.__class__ if bit.value & self.value]
+
+
+class SafetyStatus(Maskbit):
+    """Safety and emergency status."""
+
+    __version__ = "1.0.0"
+
+    LOCAL = 0x1
+    DOOR_CLOSED = 0x2
+    DOOR_LOCKED = 0x4
 
 
 class DomeStatus(Maskbit):

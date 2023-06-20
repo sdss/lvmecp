@@ -12,6 +12,7 @@ import asyncio
 from typing import TYPE_CHECKING
 
 from lvmecp.modbus import Modbus
+from lvmecp.safety import SafetyController
 
 from .dome import DomeController
 from .lights import LightsController
@@ -64,6 +65,12 @@ class PLC:
             "dome",
             self,
             notifier=create_actor_notifier(actor, "dome_status"),
+        )
+
+        self.safety = SafetyController(
+            "safety",
+            self,
+            notifier=create_actor_notifier(actor, "safety_status"),
         )
 
         self.lights = LightsController(self)
