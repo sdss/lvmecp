@@ -51,12 +51,12 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         if start:
             asyncio.create_task(self.start())
 
-    def __del__(self):
-        if hasattr(self, "_update_loop_task") and self._update_loop_task:
-            try:
-                self._update_loop_task.cancel()
-            except RuntimeError:
-                pass
+    # def __del__(self):
+    #     if hasattr(self, "_update_loop_task") and self._update_loop_task:
+    #         try:
+    #             self._update_loop_task.cancel()
+    #         except RuntimeError:
+    #             pass
 
     async def start(self):
         """Starts tracking the status of the PLC module."""
