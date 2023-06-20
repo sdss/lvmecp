@@ -55,8 +55,15 @@ class ModbusRegister:
         self.mode = mode
         self.group = group
 
-    async def get(self):
+    async def get(self, open_connection: bool = True):
         """Return the value of the modbus register."""
+
+        # If we need to open the connection, use the Modbus context
+        # and call ourselves recursively with open_connection=False
+        # (at that point it will be open).
+        if open_connection:
+            async with self.modbus:
+                return await self.get(open_connection=False)
 
         if self.mode == "coil":
             func = self.client.read_coils
@@ -91,26 +98,28 @@ class ModbusRegister:
     async def set(self, value: int | bool):
         """Sets the value of the register."""
 
-        if self.mode == "coil":
-            func = self.client.write_coil
-        elif self.mode == "holding_register":
-            func = self.client.write_register
-        elif self.mode == "discrete_input" or self.mode == "input_register":
-            raise ValueError(f"Block of mode {self.mode!r} is read-only.")
-        else:
-            raise ValueError(f"Invalid block mode {self.mode!r}.")
+        # Always open the connection.
+        async with self.modbus:
+            if self.mode == "coil":
+                func = self.client.write_coil
+            elif self.mode == "holding_register":
+                func = self.client.write_register
+            elif self.mode == "discrete_input" or self.mode == "input_register":
+                raise ValueError(f"Block of mode {self.mode!r} is read-only.")
+            else:
+                raise ValueError(f"Invalid block mode {self.mode!r}.")
 
-        if self.client.connected:
-            resp = await func(self.address, value)  # type: ignore
-        else:
-            async with self.modbus:
+            if self.client.connected:
                 resp = await func(self.address, value)  # type: ignore
+            else:
+                async with self.modbus:
+                    resp = await func(self.address, value)  # type: ignore
 
-        if resp.function_code > 0x80:
-            raise ValueError(
-                f"Invalid response for element "
-                f"{self.name!r}: 0x{resp.function_code:02X}."
-            )
+            if resp.function_code > 0x80:
+                raise ValueError(
+                    f"Invalid response for element "
+                    f"{self.name!r}: 0x{resp.function_code:02X}."
+                )
 
 
 class Modbus(dict[str, ModbusRegister]):
