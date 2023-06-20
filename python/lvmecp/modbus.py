@@ -206,7 +206,7 @@ class Modbus(dict[str, ModbusRegister]):
 
         async with self:
             names = [name for name in self]
-            tasks = [elem.get() for elem in self.values()]
+            tasks = [elem.get(open_connection=False) for elem in self.values()]
 
             results = await asyncio.gather(*tasks)
 
@@ -222,7 +222,7 @@ class Modbus(dict[str, ModbusRegister]):
                 register = self[name]
                 if register.group is not None and register.group == group:
                     names.append(name)
-                    tasks.append(register.get())
+                    tasks.append(register.get(open_connection=False))
 
             results = await asyncio.gather(*tasks)
 
