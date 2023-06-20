@@ -47,19 +47,19 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
 
         self.notifier = notifier
 
-        self.__update_loop_task: asyncio.Task | None = None
+        self._update_loop_task: asyncio.Task | None = None
         if start:
             asyncio.create_task(self.start())
 
     def __del__(self):
-        if self.__update_loop_task:
-            self.__update_loop_task.cancel()
+        if self._update_loop_task:
+            self._update_loop_task.cancel()
 
     async def start(self):
         """Starts tracking the status of the PLC module."""
 
         await self.notify_status()
-        self.__update_loop_task = asyncio.create_task(self._status_loop())
+        self._update_loop_task = asyncio.create_task(self._status_loop())
 
     async def _status_loop(self):
         """Runs the status update loop."""
