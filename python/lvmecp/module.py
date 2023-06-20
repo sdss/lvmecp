@@ -52,7 +52,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
             asyncio.create_task(self.start())
 
     def __del__(self):
-        if self._update_loop_task:
+        if hasattr(self, "_update_loop_task") and self._update_loop_task:
             self._update_loop_task.cancel()
 
     async def start(self):
