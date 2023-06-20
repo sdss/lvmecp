@@ -2,11 +2,11 @@ plc:
   host: 10.8.38.51
   port: 502
   registers:
-    key:
+    door_locked:
       address: 0
-    door_status:
+    door_closed:
       address: 1
-    drive_interlock_state:
+    local:
       address: 2
     e_status:
       address: 200
