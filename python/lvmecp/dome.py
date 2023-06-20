@@ -116,7 +116,7 @@ class DomeController(PLCModule[DomeStatus]):
         await asyncio.sleep(0.5)
         while await self.modbus["drive_enabled"].get():
             # Still moving.
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
 
         self.dome_is_open = open
 
