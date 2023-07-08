@@ -170,4 +170,4 @@ class Simulator:
             await asyncio.sleep(interval)
 
 
-plc_simulator = Simulator(config["plc"]["registers"])
+plc_simulator = Simulator(config["modbus"]["registers"])

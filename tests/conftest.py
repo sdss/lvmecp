@@ -40,8 +40,8 @@ async def simulator():
 @pytest.fixture()
 async def actor(simulator: Simulator):
     ecp_config = deepcopy(config)
-    ecp_config["plc"]["host"] = "127.0.0.1"
-    ecp_config["plc"]["port"] = 5020
+    ecp_config["modbus"]["host"] = "127.0.0.1"
+    ecp_config["modbus"]["port"] = 5020
 
     schema_path = ecp_config["actor"]["schema"]
     ecp_config["actor"]["schema"] = os.path.dirname(lvmecp.__file__) + "/" + schema_path

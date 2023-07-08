@@ -58,8 +58,9 @@ def create_actor_notifier(
 class PLC:
     """Class for the enclosure programmable logic controller."""
 
-    def __init__(self, config: dict | None = None, actor: ECPActor | None = None):
-        self.modbus = Modbus(config=config)
+    def __init__(self, config: dict, actor: ECPActor | None = None):
+        self.config = config
+        self.modbus = Modbus(config=config["modbus"])
 
         self.dome = DomeController(
             "dome",

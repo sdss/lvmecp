@@ -140,18 +140,21 @@ class Modbus(dict[str, ModbusRegister]):
 
     def __init__(self, config: dict | pathlib.Path | str | None = None):
         if isinstance(config, (str, pathlib.Path)):
-            config = read_yaml_file(str(config))
+            self.config = read_yaml_file(str(config))
         elif config is None:
-            config = lvmecp_config["plc"]
-            assert isinstance(config, dict)
+            self.config = lvmecp_config["modbus"]
+        elif isinstance(config, dict):
+            self.config = config
 
-        self.host = config["host"]
-        self.port = config["port"]
+        assert isinstance(config, dict)
+
+        self.host = self.config["host"]
+        self.port = self.config["port"]
 
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
         self.lock = asyncio.Lock()
 
-        register_data = config["registers"]
+        register_data = self.config["registers"]
         registers = {
             name: ModbusRegister(
                 self,

@@ -1,4 +1,4 @@
-plc:
+modbus:
   host: 10.8.38.51
   port: 502
   registers:
@@ -115,6 +115,9 @@ plc:
       address: 411
       mode: holding_register
       group: dome
+
+safety:
+  override_local_mode: False
 
 actor:
   name: lvmecp

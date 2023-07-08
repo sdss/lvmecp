@@ -49,10 +49,7 @@ class ECPActor(AMQPActor):
             log.warnings_logger.addHandler(self.actor_handler)
 
         if plc is None:
-            if plc_config is None and self.config.get("plc", None) is None:
-                raise ValueError("PLC configuraton must be defined at initialisation.")
-            plc_config = plc_config or self.config["plc"]
-
-            self.plc = PLC(config=self.config["plc"], actor=self)
+            plc_config = plc_config or self.config
+            self.plc = PLC(config=plc_config, actor=self)
         else:
             self.plc = plc
