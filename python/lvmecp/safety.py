@@ -43,6 +43,10 @@ class SafetyController(PLCModule[SafetyStatus]):
     async def is_remote(self):
         """Returns `True` if NOT in local mode (i.e., safe to operate remotely)."""
 
-        await self.update()
+        safety_config = self.plc.config.get("safety", {})
+        override_local = safety_config.get("override_local_mode", False)
+        if override_local:
+            return True
 
+        await self.update()
         return not (self.status & self.flag.LOCAL)
