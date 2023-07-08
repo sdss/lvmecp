@@ -55,7 +55,7 @@ class ModbusRegister:
         self.mode = mode
         self.group = group
 
-    async def get(self, open_connection: bool = True):
+    async def _get_internal(self, open_connection: bool = True):
         """Return the value of the modbus register."""
 
         # If we need to open the connection, use the Modbus context
@@ -63,7 +63,7 @@ class ModbusRegister:
         # (at that point it will be open).
         if open_connection:
             async with self.modbus:
-                return await self.get(open_connection=False)
+                return await self._get_internal(open_connection=False)
 
         if self.mode == "coil":
             func = self.client.read_coils
@@ -94,6 +94,18 @@ class ModbusRegister:
             value = resp.registers[0]
 
         return value
+
+    async def get(self, open_connection: bool = True, retry: bool = True):
+        """Return the value of the modbus register. Implements retry."""
+
+        try:
+            return await self._get_internal(open_connection=open_connection)
+        except Exception:
+            if retry:
+                await asyncio.sleep(1)
+                return await self.get(open_connection=open_connection, retry=False)
+            else:
+                raise
 
     async def set(self, value: int | bool):
         """Sets the value of the register."""
