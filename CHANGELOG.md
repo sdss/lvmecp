@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 - July 9, 2023
+
+### 🚀 New
+
+* Complete rewrite with dome and door functionality.
+
+
 ## 0.3.1 - May 23, 2022
 
 * Additional updates to documentation and testing.
