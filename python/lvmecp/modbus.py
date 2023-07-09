@@ -55,15 +55,8 @@ class ModbusRegister:
         self.mode = mode
         self.group = group
 
-    async def _get_internal(self, open_connection: bool = True):
+    async def _get_internal(self):
         """Return the value of the modbus register."""
-
-        # If we need to open the connection, use the Modbus context
-        # and call ourselves recursively with open_connection=False
-        # (at that point it will be open).
-        if open_connection:
-            async with self.modbus:
-                return await self._get_internal(open_connection=False)
 
         if self.mode == "coil":
             func = self.client.read_coils
@@ -95,17 +88,20 @@ class ModbusRegister:
 
         return value
 
-    async def get(self, open_connection: bool = True, retry: bool = True):
+    async def get(self, open_connection: bool = True):
         """Return the value of the modbus register. Implements retry."""
 
+        # If we need to open the connection, use the Modbus context
+        # and call ourselves recursively with open_connection=False
+        # (at that point it will be open).
+        if open_connection:
+            await self.modbus.connect()
+
         try:
-            return await self._get_internal(open_connection=open_connection)
-        except Exception:
-            if retry:
-                await asyncio.sleep(1)
-                return await self.get(open_connection=open_connection, retry=False)
-            else:
-                raise
+            return await self._get_internal()
+        finally:
+            if open_connection:
+                await self.modbus.disconnect()
 
     async def set(self, value: int | bool):
         """Sets the value of the register."""
@@ -182,8 +178,8 @@ class Modbus(dict[str, ModbusRegister]):
         for name, elem in registers.items():
             setattr(self, name, elem)
 
-    async def __aenter__(self):
-        """Initialises the connection to the server."""
+    async def connect(self):
+        """Connects to the client."""
 
         if self.lock:
             await self.lock.acquire()
@@ -205,8 +201,8 @@ class Modbus(dict[str, ModbusRegister]):
 
         log.debug(f"Connected to {hp}.")
 
-    async def __aexit__(self, exc_type, exc, tb):
-        """Closes the connection to the server."""
+    async def disconnect(self):
+        """Disconnects the client."""
 
         if self.client:
             self.client.close()
@@ -215,6 +211,16 @@ class Modbus(dict[str, ModbusRegister]):
 
         if self.lock and self.lock.locked():
             self.lock.release()
+
+    async def __aenter__(self):
+        """Initialises the connection to the server."""
+
+        await self.connect()
+
+    async def __aexit__(self, exc_type, exc, tb):
+        """Closes the connection to the server."""
+
+        await self.disconnect()
 
     async def get_all(self):
         """Returns a dictionary with all the registers."""
