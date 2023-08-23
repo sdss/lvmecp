@@ -37,7 +37,7 @@ def dome():
 async def open(command: ECPCommand, force=False):
     """Opens the dome."""
 
-    command.warning("Opening dome.")
+    command.info("Opening dome.")
 
     try:
         await command.actor.plc.dome.open(force=force)
@@ -52,7 +52,7 @@ async def open(command: ECPCommand, force=False):
 async def close(command: ECPCommand, force=False):
     """Closes the dome."""
 
-    command.warning("Closing dome.")
+    command.info("Closing dome.")
 
     try:
         await command.actor.plc.dome.close(force=force)
