@@ -109,8 +109,6 @@ class Simulator:
         self.server = await StartAsyncTcpServer(
             self.context,
             address=(self.address, self.port),
-            allow_reuse_address=True,
-            allow_reuse_port=True,
         )
 
     async def stop(self):
