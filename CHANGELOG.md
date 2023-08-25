@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1 - August 25, 2023
+
+### 🔧 Fixed
+
+* Attempt at fixing sporadic failures to read Modbus variable by introducing a retry loop.
+
+### ⚙️ Engineering
+
+* Lint using `ruff`.
+
+
 ## 0.4.0 - July 9, 2023
 
 ### 🚀 New
