@@ -101,7 +101,7 @@ class Simulator:
         if self.context is not None:
             self.context[0] = self.slave_context
 
-    async def start(self, defer_start=False, monitor_interval: float = 0.01):
+    async def start(self, monitor_interval: float = 0.01):
         """Starts the process that monitors changes and serves forever."""
 
         self.__task = asyncio.create_task(self._monitor_context(monitor_interval))
