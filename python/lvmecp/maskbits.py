@@ -21,7 +21,11 @@ class Maskbit(enum.Flag):
     __unknown__ = 0x100000
 
     def __str__(self):
-        enabled = [bit.name for bit in self.__class__ if bit.value & self.value]
+        enabled = [
+            bit.name
+            for bit in self.__class__
+            if bit.value & self.value and bit.name is not None
+        ]
         return ",".join(enabled)
 
     @property
