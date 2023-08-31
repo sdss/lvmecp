@@ -25,7 +25,7 @@ async def status(command: ECPCommand):
 
     command.info(registers=(await plc.read_all_registers()))
 
-    modules = [plc.dome, plc.safety]
+    modules = [plc.dome, plc.safety, plc.lights]
     for module in modules:
         await module.notify_status(wait=True, command=command)
 

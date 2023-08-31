@@ -8,14 +8,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import asyncio
 
+from lvmecp import log
 from lvmecp.maskbits import LightStatus
-from lvmecp.tools import loop_coro
-
-
-if TYPE_CHECKING:
-    from .plc import PLC
+from lvmecp.module import PLCModule
 
 
 __all__ = ["LightsController", "CODE_TO_LIGHT", "CODE_TO_FLAG"]
@@ -40,35 +37,23 @@ CODE_TO_FLAG = {
 }
 
 
-class LightsController:
+class LightsController(PLCModule):
     """Controller for the light settings."""
 
-    def __init__(self, plc: PLC):
-        self.plc = plc
-        self.client = plc.modbus.client
+    flag = LightStatus
 
-        self.status = LightStatus(0)
+    async def _update_internal(self):
+        """Update status."""
 
-        self.__update_loop_task = loop_coro(self.update, 60)
+        light_registers = await self.plc.modbus.read_group("lights")
 
-    def __del__(self):
-        self.__update_loop_task.cancel()
+        active_bits = self.flag(0)
+        for key in light_registers:
+            if "status" in key and light_registers[key] is True:
+                code = key.split("_")[0]
+                active_bits |= CODE_TO_FLAG[code]
 
-    async def update(self):
-        """Refreshes the lights status."""
-
-        lights = await self.plc.modbus.read_group("lights")
-
-        for light, value in lights.items():
-            code = light.split("_")[0]
-            flag = CODE_TO_FLAG[code]
-
-            if value is True:
-                self.status |= flag
-            else:
-                self.status &= ~flag
-
-        return self.status
+        return active_bits
 
     def get_code(self, light: str):
         """Returns the short-form code for a light. Case-insensitive.
@@ -116,8 +101,8 @@ class LightsController:
         ----------
         light
             The light for which the `.LightStatus` a flag is requested. It can
-            be specified in short form (e.g., `tr`), using underscores
-            (`telescope_red`), or spaces (`telescope red`). The light name
+            be specified in short form (e.g., ``tr``), using underscores
+            (``telescope_red``), or spaces (``telescope red``). The light name
             is case-insensitive.
 
         """
@@ -126,91 +111,35 @@ class LightsController:
 
         return CODE_TO_FLAG[code]
 
-    async def get_light_status(self, light: str, update: bool = True) -> bool:
-        """Returns the status of a light.
+    async def toggle(self, light: str):
+        """Switches a light."""
 
-        Parameters
-        ----------
-        light
-            The light for which to get the status.
-        update
-            Whether to update the status of all lights before returning
-            the status. If `False`, the last cached status will be used.
+        code = self.get_code(light)
 
-        Returns
-        -------
-        status
-            `True` if the light is on, `False` otherwise.
+        log.debug(f"Toggling light {code}.")
+        await self.modbus[f"{code}_new"].set(True)
 
-        Raises
-        ------
-        ValueError
-            If the light is unknown.
+        await asyncio.sleep(0.5)
+        await self.update()
 
-        """
+    async def on(self, light: str):
+        """Turns on a light."""
 
-        if update:
-            await self.update()
+        await self.update()
 
         flag = self.get_flag(light)
-
-        return bool(self.status & flag)
-
-    async def get_all(self, update: bool = True) -> dict[str, bool]:
-        """Returns a dictionary with the status of all the lights.
-
-        Parameters
-        ----------
-        update
-            Whether to update the status of all lights before returning.
-            If `False`, the last cached status will be used.
-
-        Returns
-        -------
-        status
-            A dictionary of light name to status (`True` for on, `False` for off).
-
-        """
-
-        if update:
-            await self.update()
-
-        status = {}
-        for code, light in CODE_TO_LIGHT.items():
-            status[light] = bool(self.status & CODE_TO_FLAG[code])
-
-        return status
-
-    async def set(self, light: str, action: bool | None = None):
-        """Turns a light on/off.
-
-        Updates the internal status dictionary.
-
-        Parameters
-        ----------
-        light
-            The light to command.
-        action
-            `True` to turn on the light, `False` for off. If `None`, the light
-            status will be switched. Doesn't do anything if the light is
-            already at the desired state.
-
-        """
-
-        current = await self.get_light_status(light, update=True)
-
-        code_new = self.get_code(light) + "_new"
-
-        if action is None:
-            action = not current
-
-        if current == action:
+        if self.status & flag:
             return
 
-        await self.plc.modbus[code_new].set(action)
+        await self.toggle(light)
+
+    async def off(self, light: str):
+        """Turns off a light."""
+
+        await self.update()
 
         flag = self.get_flag(light)
-        if action is True:
-            self.status |= flag
-        else:
-            self.status &= ~flag
+        if not (self.status & flag):
+            return
+
+        await self.toggle(light)

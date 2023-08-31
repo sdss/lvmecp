@@ -14,8 +14,6 @@ from typing import TYPE_CHECKING
 
 import click
 
-from lvmecp.lights import CODE_TO_LIGHT
-
 from . import parser
 
 
@@ -24,12 +22,12 @@ if TYPE_CHECKING:
 
 
 @parser.command()
-@click.argument("LIGHT", type=str, required=False)
 @click.argument(
     "ACTION",
-    type=click.Choice(["on", "off", "switch"], case_sensitive=False),
+    type=click.Choice(["on", "off", "toggle", "status"], case_sensitive=False),
     required=False,
 )
+@click.argument("LIGHT", type=str, required=False)
 async def lights(
     command: ECPCommand,
     light: str | None = None,
@@ -39,23 +37,23 @@ async def lights(
 
     plc = command.actor.plc
 
-    if light is None:
-        return command.finish(lights=(await plc.lights.get_all()))
+    if light is None or action == "status":
+        await plc.lights.notify_status(wait=True, command=command)
+        return command.finish()
 
     try:
-        code = plc.lights.get_code(light)
-        full = CODE_TO_LIGHT[code]
+        plc.lights.get_code(light)
     except ValueError:
         return command.fail(f"Unknown light {light}.")
 
     if action == "on":
-        await plc.lights.set(light, action=True)
+        await plc.lights.on(light)
     elif action == "off":
-        await plc.lights.set(light, action=False)
-    elif action == "switch":
-        await plc.lights.set(light, action=None)
+        await plc.lights.off(light)
+    elif action == "toggle":
+        await plc.lights.toggle(light)
 
     await asyncio.sleep(0.1)
 
-    status = await plc.lights.get_light_status(code)
-    return command.finish(lights={full: status})
+    await plc.lights.notify_status(wait=True, command=command)
+    return command.finish()

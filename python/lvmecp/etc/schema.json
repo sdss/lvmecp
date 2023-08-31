@@ -3,10 +3,7 @@
   "type": "object",
   "properties": {
     "lights": {
-      "type": "object",
-      "patternProperties": {
-        "[a-z]+": { "type": "boolean" }
-      }
+      "type": "string"
     },
     "registers": {
       "type": "object",

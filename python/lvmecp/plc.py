@@ -75,7 +75,12 @@ class PLC:
             notifier=create_actor_notifier(actor, "safety_status"),
         )
 
-        self.lights = LightsController(self)
+        self.lights = LightsController(
+            "lights",
+            self,
+            interval=1,
+            notifier=create_actor_notifier(actor, "lights"),
+        )
 
     async def read_all_registers(self):
         """Reads all the connected registers and returns a dictionary."""
