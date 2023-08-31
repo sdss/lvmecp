@@ -22,28 +22,31 @@ async def test_command_lights(actor: ECPActor):
     await cmd
 
     assert cmd.status.did_succeed
-    assert isinstance(cmd.replies.get("lights"), dict)
+    assert isinstance(cmd.replies.get("lights"), str)
 
 
 async def test_command_lights_one(actor: ECPActor):
-    cmd = await actor.invoke_mock_command("lights tr")
+    cmd = await actor.invoke_mock_command("lights on tr")
     await cmd
 
     assert cmd.status.did_succeed
-    assert cmd.replies.get("lights") == {"telescope_red": False}
+    assert cmd.replies.get("lights_labels") == "TELESCOPE_RED"
 
 
-@pytest.mark.parametrize("action", ["on", "off", "switch"])
+@pytest.mark.parametrize("action", ["on", "off", "toggle"])
 @pytest.mark.parametrize("light", ["telescope_bright", "tb", "telescope bright"])
 async def test_command_lights_action(actor: ECPActor, action: str, light: str):
-    cmd = await actor.invoke_mock_command(f'lights "{light}" {action}')
+    cmd = await actor.invoke_mock_command(f'lights {action} "{light}"')
     await cmd
 
     assert cmd.status.did_succeed
 
-    if action == "on" or action == "switch":
+    if action == "on" or action == "toggle":
         result = True
     else:
         result = False
 
-    assert cmd.replies.get("lights") == {"telescope_bright": result}
+    if result:
+        assert cmd.replies.get("lights_labels") == "TELESCOPE_BRIGHT"
+    else:
+        assert cmd.replies.get("lights_labels") == ""
