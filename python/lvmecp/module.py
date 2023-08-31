@@ -87,9 +87,6 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
             log.warning(f"{self.name}: failed updating status: {err}")
             new_status = self.flag(self.flag.__unknown__)
 
-        if new_status.value == 0:
-            new_status = self.flag(self.flag.__unknown__)
-
         # Only notify if the status has changed.
         if new_status != self.status:
             await self.notify_status(new_status)

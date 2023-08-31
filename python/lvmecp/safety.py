@@ -38,6 +38,9 @@ class SafetyController(PLCModule[SafetyStatus]):
         if safety_status.local:
             new_status |= self.flag.LOCAL
 
+        if new_status.value == 0:
+            new_status = self.flag.__unknown__
+
         return new_status
 
     async def is_remote(self):
