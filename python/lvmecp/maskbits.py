@@ -82,7 +82,7 @@ class LightStatus(Maskbit):
     __version__ = "1.0.0"
 
     CONTROL_ROOM = 0x1
-    UTILITY_ROOM = 0x2
+    UTILITIES_ROOM = 0x2
     SPECTROGRAPH_ROOM = 0x4
     UMA_ROOM = 0x8
     TELESCOPE_BRIGHT = 0x10

@@ -30,7 +30,7 @@ CODE_TO_LIGHT = {
 CODE_TO_FLAG = {
     "cr": LightStatus.CONTROL_ROOM,
     "sr": LightStatus.SPECTROGRAPH_ROOM,
-    "ur": LightStatus.UTILITY_ROOM,
+    "ur": LightStatus.UTILITIES_ROOM,
     "uma": LightStatus.UMA_ROOM,
     "tb": LightStatus.TELESCOPE_BRIGHT,
     "tr": LightStatus.TELESCOPE_RED,
