@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import math
 from types import SimpleNamespace
 
 from lvmecp.maskbits import SafetyStatus
@@ -22,6 +23,9 @@ class SafetyController(PLCModule[SafetyStatus]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.o2_level_utilities: float = math.nan
+        self.o2_level_spectrograph: float = math.nan
+
     async def _update_internal(self):
         safety_registers = await self.plc.modbus.read_group("safety")
 
@@ -29,14 +33,27 @@ class SafetyController(PLCModule[SafetyStatus]):
 
         new_status = self.flag(0)
 
+        # Door and lock
         if safety_status.door_closed:
             new_status |= self.flag.DOOR_CLOSED
-
         if safety_status.door_locked:
             new_status |= self.flag.DOOR_LOCKED
-
         if safety_status.local:
             new_status |= self.flag.LOCAL
+
+        # Utilities room O2 sensor
+        self.o2_level_utilities = safety_status.oxygen_read_utilities_room / 10.0
+        if self.o2_level_utilities < self.plc.config["safety"]["o2_threshold"]:
+            new_status |= self.flag.O2_SENSOR_UR_ALARM
+        if safety_status.oxygen_mode_utilities_room == 8:
+            new_status |= self.flag.O2_SENSOR_UR_FAULT
+
+        # Spectrograph room O2 sensor
+        self.o2_level_spectrograph = safety_status.oxygen_read_spectrograph_room / 10.0
+        if self.o2_level_spectrograph < self.plc.config["safety"]["o2_threshold"]:
+            new_status |= self.flag.O2_SENSOR_SR_ALARM
+        if safety_status.oxygen_mode_spectrograph_room == 8:
+            new_status |= self.flag.O2_SENSOR_SR_FAULT
 
         if new_status.value == 0:
             new_status = self.flag.__unknown__

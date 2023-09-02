@@ -1,10 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
+  "patternProperties": {
+    "[a-z0-9]+_status": { "type": "string" },
+    "[a-z0-9]+_status_labels": { "type": "string" }
+  },
   "properties": {
-    "lights": {
-      "type": "string"
-    },
     "registers": {
       "type": "object",
       "patternProperties": {
@@ -12,7 +13,12 @@
           "oneOf": [{ "type": "boolean" }, { "type": "integer" }]
         }
       }
-    }
+    },
+    "lights": {
+      "type": "string"
+    },
+    "o2_percent_utilities": { "type": "number" },
+    "o2_percent_spectrograph": { "type": "number" }
   },
   "additionalProperties": true
 }

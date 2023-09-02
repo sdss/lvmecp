@@ -49,6 +49,10 @@ class SafetyStatus(Maskbit):
     LOCAL = 0x1
     DOOR_CLOSED = 0x2
     DOOR_LOCKED = 0x4
+    O2_SENSOR_UR_ALARM = 0x100  # Utilities room
+    O2_SENSOR_UR_FAULT = 0x200
+    O2_SENSOR_SR_ALARM = 0x400  # Spec room
+    O2_SENSOR_SR_FAULT = 0x800
     UNKNOWN = 0x100000
 
 

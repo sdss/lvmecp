@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from clu.actor import AMQPActor
@@ -53,3 +54,19 @@ class ECPActor(AMQPActor):
             self.plc = PLC(config=plc_config, actor=self)
         else:
             self.plc = plc
+
+    async def start(self, **kwargs):
+        """Starts the actor."""
+
+        await super().start(**kwargs)
+
+        asyncio.create_task(self._emit_status())
+
+        return self
+
+    async def _emit_status(self, delay: float = 30.0):
+        """Emits the status on a timer."""
+
+        while True:
+            await self.send_command(self.name, "status", internal=True)
+            await asyncio.sleep(delay)

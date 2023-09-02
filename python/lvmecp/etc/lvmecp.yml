@@ -115,9 +115,26 @@ modbus:
       address: 411
       mode: holding_register
       group: dome
+    oxygen_read_utilities_room:
+      address: 599
+      mode: holding_register
+      group: safety
+    oxygen_read_spectrograph_room:
+      address: 600
+      mode: holding_register
+      group: safety
+    oxygen_mode_utilities_room:
+      address: 601
+      mode: holding_register
+      group: safety
+    oxygen_mode_spectrograph_room:
+      address: 602
+      mode: holding_register
+      group: safety
 
 safety:
   override_local_mode: False
+  o2_threshold: 19.5
 
 actor:
   name: lvmecp
