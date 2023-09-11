@@ -53,9 +53,3 @@ async def actor(simulator: Simulator):
 
     _actor.mock_replies.clear()
     await _actor.stop()
-
-    tasks = asyncio.all_tasks()
-    for task in tasks:
-        task.cancel()
-        with suppress(asyncio.CancelledError):
-            await task
