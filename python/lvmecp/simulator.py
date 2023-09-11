@@ -12,7 +12,7 @@ import asyncio
 from contextlib import suppress
 from copy import deepcopy
 
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import ClassVar, cast
 
 from pymodbus.datastore import (
     ModbusServerContext,
@@ -22,10 +22,6 @@ from pymodbus.datastore import (
 from pymodbus.server import ServerAsyncStop, StartAsyncTcpServer
 
 from lvmecp import config
-
-
-if TYPE_CHECKING:
-    from pymodbus.server import ModbusTcpServer
 
 
 __all__ = ["Simulator", "plc_simulator"]
@@ -54,11 +50,11 @@ class Simulator:
         self.current_values: dict[str, list[int]] = {}
 
         self.context: ModbusServerContext | None = None
+        self.slave_context: ModbusSlaveContext
 
         self.reset()
         self.context = ModbusServerContext(self.slave_context, single=True)
 
-        self.server: ModbusTcpServer | None = None
         self.__task: asyncio.Task | None = None
 
     def reset(self):
