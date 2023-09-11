@@ -19,7 +19,7 @@ from pymodbus.datastore import (
     ModbusSlaveContext,
     ModbusSparseDataBlock,
 )
-from pymodbus.server import StartAsyncTcpServer
+from pymodbus.server import ServerAsyncStop, StartAsyncTcpServer
 
 from lvmecp import config
 
@@ -106,13 +106,15 @@ class Simulator:
 
         self.__task = asyncio.create_task(self._monitor_context(monitor_interval))
 
-        self.server = await StartAsyncTcpServer(
+        await StartAsyncTcpServer(
             self.context,
             address=(self.address, self.port),
         )
 
     async def stop(self):
         """Stops the simulator."""
+
+        await ServerAsyncStop()
 
         if self.__task:
             self.__task.cancel()
