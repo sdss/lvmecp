@@ -8,9 +8,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import asyncio
 
-from lvmecp.safety import SafetyController
+from typing import TYPE_CHECKING
 
 from . import parser
 
@@ -29,14 +29,13 @@ async def status(command: ECPCommand):
     command.info(registers=(await plc.read_all_registers()))
 
     modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
-    for module in modules:
-        await module.notify_status(wait=True, command=command)
+    await asyncio.gather(
+        *[module.update(force_output=True, command=command) for module in modules]
+    )
 
-        if module.name == "safety":
-            assert isinstance(module, SafetyController)
-            command.info(
-                o2_percent_utilities=module.o2_level_utilities,
-                o2_percent_spectrograph=module.o2_level_spectrograph,
-            )
+    command.info(
+        o2_percent_utilities=plc.safety.o2_level_utilities,
+        o2_percent_spectrograph=plc.safety.o2_level_spectrograph,
+    )
 
     return command.finish()

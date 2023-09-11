@@ -19,6 +19,7 @@ class SafetyController(PLCModule[SafetyStatus]):
     """Handles the enclosure safety features."""
 
     flag = SafetyStatus
+    interval = 10.0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

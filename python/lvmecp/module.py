@@ -28,12 +28,13 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
     """A module associated with a group of PLC variables."""
 
     flag: Type[Flag_co]
+    interval: float = 10.0
 
     def __init__(
         self,
         name: str,
         plc: PLC,
-        interval: float = 1,
+        interval: float | None = None,
         start: bool = True,
         notifier: Callable[[int, str], Callable | Coroutine] | None = None,
     ):
@@ -43,7 +44,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
 
         assert hasattr(self, "flag"), "flag not defined."
 
-        self._interval = interval
+        self._interval = interval or self.interval
         self.status = self.flag(self.flag.__unknown__)
 
         self.notifier = notifier
@@ -78,7 +79,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
 
         pass
 
-    async def update(self):
+    async def update(self, force_output: bool = False, **notifier_kwargs):
         """Refreshes the module status."""
 
         try:
@@ -88,8 +89,8 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
             new_status = self.flag(self.flag.__unknown__)
 
         # Only notify if the status has changed.
-        if new_status != self.status:
-            await self.notify_status(new_status)
+        if new_status != self.status or force_output:
+            await self.notify_status(new_status, **notifier_kwargs)
 
         self.status = new_status
 

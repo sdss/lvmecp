@@ -41,6 +41,7 @@ class LightsController(PLCModule):
     """Controller for the light settings."""
 
     flag = LightStatus
+    interval = 10.0
 
     async def _update_internal(self):
         """Update status."""

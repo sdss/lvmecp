@@ -39,7 +39,7 @@ class Simulator:
     def __init__(
         self,
         registers: dict,
-        address: str = "127.0.0.1",
+        address: str = "0.0.0.0",
         port: int = 5020,
         overrides={},
     ):
