@@ -246,13 +246,35 @@ class Modbus(dict[str, ModbusRegister]):
     async def get_all(self):
         """Returns a dictionary with all the registers."""
 
-        async with self:
-            names = [name for name in self]
-            tasks = [elem.get(open_connection=False) for elem in self.values()]
+        names = results = []
 
-            results = await asyncio.gather(*tasks)
+        NRETRIES: int = 3
+        for retry in range(NRETRIES):
+            async with self:
+                names = [name for name in self]
+                tasks = [elem.get(open_connection=False) for elem in self.values()]
 
-        return dict(zip(names, results))
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            if any([isinstance(result, Exception) for result in results]):
+                log.debug("Exceptions received while getting all registers.")
+
+                if retry < NRETRIES:
+                    continue
+
+                for result in results:
+                    if isinstance(result, Exception):
+                        log.warning(
+                            "Failed retrieving all registers. First exception:",
+                            exc_info=result,
+                        )
+                        break
+
+        return {
+            names[ii]: results[ii]
+            for ii in range(len(names))
+            if not isinstance(results[ii], Exception)
+        }
 
     async def read_group(self, group: str):
         """Returns a dictionary of all read registers that match a ``group``."""
