@@ -12,6 +12,7 @@ import asyncio
 
 from typing import TYPE_CHECKING
 
+from lvmecp.hvac import HVACController
 from lvmecp.modbus import Modbus
 from lvmecp.safety import SafetyController
 
@@ -81,7 +82,18 @@ class PLC:
             notifier=create_actor_notifier(actor, "lights"),
         )
 
+        self.hvac_modbus = Modbus(config=config["hvac"])
+        self.hvac = HVACController(
+            "hvac",
+            self,
+            modbus=self.hvac_modbus,
+            notifier=None,
+        )
+
     async def read_all_registers(self):
         """Reads all the connected registers and returns a dictionary."""
 
-        return await self.modbus.get_all()
+        registers = await self.modbus.get_all()
+        registers.update(await self.hvac_modbus.get_all())
+
+        return registers

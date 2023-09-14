@@ -136,6 +136,146 @@ safety:
   override_local_mode: False
   o2_threshold: 19.5
 
+hvac:
+  host: 10.8.38.49
+  port: 502
+  slave: 1
+  registers:
+    water_flow_input_circuit:
+      address: 0
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    flowmeter_ahu_spectrograph:
+      address: 2
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    exterior_humidity:
+      address: 4
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    humidity_utilities_room:
+      address: 6
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    humidity_spectrograph_room:
+      address: 8
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    humidity_telescope_platform:
+      address: 10
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    water_pressure_inlet_circuit_1:
+      address: 12
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    water_pressure_inlet_circuit_2:
+      address: 14
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    exterior_temperature:
+      address: 16
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    utilities_room_temperature:
+      address: 18
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    spectrograph_room_temperature:
+      address: 20
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    telescope_platform_temperature:
+      address: 22
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    chiller_in_water_temperature:
+      address: 24
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    ahu_in_water_temperature:
+      address: 26
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    ahu_injection_temperature:
+      address: 28
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    ahu_return_temperature:
+      address: 30
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    chiller_out_temperature:
+      address: 32
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    ahu_out_temperature:
+      address: 34
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    ahu_cold_valve:
+      address: 36
+      mode: holding_register
+      count: 2
+      decoder: float_32bit
+    system_status:
+      address: 0
+      mode: coil
+    ahu_filter_status:
+      address: 1
+      mode: coil
+    vin_1_air_pressure:
+      address: 2
+      mode: coil
+    vin_2_air_pressure:
+      address: 3
+      mode: coil
+    roll-off_roof_position_:
+      address: 4
+      mode: coil
+    status_damper_1:
+      address: 5
+      mode: coil
+    status_damper_2:
+      address: 6
+      mode: coil
+    ahu_heater_1:
+      address: 7
+      mode: coil
+    start_stop_chiller:
+      address: 8
+      mode: coil
+    start_stop_vin_1:
+      address: 9
+      mode: coil
+    start_stop_vin_2:
+      address: 10
+      mode: coil
+    start_stop_water_pump:
+      address: 11
+      mode: coil
+    start_stop_ahu:
+      address: 12
+      mode: coil
+
 actor:
   name: lvmecp
   host: localhost

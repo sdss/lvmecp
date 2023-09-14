@@ -28,6 +28,8 @@ class SafetyController(PLCModule[SafetyStatus]):
         self.o2_level_spectrograph: float = math.nan
 
     async def _update_internal(self):
+        assert self.flag is not None
+
         safety_registers = await self.plc.modbus.read_group("safety")
 
         safety_status = SimpleNamespace(**safety_registers)

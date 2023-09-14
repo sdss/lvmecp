@@ -13,6 +13,8 @@ import pathlib
 import warnings
 
 from pymodbus.client.tcp import AsyncModbusTcpClient
+from pymodbus.constants import Endian
+from pymodbus.payload import BinaryPayloadDecoder
 
 from sdsstools import read_yaml_file
 
@@ -50,7 +52,9 @@ class ModbusRegister:
         name: str,
         address: int,
         mode: str = "coil",
+        count: int = 1,
         group: str | None = None,
+        decoder: str | None = None,
     ):
         self.modbus = modbus
         self.client = modbus.client
@@ -58,7 +62,9 @@ class ModbusRegister:
         self.name = name
         self.address = address
         self.mode = mode
+        self.count = count
         self.group = group
+        self.decoder = decoder
 
     async def _get_internal(self):
         """Return the value of the modbus register."""
@@ -75,10 +81,18 @@ class ModbusRegister:
             raise ValueError(f"Invalid block mode {self.mode!r}.")
 
         if self.client.connected:
-            resp = await func(self.address, count=1)  # type: ignore
+            resp = await func(
+                self.address,
+                count=self.count,
+                slave=self.modbus.slave,
+            )  # type: ignore
         else:
             async with self.modbus:
-                resp = await func(self.address, count=1)  # type: ignore
+                resp = await func(
+                    self.address,
+                    count=self.count,
+                    slave=self.modbus.slave,
+                )  # type: ignore
 
         if resp.function_code > 0x80:
             raise ValueError(
@@ -87,9 +101,22 @@ class ModbusRegister:
             )
 
         if self.mode == "coil" or self.mode == "discrete_input":
-            value = resp.bits[0]
+            bits = resp.bits
+            value = bits[0 : self.count] if self.count > 1 else bits[0]
         else:
-            value = resp.registers[0]
+            registers = resp.registers
+            value = registers[0 : self.count] if self.count > 1 else registers[0]
+
+            if self.decoder is not None:
+                if self.decoder == "float_32bit":
+                    bin_payload = BinaryPayloadDecoder.fromRegisters(
+                        value,
+                        byteorder=Endian.BIG,
+                        wordorder=Endian.LITTLE,
+                    )
+                    value = round(bin_payload.decode_32bit_float(), 3)
+                else:
+                    raise ValueError(f"Unknown decoder {self.decoder}")
 
         return value
 
@@ -181,6 +208,7 @@ class Modbus(dict[str, ModbusRegister]):
 
         self.host = self.config["host"]
         self.port = self.config["port"]
+        self.slave = self.config.get("slave", 0)
 
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
         self.lock = asyncio.Lock()
@@ -193,6 +221,8 @@ class Modbus(dict[str, ModbusRegister]):
                 elem["address"],
                 mode=elem.get("mode", "coil"),
                 group=elem.get("group", None),
+                count=elem.get("count", 1),
+                decoder=elem.get("decoder", None),
             )
             for name, elem in register_data.items()
         }

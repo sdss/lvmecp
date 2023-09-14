@@ -18,8 +18,9 @@ from lvmecp.tools import cancel_tasks_by_name
 
 
 if TYPE_CHECKING:
-    from .maskbits import Maskbit
-    from .plc import PLC
+    from lvmecp.maskbits import Maskbit
+    from lvmecp.modbus import Modbus
+    from lvmecp.plc import PLC
 
 Flag_co = TypeVar("Flag_co", bound="Maskbit")
 
@@ -27,25 +28,26 @@ Flag_co = TypeVar("Flag_co", bound="Maskbit")
 class PLCModule(abc.ABC, Generic[Flag_co]):
     """A module associated with a group of PLC variables."""
 
-    flag: Type[Flag_co]
-    interval: float = 10.0
+    flag: Type[Flag_co] | None = None
+    interval: float | None = 10.0
 
     def __init__(
         self,
         name: str,
         plc: PLC,
+        modbus: Modbus | None = None,
         interval: float | None = None,
         start: bool = True,
         notifier: Callable[[int, str], Callable | Coroutine] | None = None,
     ):
         self.name = name
         self.plc = plc
-        self.modbus = plc.modbus
+        self.modbus = modbus or plc.modbus
 
         assert hasattr(self, "flag"), "flag not defined."
 
         self._interval = interval or self.interval
-        self.status = self.flag(self.flag.__unknown__)
+        self.status = self.flag(self.flag.__unknown__) if self.flag else None
 
         self.notifier = notifier
 
@@ -64,10 +66,14 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         """Starts tracking the status of the PLC module."""
 
         await self.notify_status()
-        self._update_loop_task = asyncio.create_task(self._status_loop())
+
+        if self._interval:
+            self._update_loop_task = asyncio.create_task(self._status_loop())
 
     async def _status_loop(self):
         """Runs the status update loop."""
+
+        assert self._interval is not None
 
         while True:
             await self.update()
@@ -85,8 +91,9 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         try:
             new_status = await self._update_internal()
         except Exception as err:
+            raise
             log.warning(f"{self.name}: failed updating status: {err}")
-            new_status = self.flag(self.flag.__unknown__)
+            new_status = self.flag(self.flag.__unknown__) if self.flag else None
 
         # Only notify if the status has changed.
         if new_status != self.status or force_output:
@@ -108,6 +115,8 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
             return
 
         status = status or self.status
+        if status is None:
+            return
 
         if asyncio.iscoroutinefunction(self.notifier):
             coro = self.notifier(status.value, str(status), **kwargs)

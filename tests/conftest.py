@@ -38,7 +38,7 @@ async def simulator():
 
 
 @pytest.fixture()
-async def actor(simulator: Simulator):
+async def actor(simulator: Simulator, mocker):
     ecp_config = deepcopy(config)
     ecp_config["modbus"]["host"] = "127.0.0.1"
     ecp_config["modbus"]["port"] = 5020
@@ -47,6 +47,9 @@ async def actor(simulator: Simulator):
     ecp_config["actor"]["schema"] = os.path.dirname(lvmecp.__file__) + "/" + schema_path
 
     _actor = ECPActor.from_config(ecp_config)
+
+    mocker.patch.object(_actor.plc.hvac.modbus, "get_all", return_value={})
+
     _actor = await setup_test_actor(_actor)  # type: ignore
 
     yield _actor

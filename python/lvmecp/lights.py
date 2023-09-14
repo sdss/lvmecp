@@ -46,6 +46,8 @@ class LightsController(PLCModule):
     async def _update_internal(self):
         """Update status."""
 
+        assert self.flag is not None
+
         light_registers = await self.plc.modbus.read_group("lights")
 
         active_bits = self.flag(0)
@@ -126,6 +128,8 @@ class LightsController(PLCModule):
     async def on(self, light: str):
         """Turns on a light."""
 
+        assert self.status is not None
+
         await self.update()
 
         flag = self.get_flag(light)
@@ -136,6 +140,8 @@ class LightsController(PLCModule):
 
     async def off(self, light: str):
         """Turns off a light."""
+
+        assert self.status is not None
 
         await self.update()
 
