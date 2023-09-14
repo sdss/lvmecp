@@ -78,7 +78,6 @@ class PLC:
         self.lights = LightsController(
             "lights",
             self,
-            interval=1,
             notifier=create_actor_notifier(actor, "lights"),
         )
 
