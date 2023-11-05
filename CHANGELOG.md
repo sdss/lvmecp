@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 - November 5, 2023
+
+### 🚀 New
+
+* Added support for lights.
+* Added support for O2 sensors.
+* Added support for HVAC controller.
+
+### 🔧 Fixed
+
+* Additional improvments for dealing with PLC disconnections.
+
+
 ## 0.4.1 - August 25, 2023
 
 ### 🔧 Fixed
