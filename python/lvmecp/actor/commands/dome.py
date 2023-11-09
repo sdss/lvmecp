@@ -67,6 +67,8 @@ async def status(command: ECPCommand):
     """Returns the status of the dome."""
 
     status = await command.actor.plc.dome.update()
+    if status is None:
+        return command.fail("Failed retrieving dome status.")
 
     if status & DomeStatus.MOVING:
         command.warning("Dome is moving!!!")

@@ -91,7 +91,6 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         try:
             new_status = await self._update_internal()
         except Exception as err:
-            raise
             log.warning(f"{self.name}: failed updating status: {err}")
             new_status = self.flag(self.flag.__unknown__) if self.flag else None
 

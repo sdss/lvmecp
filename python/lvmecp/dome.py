@@ -36,6 +36,7 @@ class DomeController(PLCModule[DomeStatus]):
 
         dome_status = SimpleNamespace(**dome_registers)
 
+        assert self.flag
         new_status = self.flag(0)
 
         if dome_status.drive_state:
@@ -84,6 +85,8 @@ class DomeController(PLCModule[DomeStatus]):
             raise DomeError("Cannot move dome while in local mode.")
 
         await self.update()
+
+        assert self.status is not None and self.flag is not None
 
         if self.status & self.flag.UNKNOWN:
             raise DomeError("Dome is in unknown state.")
@@ -144,6 +147,9 @@ class DomeController(PLCModule[DomeStatus]):
 
         drive_enabled = await self.plc.modbus["drive_enabled"].get()
         status = await self.update()
+
+        if status is None or self.flag is None:
+            raise RuntimeError("Failed retrieving dome status.")
 
         if not drive_enabled:
             return

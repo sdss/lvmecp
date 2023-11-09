@@ -72,4 +72,6 @@ class SafetyController(PLCModule[SafetyStatus]):
             return True
 
         await self.update()
+        assert self.status is not None and self.flag is not None
+
         return not (self.status & self.flag.LOCAL)
