@@ -257,13 +257,10 @@ class Modbus(dict[str, ModbusRegister]):
     async def __aenter__(self):
         """Initialises the connection to the server."""
 
-        # Acquire the lock, but also don't allow it to block for too long.
         try:
             await asyncio.wait_for(self.lock.acquire(), 10)
         except asyncio.TimeoutError:
-            log.warning("Timed out waiting for lock to be released. Forcing release.")
-            self.lock.release()
-            await self.lock.acquire()
+            raise RuntimeError("Timed out waiting for lock to be released.")
 
         try:
             await self.connect()
@@ -273,6 +270,11 @@ class Modbus(dict[str, ModbusRegister]):
 
             raise
 
+        # Schedule a task to release the lock after 5 seconds. This is a safeguard
+        # in case something fails and the connection is never closed and the lock
+        # not released.
+        asyncio.create_task(self.unlock_on_timeout())
+
     async def __aexit__(self, exc_type, exc, tb):
         """Closes the connection to the server."""
 
@@ -281,6 +283,13 @@ class Modbus(dict[str, ModbusRegister]):
         finally:
             if self.lock.locked():
                 self.lock.release()
+
+    async def unlock_on_timeout(self):
+        """Removes the lock after an amount of time."""
+
+        await asyncio.sleep(10)
+        if self.lock.locked():
+            self.lock.release()
 
     async def get_all(self):
         """Returns a dictionary with all the registers."""
