@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import pathlib
 import warnings
+from contextlib import suppress
 
 from pymodbus.client.tcp import AsyncModbusTcpClient
 from pymodbus.constants import Endian
@@ -211,7 +212,9 @@ class Modbus(dict[str, ModbusRegister]):
         self.slave = self.config.get("slave", 0)
 
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
+
         self.lock = asyncio.Lock()
+        self._lock_release_task: asyncio.Task | None = None
 
         register_data = self.config["registers"]
         registers = {
@@ -273,7 +276,7 @@ class Modbus(dict[str, ModbusRegister]):
         # Schedule a task to release the lock after 5 seconds. This is a safeguard
         # in case something fails and the connection is never closed and the lock
         # not released.
-        asyncio.create_task(self.unlock_on_timeout())
+        self._lock_release_task = asyncio.create_task(self.unlock_on_timeout())
 
     async def __aexit__(self, exc_type, exc, tb):
         """Closes the connection to the server."""
@@ -283,6 +286,11 @@ class Modbus(dict[str, ModbusRegister]):
         finally:
             if self.lock.locked():
                 self.lock.release()
+
+            if self._lock_release_task and not self._lock_release_task.done():
+                self._lock_release_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await self._lock_release_task
 
     async def unlock_on_timeout(self):
         """Removes the lock after an amount of time."""
