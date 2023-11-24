@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1 - November 24, 2023
+
+### 🔧 Fixed
+
+* Fixed cases in which the modbus lock could remain locked.
+
+
 ## 0.5.0 - November 5, 2023
 
 ### 🚀 New
