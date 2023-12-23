@@ -131,6 +131,18 @@ modbus:
       address: 602
       mode: holding_register
       group: safety
+    hb_set:
+      address: 599
+      mode: coil
+      group: safety
+    hb_ack:
+      address: 600
+      mode: coil
+      group: safety
+    hb_error:
+      address: 601
+      mode: coil
+      group: safety
 
 safety:
   override_local_mode: False

@@ -162,23 +162,29 @@ class ModbusRegister:
                 else:
                     raise ValueError(f"Invalid block mode {self.mode!r}.")
 
-                if self.client.connected:
-                    resp = await func(self.address, value)  # type: ignore
-                else:
-                    async with self.modbus:
+                try:
+                    if self.client.connected:
                         resp = await func(self.address, value)  # type: ignore
+                    else:
+                        async with self.modbus:
+                            resp = await func(self.address, value)  # type: ignore
 
-                if resp.function_code > 0x80:
-                    msg = (
-                        f"Invalid response for element "
-                        f"{self.name!r}: 0x{resp.function_code:02X}."
-                    )
+                    if resp.function_code > 0x80:
+                        msg = (
+                            f"Invalid response for element "
+                            f"{self.name!r}: 0x{resp.function_code:02X}."
+                        )
+                    else:
+                        return
 
-                    if ntries >= MAX_RETRIES:
-                        raise ValueError(msg)
+                except Exception as err:
+                    msg = f"Error raised while setting {self.name!r}: {err}"
 
-                    warnings.warn(msg, ECPWarning)
-                    await asyncio.sleep(0.5)
+                if ntries >= MAX_RETRIES:
+                    raise ValueError(msg)
+
+                warnings.warn(msg, ECPWarning)
+                await asyncio.sleep(0.5)
 
 
 class Modbus(dict[str, ModbusRegister]):

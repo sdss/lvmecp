@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 Added
+
+* [#26](https://github.com/sdss/lvmecp/issues/26) Add heartbeat.
+
+
 ## 0.5.1 - November 24, 2023
 
 ### 🔧 Fixed

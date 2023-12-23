@@ -16,7 +16,7 @@ from copy import deepcopy
 import click
 from click_default_group import DefaultGroup
 
-from sdsstools import read_yaml_file
+from sdsstools import Configuration
 from sdsstools.daemonizer import DaemonGroup, cli_coro
 
 from lvmecp import config, log
@@ -50,7 +50,7 @@ def lvmecp(ctx, verbose, config_file: str | None):
 
 @lvmecp.group(cls=DaemonGroup, prog="ecp-actor", workdir=os.getcwd())
 @click.option(
-    "--with-simulator/",
+    "--with-simulator",
     is_flag=True,
     help="Runs the actor aginst the simulator.",
 )
@@ -59,10 +59,10 @@ def lvmecp(ctx, verbose, config_file: str | None):
 async def actor(ctx, with_simulator: bool = False):
     """Runs the actor."""
 
-    config_file = ctx.obj["config_file"]
-    if config_file:
-        ecp_config = read_yaml_file(config_file)
-        log.info(f"Using config file {config_file}")
+    cli_config_file = ctx.obj["config_file"]
+    if cli_config_file:
+        ecp_config = Configuration(cli_config_file, base_config=config)
+        log.info(f"Using config file {cli_config_file}")
     else:
         ecp_config = deepcopy(config)
         log.info("Using internal configuration.")
