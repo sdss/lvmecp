@@ -11,13 +11,13 @@ from __future__ import annotations
 import asyncio
 import pathlib
 import warnings
-from contextlib import suppress
 
 from pymodbus.client.tcp import AsyncModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
 from sdsstools import read_yaml_file
+from sdsstools.utils import cancel_task
 
 from lvmecp import config as lvmecp_config
 from lvmecp import log
@@ -25,6 +25,7 @@ from lvmecp.exceptions import ECPWarning
 
 
 MAX_RETRIES = 3
+TIMEOUT = 10.0
 
 
 class ModbusRegister:
@@ -267,7 +268,7 @@ class Modbus(dict[str, ModbusRegister]):
         """Initialises the connection to the server."""
 
         try:
-            await asyncio.wait_for(self.lock.acquire(), 10)
+            await asyncio.wait_for(self.lock.acquire(), TIMEOUT)
         except asyncio.TimeoutError:
             raise RuntimeError("Timed out waiting for lock to be released.")
 
@@ -293,15 +294,12 @@ class Modbus(dict[str, ModbusRegister]):
             if self.lock.locked():
                 self.lock.release()
 
-            if self._lock_release_task and not self._lock_release_task.done():
-                self._lock_release_task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await self._lock_release_task
+            await cancel_task(self._lock_release_task)
 
     async def unlock_on_timeout(self):
         """Removes the lock after an amount of time."""
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(TIMEOUT)
         if self.lock.locked():
             self.lock.release()
 
