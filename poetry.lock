@@ -1523,13 +1523,13 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pymodbus"
-version = "3.6.3"
+version = "3.6.2"
 description = "A fully featured modbus protocol stack in python"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "pymodbus-3.6.3-py3-none-any.whl", hash = "sha256:ed463566656e8754b825c298b641ff0ee0d7c04548d87d705607da9ab80cb2b7"},
-    {file = "pymodbus-3.6.3.tar.gz", hash = "sha256:862f64376ae201f979c91ca2398f0ed5df8f136b76491e0995edeebbd0fa8940"},
+    {file = "pymodbus-3.6.2-py3-none-any.whl", hash = "sha256:81777d037be9c8d31b5eaefe28cdb9b457581c0e7e8165d5dc7710c2156d24be"},
+    {file = "pymodbus-3.6.2.tar.gz", hash = "sha256:27e845de3074ffb40d0c4c315101b663781608ec83a859dec373cb7b43ac2fe6"},
 ]
 
 [package.extras]
@@ -2558,4 +2558,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11,<4.0"
-content-hash = "82c43bb920818e8a950a77b00a78b2510a7ccc147251e8dd62fea06faac9b4ff"
+content-hash = "bb7485ce770a0fc7b93774ea0512a71009958ca934c689cbc77403971c3cd499"
