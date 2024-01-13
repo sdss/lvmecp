@@ -1,10 +1,14 @@
 # Changelog
 
-## Next version
+## 0.6.0 - January 13, 2024
 
 ### 🚀 Added
 
 * [#26](https://github.com/sdss/lvmecp/issues/26) Add heartbeat.
+
+### ⚙️ Engineering
+
+* Pinned `pymodbus` to 3.6.2 due to test errors in 3.11.
 
 
 ## 0.5.1 - November 24, 2023
