@@ -10,6 +10,7 @@
 ### ✨ Improved
 
 * Moved the logic to lock a connection while in use to `Modbus.connect()` and `disconnect()` from the context manager.
+* Limit connections to the PLC by updating all modules once every 30 seconds. This replaces the internal output of the status.
 
 ### 🔧 Fixed
 

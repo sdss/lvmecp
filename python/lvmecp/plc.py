@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 from lvmecp.hvac import HVACController
 from lvmecp.modbus import Modbus
+from lvmecp.module import PLCModule
 from lvmecp.safety import SafetyController
 
 from .dome import DomeController
@@ -88,6 +89,21 @@ class PLC:
             self,
             modbus=self.hvac_modbus,
             notifier=None,
+        )
+
+    async def update_all(self, use_cache: bool = True):
+        """Updates all the modules."""
+
+        # Force an update of the caches if needed.
+        await self.read_all_registers(use_cache=use_cache)
+
+        # Update modules. This will output values that have changed.
+        await asyncio.gather(
+            *[
+                module.update(use_cache=use_cache)
+                for module in self.__dict__.values()
+                if isinstance(module, PLCModule)
+            ]
         )
 
     async def read_all_registers(self, use_cache: bool = True):

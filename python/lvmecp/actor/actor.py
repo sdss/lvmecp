@@ -60,16 +60,16 @@ class ECPActor(AMQPActor):
 
         await super().start(**kwargs)
 
-        asyncio.create_task(self.emit_status())
+        asyncio.create_task(self.update_status())
         asyncio.create_task(self.emit_heartbeat())
 
         return self
 
-    async def emit_status(self, delay: float = 30.0):
+    async def update_status(self, delay: float = 30.0):
         """Emits the status on a timer."""
 
         while True:
-            await self.send_command(self.name, "status", internal=True)
+            await self.plc.update_all()
             await asyncio.sleep(delay)
 
     async def emit_heartbeat(self, delay: float = 5.0):
