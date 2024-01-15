@@ -244,57 +244,57 @@ class Modbus(dict[str, ModbusRegister]):
     async def connect(self):
         """Connects to the client."""
 
-        hp = f"{self.host}:{self.port}"
-        log.debug(f"Trying to connect to modbus server on {hp}")
-
-        try:
-            await asyncio.wait_for(self.client.connect(), timeout=5)
-        except asyncio.TimeoutError:
-            raise ConnectionError(f"Timed out connecting to server at {hp}.")
-        except Exception as err:
-            raise ConnectionError(f"Failed connecting to server at {hp}: {err}.")
-
-        log.debug(f"Connected to {hp}.")
-
-    async def disconnect(self):
-        """Disconnects the client."""
-
-        if self.client:
-            self.client.close()
-
-        log.debug(f"Disonnected from {self.host}:{self.port}.")
-
-    async def __aenter__(self):
-        """Initialises the connection to the server."""
-
         try:
             await asyncio.wait_for(self.lock.acquire(), TIMEOUT)
         except asyncio.TimeoutError:
             raise RuntimeError("Timed out waiting for lock to be released.")
 
+        hp = f"{self.host}:{self.port}"
+        log.debug(f"Trying to connect to modbus server on {hp}")
+
+        did_connect: bool = False
+
         try:
-            await self.connect()
-        except Exception:
-            if self.lock.locked():
+            await asyncio.wait_for(self.client.connect(), timeout=5)
+            did_connect = True
+        except asyncio.TimeoutError:
+            raise ConnectionError(f"Timed out connecting to server at {hp}.")
+        except Exception as err:
+            raise ConnectionError(f"Failed connecting to server at {hp}: {err}.")
+        finally:
+            if not did_connect and self.lock.locked():
                 self.lock.release()
 
-            raise
+        log.debug(f"Connected to {hp}.")
 
         # Schedule a task to release the lock after 5 seconds. This is a safeguard
         # in case something fails and the connection is never closed and the lock
         # not released.
         self._lock_release_task = asyncio.create_task(self.unlock_on_timeout())
 
-    async def __aexit__(self, exc_type, exc, tb):
-        """Closes the connection to the server."""
+    async def disconnect(self):
+        """Disconnects the client."""
 
         try:
-            await self.disconnect()
+            if self.client:
+                self.client.close()
+                log.debug(f"Disonnected from {self.host}:{self.port}.")
+
         finally:
             if self.lock.locked():
                 self.lock.release()
 
             await cancel_task(self._lock_release_task)
+
+    async def __aenter__(self):
+        """Initialises the connection to the server."""
+
+        await self.connect()
+
+    async def __aexit__(self, exc_type, exc, tb):
+        """Closes the connection to the server."""
+
+        await self.disconnect()
 
     async def unlock_on_timeout(self):
         """Removes the lock after an amount of time."""

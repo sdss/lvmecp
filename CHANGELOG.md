@@ -2,6 +2,10 @@
 
 ## Next version
 
+### ✨ Improved
+
+* Moved the logic to lock a connection while in use to `Modbus.connect()` and `disconnect()` from the context manager.
+
 ### 🔧 Fixed
 
 * Use key `modbus` from configuration file to initialise a new `Modbus` instance when a configuration file path is passed.
