@@ -22,7 +22,7 @@ class DomeController(PLCModule[DomeStatus]):
     """Controller for the rolling dome."""
 
     flag = DomeStatus
-    interval = 10.0
+    interval = 15.0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
