@@ -23,7 +23,7 @@ from sdsstools.utils import cancel_task
 
 from lvmecp import config as lvmecp_config
 from lvmecp import log
-from lvmecp.exceptions import ECPWarning
+from lvmecp.exceptions import ECPError
 
 
 MAX_RETRIES = 3
@@ -148,17 +148,15 @@ class ModbusRegister:
             if open_connection:
                 await self.modbus.connect()
 
+            if not self.modbus.client or not self.modbus.client.connected:
+                raise ConnectionError("Not connected to modbus server.")
+
             try:
                 return await self._get_internal()
-            except Exception as err:
+            except Exception:
                 if ntries >= MAX_RETRIES:
                     raise
 
-                warnings.warn(
-                    f"Failed getting status of {self.name!r}: {err}",
-                    ECPWarning,
-                )
-                open_connection = True  # Force a reconnection.
                 await asyncio.sleep(0.5)
             finally:
                 if open_connection:
@@ -187,7 +185,7 @@ class ModbusRegister:
                             resp = await func(self.address, value)  # type: ignore
 
                     if resp.function_code > 0x80:
-                        msg = (
+                        raise ECPError(
                             f"Invalid response for element "
                             f"{self.name!r}: 0x{resp.function_code:02X}."
                         )
@@ -195,12 +193,9 @@ class ModbusRegister:
                         return
 
                 except Exception as err:
-                    msg = f"Error raised while setting {self.name!r}: {err}"
+                    if ntries >= MAX_RETRIES:
+                        raise ECPError(f"Failed setting {self.name!r}: {err}")
 
-                if ntries >= MAX_RETRIES:
-                    raise ValueError(msg)
-
-                warnings.warn(msg, ECPWarning)
                 await asyncio.sleep(0.5)
 
 
