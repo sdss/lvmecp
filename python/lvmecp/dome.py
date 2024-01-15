@@ -145,12 +145,11 @@ class DomeController(PLCModule[DomeStatus]):
     async def stop(self):
         """Stops the dome."""
 
-        drive_enabled = await self.plc.modbus["drive_enabled"].get()
         status = await self.update()
-
         if status is None or self.flag is None:
             raise RuntimeError("Failed retrieving dome status.")
 
+        drive_enabled = bool(status & self.flag.DRIVE_ENABLED)
         if not drive_enabled:
             return
 
