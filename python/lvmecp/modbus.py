@@ -206,13 +206,13 @@ class Modbus(dict[str, ModbusRegister]):
 
     def __init__(self, config: dict | pathlib.Path | str | None = None):
         if isinstance(config, (str, pathlib.Path)):
-            self.config = read_yaml_file(str(config))
+            self.config = read_yaml_file(str(config))["modbus"]
         elif config is None:
             self.config = lvmecp_config["modbus"]
         elif isinstance(config, dict):
             self.config = config
 
-        assert isinstance(config, dict)
+        assert isinstance(self.config, dict)
 
         self.host = self.config["host"]
         self.port = self.config["port"]
