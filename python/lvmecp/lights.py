@@ -43,12 +43,15 @@ class LightsController(PLCModule):
     flag = LightStatus
     interval = 10.0
 
-    async def _update_internal(self):
+    async def _update_internal(self, use_cache: bool = True):
         """Update status."""
 
         assert self.flag is not None
 
-        light_registers = await self.plc.modbus.read_group("lights")
+        light_registers = await self.plc.modbus.read_group(
+            "lights",
+            use_cache=use_cache,
+        )
 
         active_bits = self.flag(0)
         for key in light_registers:
@@ -123,14 +126,14 @@ class LightsController(PLCModule):
         await self.modbus[f"{code}_new"].set(True)
 
         await asyncio.sleep(0.5)
-        await self.update()
+        await self.update(use_cache=False)
 
     async def on(self, light: str):
         """Turns on a light."""
 
         assert self.status is not None
 
-        await self.update()
+        await self.update(use_cache=False)
 
         flag = self.get_flag(light)
         if self.status & flag:
@@ -143,7 +146,7 @@ class LightsController(PLCModule):
 
         assert self.status is not None
 
-        await self.update()
+        await self.update(use_cache=False)
 
         flag = self.get_flag(light)
         if not (self.status & flag):

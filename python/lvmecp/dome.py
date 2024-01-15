@@ -31,8 +31,8 @@ class DomeController(PLCModule[DomeStatus]):
         # us whether we are open or closed.
         self.dome_is_open: bool | None = None
 
-    async def _update_internal(self):
-        dome_registers = await self.plc.modbus.read_group("dome")
+    async def _update_internal(self, use_cache: bool = True):
+        dome_registers = await self.plc.modbus.read_group("dome", use_cache=use_cache)
 
         dome_status = SimpleNamespace(**dome_registers)
 
@@ -76,7 +76,7 @@ class DomeController(PLCModule[DomeStatus]):
         """Sets the motor direction (`True` means open, `False` close)."""
 
         await self.modbus["drive_direction"].set(open)
-        await self.update()
+        await self.update(use_cache=False)
 
     async def _move(self, open: bool, force: bool = False):
         """Moves the dome to open/close position."""
@@ -84,7 +84,7 @@ class DomeController(PLCModule[DomeStatus]):
         if not (await self.plc.safety.is_remote()):
             raise DomeError("Cannot move dome while in local mode.")
 
-        await self.update()
+        await self.update(use_cache=False)
 
         assert self.status is not None and self.flag is not None
 
@@ -130,7 +130,7 @@ class DomeController(PLCModule[DomeStatus]):
 
         self.dome_is_open = open
 
-        await self.update()
+        await self.update(use_cache=False)
 
     async def open(self, force: bool = False):
         """Open the dome."""
@@ -145,7 +145,7 @@ class DomeController(PLCModule[DomeStatus]):
     async def stop(self):
         """Stops the dome."""
 
-        status = await self.update()
+        status = await self.update(use_cache=False)
         if status is None or self.flag is None:
             raise RuntimeError("Failed retrieving dome status.")
 
@@ -159,4 +159,4 @@ class DomeController(PLCModule[DomeStatus]):
         if is_moving:
             self.dome_is_open = None
 
-        await self.update()
+        await self.update(use_cache=False)

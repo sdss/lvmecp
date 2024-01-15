@@ -90,10 +90,10 @@ class PLC:
             notifier=None,
         )
 
-    async def read_all_registers(self):
+    async def read_all_registers(self, use_cache: bool = True):
         """Reads all the connected registers and returns a dictionary."""
 
-        registers = await self.modbus.get_all()
-        registers.update(await self.hvac_modbus.get_all())
+        registers = await self.modbus.get_all(use_cache=use_cache)
+        registers.update(await self.hvac_modbus.get_all(use_cache=use_cache))
 
         return registers

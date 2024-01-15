@@ -73,12 +73,12 @@ class ModbusRegister:
         self._last_value: int | float = 0
         self._last_seen: float = 0
 
-    async def _get_internal(self):
+    async def _get_internal(self, use_cache: bool = True):
         """Return the value of the modbus register."""
 
         cache_timeout = self.modbus.cache_timeout
         last_seen_interval = time() - self._last_seen
-        if last_seen_interval < cache_timeout:
+        if use_cache and last_seen_interval < cache_timeout:
             return self._last_value
 
         if self.mode == "coil":
@@ -138,7 +138,7 @@ class ModbusRegister:
 
         return value
 
-    async def get(self, open_connection: bool = True):
+    async def get(self, open_connection: bool = True, use_cache: bool = True):
         """Return the value of the modbus register. Implements retry."""
 
         for ntries in range(1, MAX_RETRIES + 1):
@@ -152,7 +152,7 @@ class ModbusRegister:
                 raise ConnectionError("Not connected to modbus server.")
 
             try:
-                return await self._get_internal()
+                return await self._get_internal(use_cache=use_cache)
             except Exception:
                 if ntries >= MAX_RETRIES:
                     raise
@@ -190,6 +190,9 @@ class ModbusRegister:
                             f"{self.name!r}: 0x{resp.function_code:02X}."
                         )
                     else:
+                        self._last_value = int(value)
+                        self._last_seen = time()
+
                         return
 
                 except Exception as err:
@@ -320,10 +323,10 @@ class Modbus(dict[str, ModbusRegister]):
         if self.lock.locked():
             self.lock.release()
 
-    async def get_all(self):
+    async def get_all(self, use_cache: bool = True):
         """Returns a dictionary with all the registers."""
 
-        if time() - self._register_last_seen < self.cache_timeout:
+        if use_cache and time() - self._register_last_seen < self.cache_timeout:
             if None not in self._register_cache.values():
                 return self._register_cache
 
@@ -331,7 +334,10 @@ class Modbus(dict[str, ModbusRegister]):
 
         async with self:
             names = [name for name in self]
-            tasks = [elem.get(open_connection=False) for elem in self.values()]
+            tasks = [
+                elem.get(open_connection=False, use_cache=False)
+                for elem in self.values()
+            ]
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -351,10 +357,10 @@ class Modbus(dict[str, ModbusRegister]):
 
         return registers
 
-    async def read_group(self, group: str):
+    async def read_group(self, group: str, use_cache: bool = True):
         """Returns a dictionary of all read registers that match a ``group``."""
 
-        registers = await self.get_all()
+        registers = await self.get_all(use_cache=use_cache)
 
         group_registers = {}
         for name in self:

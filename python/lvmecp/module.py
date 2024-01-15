@@ -76,20 +76,25 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         assert self._interval is not None
 
         while True:
-            await self.update()
+            await self.update(use_cache=False)
             await asyncio.sleep(self._interval)
 
     @abc.abstractmethod
-    async def _update_internal(self) -> Flag_co:
+    async def _update_internal(self, **kwargs) -> Flag_co:
         """Determines the new module flag status."""
 
         pass
 
-    async def update(self, force_output: bool = False, **notifier_kwargs):
+    async def update(
+        self,
+        force_output: bool = False,
+        use_cache: bool = True,
+        **notifier_kwargs,
+    ):
         """Refreshes the module status."""
 
         try:
-            new_status = await self._update_internal()
+            new_status = await self._update_internal(use_cache=use_cache)
         except Exception as err:
             log.warning(f"{self.name}: failed updating status: {err}")
             new_status = self.flag(self.flag.__unknown__) if self.flag else None

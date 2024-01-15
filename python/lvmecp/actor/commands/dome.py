@@ -66,7 +66,7 @@ async def close(command: ECPCommand, force=False):
 async def status(command: ECPCommand):
     """Returns the status of the dome."""
 
-    status = await command.actor.plc.dome.update()
+    status = await command.actor.plc.dome.update(use_cache=False)
     if status is None:
         return command.fail("Failed retrieving dome status.")
 

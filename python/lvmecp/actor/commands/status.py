@@ -26,11 +26,14 @@ async def status(command: ECPCommand):
 
     plc = command.actor.plc
 
-    command.info(registers=(await plc.read_all_registers()))
+    command.info(registers=(await plc.read_all_registers(use_cache=False)))
 
     modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
     await asyncio.gather(
-        *[module.update(force_output=True, command=command) for module in modules]
+        *[
+            module.update(force_output=True, command=command, use_cache=True)
+            for module in modules
+        ]
     )
 
     command.info(
