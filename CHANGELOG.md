@@ -2,6 +2,10 @@
 
 ## Next version
 
+### 🚀 New
+
+* Added a cache to the registers with default timeout 1 second.
+
 ### ✨ Improved
 
 * Moved the logic to lock a connection while in use to `Modbus.connect()` and `disconnect()` from the context manager.

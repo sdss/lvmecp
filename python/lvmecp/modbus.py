@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import asyncio
 import pathlib
-import warnings
+from time import time
+
+from typing import cast
 
 from pymodbus.client.tcp import AsyncModbusTcpClient
 from pymodbus.constants import Endian
@@ -68,8 +70,16 @@ class ModbusRegister:
         self.group = group
         self.decoder = decoder
 
+        self._last_value: int | float = 0
+        self._last_seen: float = 0
+
     async def _get_internal(self):
         """Return the value of the modbus register."""
+
+        cache_timeout = self.modbus.cache_timeout
+        last_seen_interval = time() - self._last_seen
+        if last_seen_interval < cache_timeout:
+            return self._last_value
 
         if self.mode == "coil":
             func = self.client.read_coils
@@ -119,6 +129,12 @@ class ModbusRegister:
                     value = round(bin_payload.decode_32bit_float(), 3)
                 else:
                     raise ValueError(f"Unknown decoder {self.decoder}")
+
+        if not isinstance(value, (int, float)):
+            raise ValueError(f"Invalid type for {self.name!r} response.")
+
+        self._last_value = value
+        self._last_seen = time()
 
         return value
 
@@ -218,6 +234,12 @@ class Modbus(dict[str, ModbusRegister]):
         self.port = self.config["port"]
         self.slave = self.config.get("slave", 0)
 
+        # Cache results so that very close calls to get_all() don't need to
+        # open a connection and read the registers.
+        self.cache_timeout = self.config.get("cache_timeout", 0.5)
+        self._register_cache: dict[str, int | float | None] = {}
+        self._register_last_seen: float = 0
+
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
 
         self.lock = asyncio.Lock()
@@ -306,6 +328,10 @@ class Modbus(dict[str, ModbusRegister]):
     async def get_all(self):
         """Returns a dictionary with all the registers."""
 
+        if time() - self._register_last_seen < self.cache_timeout:
+            if None not in self._register_cache.values():
+                return self._register_cache
+
         names = results = []
 
         async with self:
@@ -317,17 +343,15 @@ class Modbus(dict[str, ModbusRegister]):
         if any([isinstance(result, Exception) for result in results]):
             for result in results:
                 if isinstance(result, Exception):
-                    log.warning(
-                        "Failed retrieving all registers. First exception:",
-                        exc_info=result,
-                    )
-                    break
+        registers = cast(
+            dict[str, int | float | None],
+            {names[ii]: results[ii] for ii in range(len(names))},
+        )
 
-        return {
-            names[ii]: results[ii]
-            for ii in range(len(names))
-            if not isinstance(results[ii], Exception)
-        }
+        self._register_cache = registers
+        self._register_last_seen = time()
+
+        return registers
 
     async def read_group(self, group: str):
         """Returns a dictionary of all read registers that match a ``group``."""

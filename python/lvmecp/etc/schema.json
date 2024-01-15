@@ -10,7 +10,11 @@
       "type": "object",
       "patternProperties": {
         "[a-z]+.[a-z]+": {
-          "oneOf": [{ "type": "boolean" }, { "type": "number" }]
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "number" },
+            { "type": "null" }
+          ]
         }
       }
     },
