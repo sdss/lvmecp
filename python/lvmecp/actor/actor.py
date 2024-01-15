@@ -69,7 +69,7 @@ class ECPActor(AMQPActor):
         """Emits the status on a timer."""
 
         while True:
-            await self.plc.update_all(force_output=True, internal=True)
+            await self.plc.update_all()
             await asyncio.sleep(delay)
 
     async def emit_heartbeat(self, delay: float = 5.0):

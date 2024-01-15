@@ -36,12 +36,7 @@ def create_actor_notifier(
 ):
     """Generate a notifier function for a keyword."""
 
-    async def notifier(
-        value: int,
-        labels: str,
-        command: Command | None = None,
-        internal: bool = False,
-    ):
+    async def notifier(value: int, labels: str, command: Command | None = None):
         message = {
             keyword: value if use_hex is False else hex(value),
             f"{keyword}{labels_suffix}": labels,
@@ -56,9 +51,9 @@ def create_actor_notifier(
                 if n_tries >= 3:
                     return None
                 await asyncio.sleep(1)
-            actor.write(level, message, internal=internal)
+            actor.write(level, message)
         elif command is not None:
-            command.write(level, message, internal=internal)
+            command.write(level, message)
 
     return notifier if actor else None
 
@@ -96,7 +91,7 @@ class PLC:
             notifier=None,
         )
 
-    async def update_all(self, use_cache: bool = True, **kwargs):
+    async def update_all(self, use_cache: bool = True):
         """Updates all the modules."""
 
         # Force an update of the caches if needed.
@@ -105,7 +100,7 @@ class PLC:
         # Update modules. This will output values that have changed.
         await asyncio.gather(
             *[
-                module.update(use_cache=use_cache, **kwargs)
+                module.update(use_cache=use_cache)
                 for module in self.__dict__.values()
                 if isinstance(module, PLCModule)
             ]
