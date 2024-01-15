@@ -25,7 +25,7 @@ class HVACController(PLCModule):
 
         self.status: dict[str, float | bool | None] = {}
 
-    async def _update_internal(self, **_):
+    async def _update_internal(self):
         """Update status."""
 
         self.status = await self.modbus.get_all()
