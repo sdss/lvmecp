@@ -1,7 +1,7 @@
 modbus:
   host: 10.8.38.51
   port: 502
-  cache_timeout: 1
+  cache_timeout: 0.5
   registers:
     door_locked:
       address: 0
