@@ -14,6 +14,7 @@
 ### 🔧 Fixed
 
 * Use key `modbus` from configuration file to initialise a new `Modbus` instance when a configuration file path is passed.
+* Fixed output of status flags with value zero.
 
 
 ## 0.6.0 - January 13, 2024

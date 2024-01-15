@@ -113,7 +113,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         if self.notifier is None:
             return
 
-        status = status or self.status
+        status = status if status is not None else self.status
         if status is None:
             return
 
