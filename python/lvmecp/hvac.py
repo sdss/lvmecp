@@ -23,7 +23,7 @@ class HVACController(PLCModule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.status: dict[str, float | bool] = {}
+        self.status: dict[str, float | bool | None] = {}
 
     async def _update_internal(self):
         """Update status."""

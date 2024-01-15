@@ -336,8 +336,11 @@ class Modbus(dict[str, ModbusRegister]):
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
         if any([isinstance(result, Exception) for result in results]):
-            for result in results:
+            for ii, result in enumerate(results):
                 if isinstance(result, Exception):
+                    log.warning(f"Failed retrieving value for {names[ii]!r}")
+                    results[ii] = None
+
         registers = cast(
             dict[str, int | float | None],
             {names[ii]: results[ii] for ii in range(len(names))},
@@ -351,15 +354,15 @@ class Modbus(dict[str, ModbusRegister]):
     async def read_group(self, group: str):
         """Returns a dictionary of all read registers that match a ``group``."""
 
-        names = []
-        tasks = []
-        async with self:
-            for name in self:
-                register = self[name]
-                if register.group is not None and register.group == group:
-                    names.append(name)
-                    tasks.append(register.get(open_connection=False))
+        registers = await self.get_all()
 
-            results = await asyncio.gather(*tasks)
+        group_registers = {}
+        for name in self:
+            register = self[name]
+            if register.group is not None and register.group == group:
+                if name not in registers:
+                    continue
 
-        return dict(zip(names, results))
+                group_registers[name] = registers[name]
+
+        return group_registers

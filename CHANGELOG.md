@@ -5,6 +5,7 @@
 ### 🚀 New
 
 * Added a cache to the registers with default timeout 1 second.
+* `Modbus.read_group()` calls `Modbus.get_all()` instead of reading individual registers sequentially. Since during a `status` all groups are read in quick succession, and with caching, this results in much faster status outputs.
 
 ### ✨ Improved
 
