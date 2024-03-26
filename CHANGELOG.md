@@ -5,6 +5,7 @@
 ### 🚀 New
 
 * Allow not outputting the registers in `status` with `--no-registers`.
+* Use `LVMActor` as the base class for the ECP actor.
 
 
 ## 0.7.0 - January 19, 2024

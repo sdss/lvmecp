@@ -11,7 +11,8 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from clu.actor import AMQPActor
+from lvmopstools.actor import ErrorCodesBase, LVMActor
+
 from clu.tools import ActorHandler
 
 from lvmecp import __version__, log
@@ -23,7 +24,7 @@ from lvmecp.plc import PLC
 __all__ = ["ECPActor"]
 
 
-class ECPActor(AMQPActor):
+class ECPActor(LVMActor):
     """Enclosure actor."""
 
     parser = parser
@@ -82,3 +83,13 @@ class ECPActor(AMQPActor):
                 self.write("w", "Failed to set heartbeat variable.")
             finally:
                 await asyncio.sleep(delay)
+
+    async def _check_internal(self):
+        return await super()._check_internal()
+
+    async def _troubleshoot_internal(
+        self,
+        error_code: ErrorCodesBase,
+        exception: Exception | None = None,
+    ):
+        return await super()._troubleshoot_internal(error_code, exception)

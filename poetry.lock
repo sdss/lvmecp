@@ -817,6 +817,26 @@ six = "*"
 tornado = {version = "*", markers = "python_version > \"2.7\""}
 
 [[package]]
+name = "lvmopstools"
+version = "0.2.0"
+description = "LVM tools and utilities for operations"
+optional = false
+python-versions = "<4.0,>=3.10"
+files = [
+    {file = "lvmopstools-0.2.0-py3-none-any.whl", hash = "sha256:b5f9acc01270c56e1111f78f5cda0a3d5e06173bf0c80efc8b0644542d4d2a54"},
+    {file = "lvmopstools-0.2.0.tar.gz", hash = "sha256:388ef0c6c15c10064116d0244b30589c93e9e0f0895444c157316e53c5b7a70f"},
+]
+
+[package.dependencies]
+astropy = ">=6.0.0,<7.0.0"
+click = ">=8.1.7,<9.0.0"
+sdss-clu = ">=2.2.3,<3.0.0"
+sdsstools = ">=1.3.1,<2.0.0"
+
+[package.extras]
+ds9 = ["pyds9 (>=1.8.1,<2.0.0)"]
+
+[[package]]
 name = "makefun"
 version = "1.15.2"
 description = "Small library to dynamically create python functions."
@@ -2563,4 +2583,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11,<4.0"
-content-hash = "bb7485ce770a0fc7b93774ea0512a71009958ca934c689cbc77403971c3cd499"
+content-hash = "7d5cd5aa2f20c8cc34302aef509eb654158a60824d414e37a1b9d14eb761cc21"
