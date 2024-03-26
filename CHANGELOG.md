@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Allow not outputting the registers in `status` with `--no-registers`.
+
+
 ## 0.7.0 - January 19, 2024
 
 ### 🚀 New

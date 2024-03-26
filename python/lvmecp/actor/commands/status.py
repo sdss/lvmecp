@@ -12,6 +12,8 @@ import asyncio
 
 from typing import TYPE_CHECKING
 
+import click
+
 from . import parser
 
 
@@ -21,12 +23,14 @@ if TYPE_CHECKING:
 
 
 @parser.command()
-async def status(command: ECPCommand):
+@click.option("--no-registers", is_flag=True, help="Does not output registers.")
+async def status(command: ECPCommand, no_registers: bool = False):
     """Returns the enclosure status."""
 
     plc = command.actor.plc
 
-    command.info(registers=(await plc.read_all_registers(use_cache=False)))
+    if no_registers is False:
+        command.info(registers=(await plc.read_all_registers(use_cache=False)))
 
     modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
     await asyncio.gather(
