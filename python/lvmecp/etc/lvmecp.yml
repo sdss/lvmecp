@@ -72,18 +72,24 @@ modbus:
     ne_limit:
       address: 104
       group: dome
-    nw_limit:
+    se_limit:
       address: 105
       group: dome
-    se_limit:
+    nw_limit:
       address: 106
       group: dome
     sw_limit:
       address: 107
       group: dome
-    overcurrent:
+    dome_closed:
+      address: 108
+      group: dome
+    dome_open:
       address: 109
       group: dome
+    # overcurrent:
+    #   address: 109
+    #   group: dome
     drive_velocity1:
       address: 103
       mode: holding_register

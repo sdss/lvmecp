@@ -27,10 +27,6 @@ class DomeController(PLCModule[DomeStatus]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Temporary, until we have proximity sensors that tell
-        # us whether we are open or closed.
-        self.dome_is_open: bool | None = None
-
     async def _update_internal(self, use_cache: bool = True):
         dome_registers = await self.plc.modbus.read_group("dome", use_cache=use_cache)
 
@@ -57,12 +53,12 @@ class DomeController(PLCModule[DomeStatus]):
         if dome_status.drive_brake:
             new_status |= self.flag.BRAKE_ENABLED
 
-        if dome_status.overcurrent:
-            new_status |= self.flag.OVERCURRENT
+        # if dome_status.overcurrent:
+        #     new_status |= self.flag.OVERCURRENT
 
-        if self.dome_is_open is True:
+        if dome_status.dome_open is True:
             new_status |= self.flag.OPEN
-        elif self.dome_is_open is False:
+        elif dome_status.dome_closed is True:
             new_status |= self.flag.CLOSED
         else:
             new_status |= self.flag.POSITION_UNKNOWN
@@ -121,14 +117,16 @@ class DomeController(PLCModule[DomeStatus]):
         log.debug("Setting drive_enabled.")
         await self.modbus["drive_enabled"].set(True)
 
-        self.dome_is_open = None
-
         await asyncio.sleep(0.5)
-        while await self.modbus["drive_enabled"].get():
+        while True:
             # Still moving.
             await asyncio.sleep(2)
 
-        self.dome_is_open = open
+            drive_enabled = await self.modbus["drive_enabled"].get()
+            move_done = await self.modbus["dome_open" if open else "dome_closed"].get()
+
+            if not drive_enabled and move_done:
+                break
 
         await self.update(use_cache=False)
 
@@ -153,10 +151,6 @@ class DomeController(PLCModule[DomeStatus]):
         if not drive_enabled:
             return
 
-        is_moving = status & self.flag.MOVING
         await self.plc.modbus["drive_enabled"].set(False)
-
-        if is_moving:
-            self.dome_is_open = None
 
         await self.update(use_cache=False)

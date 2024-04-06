@@ -7,6 +7,10 @@
 * Allow not outputting the registers in `status` with `--no-registers`.
 * Use `LVMActor` as the base class for the ECP actor.
 
+### ✨ Improved
+
+* Use `dome_open` and `dome_closed` modbus variables to determine the state of the roll-off.
+
 
 ## 0.7.0 - January 19, 2024
 

@@ -44,7 +44,11 @@ async def open(command: ECPCommand, force=False):
     except DomeError as err:
         return command.fail(err)
 
-    return command.finish(dome_open=True, text="Done is now open.")
+    status = command.actor.plc.dome.status
+    if status and status & DomeStatus.OPEN:
+        return command.finish(text="Dome is now open.")
+    else:
+        return command.fail(text="Dome was left in an unknown state.")
 
 
 @dome.command()
@@ -59,7 +63,11 @@ async def close(command: ECPCommand, force=False):
     except DomeError as err:
         return command.fail(err)
 
-    return command.finish(dome_open=False, text="Done is now closed.")
+    status = command.actor.plc.dome.status
+    if status and status & DomeStatus.CLOSED:
+        return command.finish(text="Dome is now closed.")
+    else:
+        return command.fail(text="Dome was left in an unknown state.")
 
 
 @dome.command()
