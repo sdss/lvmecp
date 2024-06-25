@@ -154,7 +154,7 @@ modbus:
       address: 699
       mode: coil
       group: safety
-    rain_sensor_count:
+    rain_sensor_counter:
       address: 699
       mode: holding_register
       group: safety
