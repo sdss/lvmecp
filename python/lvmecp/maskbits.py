@@ -53,6 +53,7 @@ class SafetyStatus(Maskbit):
     O2_SENSOR_UR_FAULT = 0x200
     O2_SENSOR_SR_ALARM = 0x400  # Spec room
     O2_SENSOR_SR_FAULT = 0x800
+    RAIN_SENSOR_ALARM = 0x1000
     UNKNOWN = 0x100000
 
 

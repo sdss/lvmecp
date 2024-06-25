@@ -150,6 +150,14 @@ modbus:
       address: 601
       mode: coil
       group: safety
+    rain_sensor_alarm:
+      address: 699
+      mode: coil
+      group: safety
+    rain_sensor_count:
+      address: 699
+      mode: holding_register
+      group: safety
 
 safety:
   override_local_mode: False

@@ -61,6 +61,10 @@ class SafetyController(PLCModule[SafetyStatus]):
         if safety_status.oxygen_mode_spectrograph_room == 8:
             new_status |= self.flag.O2_SENSOR_SR_FAULT
 
+        # Rain sensor
+        if safety_status.rain_sensor_alarm:
+            new_status |= self.flag.RAIN_SENSOR_ALARM
+
         if new_status.value == 0:
             new_status = self.flag.__unknown__
 
