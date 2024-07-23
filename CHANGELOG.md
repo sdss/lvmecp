@@ -1,5 +1,16 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Added rain sensor.
+
+### ⚙️ Engineering
+
+* Format code using `ruff`.
+
+
 ## 0.8.0 - June 1, 2024
 
 ### 🚀 New
