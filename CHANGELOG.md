@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Fail open/close dome if the drive becomes disabled (usually due to the dome being stopped).
+
+
 ## 0.8.1 - July 23, 2024
 
 ### 🚀 New

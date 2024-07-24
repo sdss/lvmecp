@@ -128,6 +128,12 @@ class DomeController(PLCModule[DomeStatus]):
             if not drive_enabled and move_done:
                 break
 
+            if not drive_enabled:
+                # This usually means the movement has been stopped.
+                raise DomeError(
+                    "Dome drive has been disabled. Was the dome was stopped."
+                )
+
         await self.update(use_cache=False)
 
     async def open(self, force: bool = False):
