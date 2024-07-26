@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import warnings
+from time import time
 from types import SimpleNamespace
 
 from lvmecp import log
@@ -118,6 +119,8 @@ class DomeController(PLCModule[DomeStatus]):
         await self.modbus["drive_enabled"].set(True)
 
         await asyncio.sleep(0.5)
+
+        last_enabled: float = 0.0
         while True:
             # Still moving.
             await asyncio.sleep(2)
@@ -125,14 +128,17 @@ class DomeController(PLCModule[DomeStatus]):
             drive_enabled = await self.modbus["drive_enabled"].get()
             move_done = await self.modbus["dome_open" if open else "dome_closed"].get()
 
+            if drive_enabled:
+                last_enabled = time()
+
             if not drive_enabled and move_done:
                 break
 
-            if not drive_enabled:
-                # This usually means the movement has been stopped.
-                raise DomeError(
-                    "Dome drive has been disabled. Was the dome was stopped."
-                )
+            # Check if the drive is not enabled for more than 5 seconds without the
+            # movement being done. This usually means the dome has been manually
+            # stopped.
+            if not drive_enabled and (time() - last_enabled) > 5:
+                raise DomeError("Dome drive has been disabled.")
 
         await self.update(use_cache=False)
 
