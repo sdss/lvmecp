@@ -66,7 +66,7 @@ class SafetyController(PLCModule[SafetyStatus]):
             new_status |= self.flag.RAIN_SENSOR_ALARM
 
         if new_status.value == 0:
-            new_status = self.flag.__unknown__
+            new_status = self.flag(self.flag.__unknown__)
 
         return new_status
 

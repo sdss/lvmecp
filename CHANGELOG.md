@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🔧 Fixed
+
+* Fixed a bug that would make a module notification fail in some cases if its maskbit value was zero.
+
+
 ## 0.8.2 - August 19, 2024
 
 ### ✨ Improved

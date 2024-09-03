@@ -65,7 +65,7 @@ class DomeController(PLCModule[DomeStatus]):
             new_status |= self.flag.POSITION_UNKNOWN
 
         if new_status.value == 0:
-            new_status = self.flag.__unknown__
+            new_status = self.flag(self.flag.__unknown__)
 
         return new_status
 
