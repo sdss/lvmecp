@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ⚙️ Engineering
+
+Use `uv` for packaging.
+
+
 ## 0.8.3 - September 7, 2024
 
 ### 🔧 Fixed
