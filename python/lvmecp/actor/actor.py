@@ -56,6 +56,8 @@ class ECPActor(LVMActor):
         else:
             self.plc = plc
 
+        self.lock = asyncio.Lock()
+
     async def start(self, **kwargs):
         """Starts the actor."""
 

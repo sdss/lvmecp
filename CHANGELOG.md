@@ -2,6 +2,10 @@
 
 ## Next version
 
+### ✨ Improved
+
+* Add a lock for the status command to prevent multiple concurrent requests.
+
 ### ⚙️ Engineering
 
 Use `uv` for packaging.
