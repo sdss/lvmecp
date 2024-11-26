@@ -95,3 +95,15 @@ async def stop(command: ECPCommand):
     await command.actor.plc.dome.stop()
 
     return command.finish()
+
+
+@dome.command()
+async def reset(command: ECPCommand, force=False):
+    """Resets dome error state."""
+
+    try:
+        await command.actor.plc.dome.reset()
+    except DomeError as err:
+        return command.fail(err)
+
+    return command.finish()

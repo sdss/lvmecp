@@ -166,3 +166,9 @@ class DomeController(PLCModule[DomeStatus]):
         await self.plc.modbus["drive_enabled"].set(False)
 
         await self.update(use_cache=False)
+
+    async def reset(self):
+        """Resets the roll-off error state."""
+
+        await self.modbus["rolloff_error_reset"].set(1)
+        await asyncio.sleep(1)

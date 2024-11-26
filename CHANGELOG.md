@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Add reporting of roll-off error state and allow resetting on error.
+
+
 ## 0.8.4 - November 3, 2024
 
 ### ✨ Improved

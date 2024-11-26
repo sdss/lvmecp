@@ -114,13 +114,14 @@ modbus:
       address: 149
       mode: holding_register
       group: dome
-    dome_status1:
+    rolloff_lockout:
       address: 410
-      mode: holding_register
       group: dome
-    dome_status2:
+    rolloff_error:
       address: 411
-      mode: holding_register
+      group: dome
+    rolloff_error_reset:
+      address: 412
       group: dome
     oxygen_read_utilities_room:
       address: 599
