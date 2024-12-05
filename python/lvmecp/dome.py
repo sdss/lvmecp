@@ -28,7 +28,7 @@ class DomeController(PLCModule[DomeStatus]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def _update_internal(self, use_cache: bool = True):
+    async def _update_internal(self, use_cache: bool = True, **kwargs):
         dome_registers = await self.plc.modbus.read_group("dome", use_cache=use_cache)
 
         dome_status = SimpleNamespace(**dome_registers)
