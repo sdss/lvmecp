@@ -29,17 +29,17 @@ async def status(command: ECPCommand, no_registers: bool = False):
 
     plc = command.actor.plc
 
-    async with command.actor.lock:
-        if no_registers is False:
+    if no_registers is False:
+        async with command.actor.semaphore:
             command.info(registers=(await plc.read_all_registers(use_cache=False)))
 
-        modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
-        await asyncio.gather(
-            *[
-                module.update(force_output=True, command=command, use_cache=True)
-                for module in modules
-            ]
-        )
+    modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
+    await asyncio.gather(
+        *[
+            module.update(force_output=True, command=command, use_cache=True)
+            for module in modules
+        ]
+    )
 
     command.info(
         o2_percent_utilities=plc.safety.o2_level_utilities,
