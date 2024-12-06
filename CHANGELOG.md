@@ -8,7 +8,7 @@
 
 ### 🔧 Fixed
 
-* Restore GS3 status registers and fix addesses for roll-off lockout and error.
+* Restore GS3 status registers and fix addresses for roll-off lockout and error.
 
 
 ## 0.8.4 - November 3, 2024
