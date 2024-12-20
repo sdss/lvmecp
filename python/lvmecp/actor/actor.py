@@ -64,7 +64,6 @@ class ECPActor(LVMActor):
         await super().start(**kwargs)
 
         asyncio.create_task(self.emit_status())
-        asyncio.create_task(self.emit_heartbeat())
 
         return self
 
@@ -74,20 +73,6 @@ class ECPActor(LVMActor):
         while True:
             await self.send_command(self.name, "status", internal=True)
             await asyncio.sleep(delay)
-
-    async def emit_heartbeat(self, delay: float = 5.0):
-        """Updates the heartbeat Modbus variable to indicate the system is alive."""
-
-        while True:
-            try:
-                await self.plc.modbus["hb_set"].set(True)
-            except Exception:
-                self.write("w", "Failed to set heartbeat variable.")
-            finally:
-                await asyncio.sleep(delay)
-
-    async def _check_internal(self):
-        return await super()._check_internal()
 
     async def _troubleshoot_internal(
         self,
