@@ -6,6 +6,10 @@
 
 * Add reporting of roll-off error state and allow resetting on error.
 
+### 🏷️ Changed
+
+* Removed the automatic setting of the heartbeat variable. Added a `heartbeat` command that will be triggered by a heartbeat middleware.
+
 ### 🔧 Fixed
 
 * Restore GS3 status registers and fix addresses for roll-off lockout and error.
