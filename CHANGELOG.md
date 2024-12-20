@@ -8,7 +8,7 @@
 
 ### 🏷️ Changed
 
-* Removed the automatic setting of the heartbeat variable. Added a `heartbeat` command that will be triggered by a heartbeat middleware.
+* [#28](https://vscode.dev/github/sdss/lvmecp/pull/28) Removed the automatic setting of the heartbeat variable. Added a `heartbeat` command that will be triggered by a heartbeat middleware.
 
 ### 🔧 Fixed
 
