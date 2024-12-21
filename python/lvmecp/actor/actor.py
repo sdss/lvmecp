@@ -74,6 +74,9 @@ class ECPActor(LVMActor):
             await self.send_command(self.name, "status", internal=True)
             await asyncio.sleep(delay)
 
+    async def _check_internal(self):
+        return await super()._check_internal()
+
     async def _troubleshoot_internal(
         self,
         error_code: ErrorCodesBase,
