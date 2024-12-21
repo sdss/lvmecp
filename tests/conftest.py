@@ -51,6 +51,7 @@ async def actor(simulator: Simulator, mocker):
     mocker.patch.object(_actor.plc.hvac.modbus, "get_all", return_value={})
 
     _actor = await setup_test_actor(_actor)  # type: ignore
+    _actor.connection.connection = mocker.MagicMock(spec={"is_closed": False})
 
     yield _actor
 
