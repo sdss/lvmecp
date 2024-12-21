@@ -10,17 +10,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 from . import parser
 
 
 if TYPE_CHECKING:
     from lvmecp.actor import ECPCommand
-    from lvmecp.module import PLCModule
 
 
 @parser.command()
-async def heartbeat(command: ECPCommand ):
+async def heartbeat(command: ECPCommand):
     """Sets the heartbeat variable on the PLC."""
 
     try:
