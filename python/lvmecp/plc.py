@@ -44,12 +44,12 @@ def create_actor_notifier(
             # Allow for 3 seconds for broadcast. This is needed because the PLC
             # starts before the actor and for the first message the exchange is
             # not yet available.
-            n_tries = 0
+            elapsed: float = 0
             while actor.connection.connection is None:
-                n_tries += 1
-                if n_tries >= 3:
-                    return None
-                await asyncio.sleep(1)
+                elapsed += 0.01
+                if elapsed > 3:
+                    return
+                await asyncio.sleep(0.01)
             actor.write(level, message)
         elif command is not None:
             command.write(level, message)
