@@ -138,3 +138,10 @@ async def test_dome_anti_flap(actor: ECPActor, mocker: MockerFixture):
     with pytest.raises(DomeError):
         await actor.plc.dome.open()
         await asyncio.sleep(0.1)
+
+
+async def test_dome_not_allowed(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch.object(actor.plc.dome, "is_allowed", return_value=False)
+
+    with pytest.raises(DomeError, match="Dome is not allowed to open."):
+        await actor.plc.dome.open()
