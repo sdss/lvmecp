@@ -13,6 +13,7 @@ import logging
 import time
 
 from lvmopstools.actor import ErrorCodesBase, LVMActor
+from lvmopstools.notifications import send_notification
 
 from clu.tools import ActorHandler
 from sdsstools.utils import cancel_task
@@ -116,6 +117,10 @@ class ECPActor(LVMActor):
                 pass
             elif self.plc.dome.is_daytime():
                 self.write("w", text="Dome found open during daytime. Closing.")
+                await send_notification(
+                    "Dome found open during daytime. Closing.",
+                    level="warning",
+                )
                 await self.plc.dome.close()
 
     async def engineering_mode(

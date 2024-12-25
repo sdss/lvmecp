@@ -202,6 +202,7 @@ class DomeController(PLCModule[DomeStatus]):
                 text="Daytime detected but engineering mode is active. "
                 "Allowing to open the dome.",
             )
+
             return True
 
         return False
