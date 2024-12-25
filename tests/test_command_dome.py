@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import lvmecp.dome
 from lvmecp.maskbits import DomeStatus
 
 
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 
 
 async def test_command_dome_open(actor: ECPActor, mocker: MockerFixture):
-    mocker.patch.object(actor.plc.dome, "is_allowed", return_value=True)
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
     mocker.patch.object(actor.plc.dome, "_move", return_value=True)
 
     mocker.patch.object(actor.plc.dome, "status", return_value=DomeStatus.OPEN)
@@ -50,6 +51,23 @@ async def test_command_dome_daytime(actor: ECPActor, mocker: MockerFixture):
     await cmd
 
     assert cmd.status.did_fail
+
+
+async def test_command_dome_daytime_allowed(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch.object(
+        lvmecp.dome,
+        "config",
+        return_value={"dome": {"daytime_allowed": True}},
+    )
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
+    mocker.patch.object(actor.plc.dome, "_move", return_value=True)
+
+    mocker.patch.object(actor.plc.dome, "status", return_value=DomeStatus.OPEN)
+
+    cmd = await actor.invoke_mock_command("dome open")
+    await cmd
+
+    assert cmd.status.did_succeed
 
 
 async def test_command_dome_daytime_eng_mode(actor: ECPActor, mocker: MockerFixture):
