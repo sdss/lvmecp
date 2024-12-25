@@ -787,6 +787,9 @@ ephemeris = [
     { name = "astroplan" },
     { name = "astropy" },
 ]
+slack = [
+    { name = "slack-sdk" },
+]
 
 [[package]]
 name = "makefun"
@@ -1650,7 +1653,7 @@ version = "0.8.5a0"
 source = { editable = "." }
 dependencies = [
     { name = "click-default-group" },
-    { name = "lvmopstools", extra = ["ephemeris"] },
+    { name = "lvmopstools", extra = ["ephemeris", "slack"] },
     { name = "pymodbus" },
     { name = "pyserial-asyncio" },
     { name = "sdss-clu" },
@@ -1683,11 +1686,11 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click-default-group", specifier = ">=1.2.2" },
-    { name = "lvmopstools", extras = ["ephemeris"], specifier = ">=0.5.2" },
+    { name = "lvmopstools", extras = ["ephemeris", "slack"], specifier = ">=0.5.2" },
     { name = "pymodbus", specifier = ">=3.6.0,<3.7" },
     { name = "pyserial-asyncio", specifier = ">=0.6" },
     { name = "sdss-clu", specifier = ">=2.1.0" },
-    { name = "sdsstools", specifier = ">=1.0.0" },
+    { name = "sdsstools", specifier = ">=1.9.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -1715,7 +1718,7 @@ dev = [
 
 [[package]]
 name = "sdsstools"
-version = "1.9.0"
+version = "1.9.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "daemonocle" },
@@ -1728,9 +1731,9 @@ dependencies = [
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d0/95/902022a9d1703ad840d6c08c1a98bdd88c21a8f6b3831e6ee78f5a93a70e/sdsstools-1.9.0.tar.gz", hash = "sha256:c5f32cff96fd009735007e05c0fffbc0c82678235734c2982d3a225c7673be6b", size = 49288 }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/ec/de86a9cce5b5480e9630d0e537fea4fab91c77a188b1e3ac780fc2334d0d/sdsstools-1.9.1.tar.gz", hash = "sha256:509f41ce02b96ab0e97262ef4b4b79ce400e749900d9bf36d50e909d963df963", size = 49298 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/84/e5/0624908a0615f707cd7701861167df80b9fc0dc4da3451a42279fe6cd0f6/sdsstools-1.9.0-py3-none-any.whl", hash = "sha256:6c02a3386c366591b80129ca20794874afd6e0078de1fd23efd8e52eee2cc876", size = 55935 },
+    { url = "https://files.pythonhosted.org/packages/dc/1c/0afb9da73688f89702743edf5a0a5a9f3c7b51b6ae43cb66d7d43d2de4ee/sdsstools-1.9.1-py3-none-any.whl", hash = "sha256:ce2b1f4787859467dee5ed4af9362cd803f60d2b88bee88512b5847032ea4283", size = 55946 },
 ]
 
 [[package]]
@@ -1749,6 +1752,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050 },
+]
+
+[[package]]
+name = "slack-sdk"
+version = "3.34.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6e/ff/6eb67fd5bd179fa804dbd859d88d872d3ae343955e63a319a73a132d406f/slack_sdk-3.34.0.tar.gz", hash = "sha256:ff61db7012160eed742285ea91f11c72b7a38a6500a7f6c5335662b4bc6b853d", size = 233629 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/25/2d/8724ef191cb64907de1e4e4436462955501e00f859a53d0aa794d0d060ff/slack_sdk-3.34.0-py2.py3-none-any.whl", hash = "sha256:c61f57f310d85be83466db5a98ab6ae3bb2e5587437b54fa0daa8fae6a0feffa", size = 292480 },
 ]
 
 [[package]]
@@ -1942,14 +1954,14 @@ wheels = [
 
 [[package]]
 name = "starlette"
-version = "0.42.0"
+version = "0.43.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/ae/0c98794b248370ce30f71018d0f39889f1d90c73a631e68e2f47e5efda2f/starlette-0.42.0.tar.gz", hash = "sha256:91f1fbd612f3e3d821a8a5f46bf381afe2a9722a7b8bbde1c07fb83384c2882a", size = 2575136 }
+sdist = { url = "https://files.pythonhosted.org/packages/af/36/3a623a561dc8585a90973c8c0ed87511beebbe658c7e8f883fdab7ba55e1/starlette-0.43.0.tar.gz", hash = "sha256:d4887cfd776f8f925c1b140829da9f4c9b8d0973aa66a7cb2bcc48e9b3a69660", size = 2575219 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/38/f790c69b2cbfe9cd4a8a89db1ef50d0a10e5121c07ff8b1d7c16d7807f41/starlette-0.42.0-py3-none-any.whl", hash = "sha256:02f877201a3d6d301714b5c72f15cac305ea5cc9e213c4b46a5af7eecad0d625", size = 73356 },
+    { url = "https://files.pythonhosted.org/packages/96/25/a94c01e7e3a72155bf2e1275f72bf2c1533d1c5adf7fc89d50c3ef16abd4/starlette-0.43.0-py3-none-any.whl", hash = "sha256:0e0a91f33c57b30820cbe0828f993df67f890f1e4ae48ed8080f24793446450c", size = 73291 },
 ]
 
 [[package]]
