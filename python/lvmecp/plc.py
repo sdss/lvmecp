@@ -45,7 +45,7 @@ def create_actor_notifier(
             # starts before the actor and for the first message the exchange is
             # not yet available.
             elapsed: float = 0
-            while actor.connection.connection is None:
+            while not actor.running:
                 elapsed += 0.01
                 if elapsed > 3:
                     return
@@ -60,7 +60,12 @@ def create_actor_notifier(
 class PLC:
     """Class for the enclosure programmable logic controller."""
 
-    def __init__(self, config: dict, actor: ECPActor | None = None):
+    def __init__(
+        self,
+        config: dict,
+        actor: ECPActor | None = None,
+        start_modules: bool = True,
+    ):
         self.config = config
         self.modbus = Modbus(config=config["modbus"])
 
@@ -68,18 +73,21 @@ class PLC:
             "dome",
             self,
             notifier=create_actor_notifier(actor, "dome_status"),
+            start=start_modules,
         )
 
         self.safety = SafetyController(
             "safety",
             self,
             notifier=create_actor_notifier(actor, "safety_status"),
+            start=start_modules,
         )
 
         self.lights = LightsController(
             "lights",
             self,
             notifier=create_actor_notifier(actor, "lights"),
+            start=start_modules,
         )
 
         self.hvac_modbus = Modbus(config=config["hvac"])
@@ -88,6 +96,17 @@ class PLC:
             self,
             modbus=self.hvac_modbus,
             notifier=None,
+            start=start_modules,
+        )
+
+    async def start_modules(self):
+        """Starts all the modules."""
+
+        await asyncio.gather(
+            self.dome.start(),
+            self.safety.start(),
+            self.lights.start(),
+            self.hvac.start(),
         )
 
     async def read_all_registers(self, use_cache: bool = True):

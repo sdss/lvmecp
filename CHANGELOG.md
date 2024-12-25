@@ -5,6 +5,7 @@
 ### ✨ Improved
 
 * Add reporting of roll-off error state and allow resetting on error.
+* Prevent the PLC modules from running before the actor is ready.
 
 ### 🏷️ Changed
 

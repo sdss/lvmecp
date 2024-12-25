@@ -14,6 +14,20 @@ import logging
 from lvmopstools.actor import ErrorCodesBase, LVMActor
 
 from clu.tools import ActorHandler
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
+from sdsstools.utils import cancel_task
 
 from lvmecp import __version__, log
 from lvmecp.actor.commands import parser
@@ -52,20 +66,45 @@ class ECPActor(LVMActor):
 
         if plc is None:
             plc_config = plc_config or self.config
+            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
+            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
             self.plc = PLC(config=plc_config, actor=self)
+            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
+            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
+            self.plc = PLC(config=plc_config, actor=self)
+            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
         else:
             self.plc = plc
 
         self.semaphore = asyncio.Semaphore(5)
 
+        self._emit_status_task: asyncio.Task | None = None
+
+        self._emit_status_task: asyncio.Task | None = None
+
+        self.running: bool = False
+
     async def start(self, **kwargs):
         """Starts the actor."""
 
         await super().start(**kwargs)
+        self.running = True
 
-        asyncio.create_task(self.emit_status())
+        # Start PLC modules now that the actor is running. This prevents the modules
+        # trying to broadcast messages before the actor is ready.
+        await self.plc.start_modules()
+
+        self._emit_status_task = asyncio.create_task(self.emit_status())
 
         return self
+
+    async def stop(self, **kwargs):
+        """Stops the actor."""
+
+        await super().stop(**kwargs)
+        self.running = False
+
+        return
 
     async def emit_status(self, delay: float = 30.0):
         """Emits the status on a timer."""
