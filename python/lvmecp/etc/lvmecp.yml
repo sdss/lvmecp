@@ -172,6 +172,10 @@ safety:
   override_local_mode: False
   o2_threshold: 19.5
 
+dome:
+  daytime_allowed: false
+  daytime_tolerance: 600
+
 hvac:
   host: 10.8.38.49
   port: 502

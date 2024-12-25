@@ -13,7 +13,10 @@ import warnings
 from time import time
 from types import SimpleNamespace
 
-from lvmecp import log
+from astropy.time import Time
+from lvmopstools.ephemeris import get_ephemeris_summary
+
+from lvmecp import config, log
 from lvmecp.exceptions import DomeError, ECPWarning
 from lvmecp.maskbits import DomeStatus
 from lvmecp.module import PLCModule
@@ -145,6 +148,9 @@ class DomeController(PLCModule[DomeStatus]):
     async def open(self, force: bool = False):
         """Open the dome."""
 
+        if not self.is_allowed():
+            raise DomeError("Dome cannot be opened during daytime.")
+
         await self._move(True, force=force)
 
     async def close(self, force: bool = False):
@@ -172,3 +178,47 @@ class DomeController(PLCModule[DomeStatus]):
 
         await self.modbus["rolloff_error_reset"].set(1)
         await asyncio.sleep(1)
+
+    def is_allowed(self):
+        """Returns whether the dome is allowed to move.
+
+        Currently the only check performed is to confirm that it is not daytime,
+        but this method could be expanded in the future.
+
+        """
+
+        is_daytime: bool | None
+        if not config["dome.daytime_allowed"]:
+            is_daytime = self.is_daytime()
+        else:
+            is_daytime = None
+
+        if not is_daytime:
+            return True
+
+        if self.plc._actor and self.plc._actor._engineering_mode:
+            self.plc._actor.write(
+                "w",
+                text="Daytime detected but engineering mode is active. "
+                "Allowing to open the dome.",
+            )
+            return True
+
+        return False
+
+    def is_daytime(self):  # pragma: no cover
+        """Returns whether it is daytime."""
+
+        daytime_tolerance = config["dome.daytime_tolerance"] or 0.0
+
+        ephemeris = get_ephemeris_summary()
+        sunset = ephemeris["sunset"] - daytime_tolerance / 86400
+        sunrise = ephemeris["sunrise"] + daytime_tolerance / 86400
+
+        now = Time.now().jd
+        assert isinstance(now, float)
+
+        if now < sunset or now > sunrise:
+            return True
+
+        return False
