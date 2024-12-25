@@ -25,5 +25,5 @@ async def heartbeat(command: ECPCommand):
         await command.actor.plc.modbus["hb_set"].set(True)
     except Exception:
         return command.fail("Failed to set heartbeat.")
-    finally:
+    else:
         return command.finish()
