@@ -12,8 +12,11 @@ import asyncio
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 import lvmecp.actor.actor
 import lvmecp.dome
+from lvmecp.exceptions import DomeError
 from lvmecp.maskbits import DomeStatus
 
 
@@ -57,11 +60,16 @@ async def test_command_dome_daytime(actor: ECPActor, mocker: MockerFixture):
 
 
 async def test_command_dome_daytime_allowed(actor: ECPActor, mocker: MockerFixture):
-    mocker.patch.object(
-        lvmecp.dome,
-        "config",
-        return_value={"dome": {"daytime_allowed": True}},
+    mocker.patch.dict(
+        "lvmecp.dome.config",
+        {
+            "dome": {
+                "daytime_allowed": True,
+                "anti_flap_tolerance": [3, 600],
+            }
+        },
     )
+
     mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
     mocker.patch.object(actor.plc.dome, "_move", return_value=True)
 
@@ -113,3 +121,27 @@ async def test_actor_daytime_task_eng_mode(actor: ECPActor, mocker: MockerFixtur
     dome_close_mock.assert_not_called()
 
     task.cancel()
+
+
+async def test_dome_anti_flap(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch.dict("lvmecp.dome.config", {"dome": {"anti_flap_tolerance": [3, 1]}})
+
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
+    mocker.patch.object(actor.plc.dome, "_move", return_value=True)
+
+    await actor.plc.dome.open()
+    await asyncio.sleep(0.1)
+
+    await actor.plc.dome.open()
+    await asyncio.sleep(0.1)
+
+    with pytest.raises(DomeError):
+        await actor.plc.dome.open()
+        await asyncio.sleep(0.1)
+
+
+async def test_dome_not_allowed(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch.object(actor.plc.dome, "is_allowed", return_value=False)
+
+    with pytest.raises(DomeError, match="Dome is not allowed to open."):
+        await actor.plc.dome.open()

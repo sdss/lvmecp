@@ -42,7 +42,7 @@ async def open(command: ECPCommand, force=False):
     try:
         await command.actor.plc.dome.open(force=force)
     except DomeError as err:
-        return command.fail(err)
+        return command.fail(f"Dome failed to open with error: {err}")
 
     status = command.actor.plc.dome.status
     if status and status & DomeStatus.OPEN:
@@ -61,7 +61,7 @@ async def close(command: ECPCommand, force=False):
     try:
         await command.actor.plc.dome.close(force=force)
     except DomeError as err:
-        return command.fail(err)
+        return command.fail(f"Dome failed to close with error: {err}")
 
     status = command.actor.plc.dome.status
     if status and status & DomeStatus.CLOSED:

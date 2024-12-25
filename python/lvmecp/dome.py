@@ -31,6 +31,9 @@ class DomeController(PLCModule[DomeStatus]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Timestamps when we have opened the dome. For the anti-flap mechanism.
+        self._open_attempt_times: list[float] = []
+
     async def _update_internal(self, use_cache: bool = True, **kwargs):
         dome_registers = await self.plc.modbus.read_group("dome", use_cache=use_cache)
 
@@ -148,8 +151,10 @@ class DomeController(PLCModule[DomeStatus]):
     async def open(self, force: bool = False):
         """Open the dome."""
 
+        self._open_attempt_times.append(time())
+
         if not self.is_allowed():
-            raise DomeError("Dome cannot be opened during daytime.")
+            raise DomeError("Dome is not allowed to open.")
 
         await self._move(True, force=force)
 
@@ -180,32 +185,34 @@ class DomeController(PLCModule[DomeStatus]):
         await asyncio.sleep(1)
 
     def is_allowed(self):
-        """Returns whether the dome is allowed to move.
-
-        Currently the only check performed is to confirm that it is not daytime,
-        but this method could be expanded in the future.
-
-        """
-
-        is_daytime: bool | None
-        if not config["dome.daytime_allowed"]:
-            is_daytime = self.is_daytime()
-        else:
-            is_daytime = None
-
-        if not is_daytime:
-            return True
+        """Returns whether the dome is allowed to move."""
 
         if self.plc._actor and self.plc._actor._engineering_mode:
             self.plc._actor.write(
                 "w",
-                text="Daytime detected but engineering mode is active. "
-                "Allowing to open the dome.",
+                text="Skipping dome tests due to engineering mode.",
             )
-
             return True
 
-        return False
+        if not config["dome.daytime_allowed"] and self.is_daytime():
+            raise DomeError("Dome is not allowed to open during daytime.")
+
+        anti_flap_n, anti_flap_interval = config["dome.anti_flap_tolerance"] or [3, 600]
+
+        attempts_in_interval: list[float] = []
+        for tt in self._open_attempt_times[::-1]:
+            if time() - tt < anti_flap_interval:
+                attempts_in_interval.append(tt)
+            else:
+                break
+
+        if len(attempts_in_interval) >= anti_flap_n:
+            raise DomeError(
+                "Too many open attempts in a short interval. "
+                f"Wait {anti_flap_interval} seconds before trying again."
+            )
+
+        return True
 
     def is_daytime(self):  # pragma: no cover
         """Returns whether it is daytime."""
