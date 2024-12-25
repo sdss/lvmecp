@@ -1,14 +1,16 @@
-FROM python:3.11-slim-bullseye
+FROM ghcr.io/astral-sh/uv:0.5.11-python3.13-bookworm-slim
 
-MAINTAINER Jose Sanchez-Gallego, gallegoj@uw.edu
-LABEL org.opencontainers.image.source https://github.com/sdss/lvmecp
+LABEL org.opencontainers.image.authors="Jose Sanchez-Gallego, gallegoj@uw.edu"
+LABEL org.opencontainers.image.source=https://github.com/sdss/lvmecp
 
 WORKDIR /opt
 
 COPY . lvmecp
 
-RUN pip3 install -U pip setuptools wheel
-RUN cd lvmecp && pip3 install .
-RUN rm -Rf lvmecp
+ENV UV_COMPILE_BYTECODE=1
+ENV ENV UV_LINK_MODE=copy
 
-ENTRYPOINT lvmecp actor start --debug
+# Sync the project
+RUN cd lvmecp && uv sync --frozen --no-cache
+
+CMD ["/opt/lvmecp/.venv/bin/lvmecp", "actor", "start", "--debug"]
