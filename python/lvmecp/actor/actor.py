@@ -62,6 +62,14 @@ class ECPActor(LVMActor):
         self._emit_status_task: asyncio.Task | None = None
 
 
+    async def start(self, **kwargs):
+        """Starts the actor."""
+
+        self.running: bool = False
+
+    async def start(self, **kwargs):
+        """Starts the actor."""
+
         await super().start(**kwargs)
         self.running = True
 
