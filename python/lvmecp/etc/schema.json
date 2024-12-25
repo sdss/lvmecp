@@ -22,7 +22,8 @@
       "type": "string"
     },
     "o2_percent_utilities": { "type": "number" },
-    "o2_percent_spectrograph": { "type": "number" }
+    "o2_percent_spectrograph": { "type": "number" },
+    "engineering_mode": { "type": "boolean" }
   },
   "additionalProperties": true
 }

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 
 from lvmopstools.actor import ErrorCodesBase, LVMActor
 
@@ -27,6 +28,9 @@ __all__ = ["ECPActor"]
 
 class ECPActor(LVMActor):
     """Enclosure actor."""
+
+    _engineering_mode_hearbeat_interval: float = 5
+    _engineering_mode_timeout: float = 30
 
     parser = parser
 
@@ -61,9 +65,8 @@ class ECPActor(LVMActor):
 
         self._emit_status_task: asyncio.Task | None = None
 
-
-    async def start(self, **kwargs):
-        """Starts the actor."""
+        self._engineering_mode: bool = False
+        self._engineering_mode_task: asyncio.Task | None = None
 
         self.running: bool = False
 
@@ -85,6 +88,8 @@ class ECPActor(LVMActor):
         """Stops the actor."""
 
         self._emit_status_task = await cancel_task(self._emit_status_task)
+        self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
+
         await super().stop(**kwargs)
         self.running = False
 
@@ -96,6 +101,55 @@ class ECPActor(LVMActor):
         while True:
             await self.send_command(self.name, "status", internal=True)
             await asyncio.sleep(delay)
+
+    async def engineering_mode(
+        self,
+        enable: bool | None = None,
+        timeout: float | None = None,
+    ):
+        """Sets or returns the engineering mode."""
+
+        is_enabled = self._engineering_mode
+
+        if enable is None:
+            return is_enabled
+
+        # Kill current task if it exists.
+        self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
+
+        if enable:
+            self._engineering_mode_task = asyncio.create_task(
+                self._run_eng_mode(timeout)
+            )
+
+        self._engineering_mode = enable
+
+    async def _run_eng_mode(self, timeout: float | None = None):
+        """Runs the engineering mode.
+
+        Emits a heartbeat every N seconds even if we are not receiving heartbeat
+        commands from ``lvmbeat``. Monitors how long we have been in engineering
+        mode and disables it after a timeout.
+
+        """
+
+        started_at: float = time.time()
+        timeout = timeout or self._engineering_mode_timeout
+
+        while True:
+            await self.emit_heartbeat()
+
+            if time.time() - started_at > timeout:
+                self.write("w", text="Engineering mode timed out and was disabled.")
+                await self.engineering_mode(False)
+                return
+
+            await asyncio.sleep(self._engineering_mode_hearbeat_interval)
+
+    async def emit_heartbeat(self):
+        """Emits a heartbeat to the PLC."""
+
+        await self.plc.modbus["hb_set"].set(True)
 
     async def _check_internal(self):
         return await super()._check_internal()

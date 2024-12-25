@@ -22,7 +22,7 @@ async def heartbeat(command: ECPCommand):
     """Sets the heartbeat variable on the PLC."""
 
     try:
-        await command.actor.plc.modbus["hb_set"].set(True)
+        await command.actor.emit_heartbeat()
     except Exception:
         return command.fail("Failed to set heartbeat.")
     else:
