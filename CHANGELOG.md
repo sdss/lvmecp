@@ -14,6 +14,10 @@
 
 * Restore GS3 status registers and fix addresses for roll-off lockout and error.
 
+### ⚙️ Engineering
+
+* Updated workflows.
+
 
 ## 0.8.4 - November 3, 2024
 
