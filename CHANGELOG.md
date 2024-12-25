@@ -4,8 +4,8 @@
 
 ### 🚀 New
 
-* [#29](https://github.com/sdss/lvmecp/pull/29) Add a new engineering mode that can be used to bypass the heartbeat and to allow the dome to open during daytime.
-* [#30](https://github.com/sdss/lvmecp/pull/30) Prevent the dome from opening during daytime. Close if daytime is detected.
+* [#29](https://github.com/sdss/lvmecp/pull/29) Add a new engineering mode that can be used to bypass the heartbeat and to allow the dome to open during daytime. Part of RORR RID-025.
+* [#30](https://github.com/sdss/lvmecp/pull/30) Prevent the dome from opening during daytime. Close if daytime is detected. Part of RORR RID-025.
 
 ### ✨ Improved
 
