@@ -21,6 +21,7 @@ from sdsstools.utils import cancel_task
 from lvmecp import __version__, log
 from lvmecp.actor.commands import parser
 from lvmecp.exceptions import ECPWarning
+from lvmecp.maskbits import DomeStatus
 from lvmecp.plc import PLC
 
 
@@ -113,9 +114,12 @@ class ECPActor(LVMActor):
         while True:
             await asyncio.sleep(delay)
 
+            closing_flags = DomeStatus.MOTOR_CLOSING | DomeStatus.CLOSED
+            is_closing = self.plc.dome.status and (self.plc.dome.status & closing_flags)
+
             if self._engineering_mode:
                 pass
-            elif self.plc.dome.is_daytime():
+            elif self.plc.dome.is_daytime() and not is_closing:
                 self.write("w", text="Dome found open during daytime. Closing.")
                 await send_notification(
                     "Dome found open during daytime. Closing.",

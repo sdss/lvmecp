@@ -6,6 +6,10 @@
 
 * Bump `CLU` to 2.4.3.
 
+### 🔧 Fixed
+
+* Do not command the dome to close during daytime if it is already closed.
+
 
 ## 1.0.0 - December 25, 2024
 
