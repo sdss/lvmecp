@@ -16,7 +16,7 @@ dependencies = [
     "click-default-group>=1.2.2",
     "pyserial-asyncio>=0.6",
     "pymodbus>=3.6.0,<3.7",
-    "lvmopstools>=0.2.0"
+    "lvmopstools[ephemeris]>=0.5.2",
 ]
 
 [project.urls]

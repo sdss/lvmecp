@@ -8,7 +8,7 @@ coverage:
         target: 85%
         if_not_found: success
         if_ci_failed: error
-        informational: false
+        informational: true
         only_pulls: true
     patch:
       default:

@@ -4,7 +4,8 @@
 
 ### 🚀 New
 
-* [#29](https://vscode.dev/github/sdss/lvmecp/pull/29) Add a new engineering mode that can be used to bypass the heartbeat and to allow the dome to open during daytime.
+* [#29](https://github.com/sdss/lvmecp/pull/29) Add a new engineering mode that can be used to bypass the heartbeat and to allow the dome to open during daytime.
+* [#30](https://github.com/sdss/lvmecp/pull/30) Prevent the dome from opening during daytime. Close if daytime is detected.
 
 ### ✨ Improved
 
@@ -13,7 +14,7 @@
 
 ### 🏷️ Changed
 
-* [#28](https://vscode.dev/github/sdss/lvmecp/pull/28) Removed the automatic setting of the heartbeat variable. Added a `heartbeat` command that will be triggered by a heartbeat middleware.
+* [#28](https://github.com/sdss/lvmecp/pull/28) Removed the automatic setting of the heartbeat variable. Added a `heartbeat` command that will be triggered by a heartbeat middleware.
 
 ### 🔧 Fixed
 

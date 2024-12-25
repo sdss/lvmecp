@@ -75,6 +75,7 @@ async def actor(ctx, with_simulator: bool = False):
         schema_rel = ecp_config["actor"]["schema"]
         ecp_config["actor"]["schema"] = str(pathlib.Path(__file__).parent / schema_rel)
 
+    config.load(ecp_config)  # Update internal configuration
     actor_obj = ECPActor.from_config(ecp_config)
 
     if ctx.obj["verbose"]:

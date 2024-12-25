@@ -69,6 +69,8 @@ class PLC:
         self.config = config
         self.modbus = Modbus(config=config["modbus"])
 
+        self._actor = actor
+
         self.dome = DomeController(
             "dome",
             self,
