@@ -41,7 +41,7 @@ jobs:
       - name: Test with pytest
         run: |
           uv pip install pytest pytest-mock pytest-asyncio pytest-cov coverage
-          uv pytest
+          uv run pytest
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
