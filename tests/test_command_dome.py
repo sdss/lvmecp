@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 from typing import TYPE_CHECKING
 
 import lvmecp.dome
@@ -81,3 +83,29 @@ async def test_command_dome_daytime_eng_mode(actor: ECPActor, mocker: MockerFixt
     await cmd
 
     assert cmd.status.did_succeed
+
+
+async def test_actor_daytime_task(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
+    dome_close_mock = mocker.patch.object(actor.plc.dome, "close")
+
+    task = asyncio.create_task(actor.monitor_dome(delay=0.1))
+    await asyncio.sleep(0.2)
+
+    dome_close_mock.assert_called_once()
+
+    task.cancel()
+
+
+async def test_actor_daytime_task_eng_mode(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
+    mocker.patch.object(actor, "_engineering_mode", return_value=True)
+
+    dome_close_mock = mocker.patch.object(actor.plc.dome, "close")
+
+    task = asyncio.create_task(actor.monitor_dome(delay=0.1))
+    await asyncio.sleep(0.2)
+
+    dome_close_mock.assert_not_called()
+
+    task.cancel()

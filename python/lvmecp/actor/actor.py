@@ -64,6 +64,7 @@ class ECPActor(LVMActor):
         self.semaphore = asyncio.Semaphore(5)
 
         self._emit_status_task: asyncio.Task | None = None
+        self._monitor_dome_task: asyncio.Task | None = None
 
         self._engineering_mode: bool = False
         self._engineering_mode_task: asyncio.Task | None = None
@@ -81,6 +82,7 @@ class ECPActor(LVMActor):
         await self.plc.start_modules()
 
         self._emit_status_task = asyncio.create_task(self.emit_status())
+        self._monitor_dome_task = asyncio.create_task(self.monitor_dome())
 
         return self
 
@@ -88,6 +90,8 @@ class ECPActor(LVMActor):
         """Stops the actor."""
 
         self._emit_status_task = await cancel_task(self._emit_status_task)
+        self._monitor_dome_task = await cancel_task(self._monitor_dome_task)
+
         self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
 
         await super().stop(**kwargs)
@@ -101,6 +105,18 @@ class ECPActor(LVMActor):
         while True:
             await self.send_command(self.name, "status", internal=True)
             await asyncio.sleep(delay)
+
+    async def monitor_dome(self, delay: float = 30.0):
+        """Monitors the dome and closes during daytime."""
+
+        while True:
+            await asyncio.sleep(delay)
+
+            if self._engineering_mode:
+                pass
+            elif self.plc.dome.is_daytime():
+                self.write("w", text="Dome found open during daytime. Closing.")
+                await self.plc.dome.close()
 
     async def engineering_mode(
         self,
