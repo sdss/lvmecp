@@ -40,6 +40,9 @@ async def simulator():
 @pytest.fixture()
 async def actor(simulator: Simulator, mocker):
     ecp_config = deepcopy(config)
+
+    del ecp_config["actor"]["log_dir"]
+
     ecp_config["modbus"]["host"] = "127.0.0.1"
     ecp_config["modbus"]["port"] = 5020
 
