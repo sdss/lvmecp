@@ -55,6 +55,4 @@ async def disable(command: ECPCommand):
 async def status(command: ECPCommand):
     """Returns the status of the engineering mode."""
 
-    status = await command.actor.engineering_mode()
-
-    return command.finish(engineering_mode=status)
+    return command.finish(engineering_mode=command.actor.is_engineering_mode_enabled())

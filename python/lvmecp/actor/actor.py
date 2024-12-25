@@ -104,15 +104,10 @@ class ECPActor(LVMActor):
 
     async def engineering_mode(
         self,
-        enable: bool | None = None,
+        enable: bool,
         timeout: float | None = None,
     ):
         """Sets or returns the engineering mode."""
-
-        is_enabled = self._engineering_mode
-
-        if enable is None:
-            return is_enabled
 
         # Kill current task if it exists.
         self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
@@ -123,6 +118,11 @@ class ECPActor(LVMActor):
             )
 
         self._engineering_mode = enable
+
+    def is_engineering_mode_enabled(self):
+        """Returns whether engineering mode is enabled."""
+
+        return self._engineering_mode
 
     async def _run_eng_mode(self, timeout: float | None = None):
         """Runs the engineering mode.

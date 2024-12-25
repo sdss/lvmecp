@@ -41,12 +41,12 @@ async def test_command_engineering_mode_no_mock(actor: ECPActor):
     cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 10")
     await cmd
 
-    assert await actor.engineering_mode() is True
+    assert actor.is_engineering_mode_enabled() is True
 
     cmd = await actor.invoke_mock_command("engineering-mode disable")
     await cmd
 
-    assert await actor.engineering_mode() is False
+    assert actor.is_engineering_mode_enabled() is False
 
 
 async def test_command_engineering_mode_timeouts(actor: ECPActor):
@@ -55,8 +55,8 @@ async def test_command_engineering_mode_timeouts(actor: ECPActor):
     cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 0.2")
     await cmd
 
-    assert await actor.engineering_mode() is True
+    assert actor.is_engineering_mode_enabled() is True
 
     await asyncio.sleep(0.3)
 
-    assert await actor.engineering_mode() is False
+    assert actor.is_engineering_mode_enabled() is False
