@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ⚙️ Engineering
+
+* Bump `CLU` to 2.4.3.
+
+
 ## 1.0.0 - December 25, 2024
 
 ### 🚀 New

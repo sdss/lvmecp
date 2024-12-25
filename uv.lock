@@ -1615,7 +1615,7 @@ wheels = [
 
 [[package]]
 name = "sdss-clu"
-version = "2.4.2"
+version = "2.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aio-pika" },
@@ -1629,9 +1629,9 @@ dependencies = [
     { name = "sdsstools" },
     { name = "unclick" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/cc/2d7aab76742d3595713b11b88db6b97e2d21742063516f003494d537a86c/sdss_clu-2.4.2.tar.gz", hash = "sha256:baa773fb35bc0bccfc7220a4ebd31a2ab3cb92e934f219c722129d346b0ddd6b", size = 123118 }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/70/fc7d96ca0b37d058106eb8f7fec3b68305e84e69461c11b513bf7348a7bf/sdss_clu-2.4.3.tar.gz", hash = "sha256:381c4d99ccd9e64a1b4b594a24853d01979e84fdbc6429e2b914980b7c93b626", size = 123129 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2c/ea/adb03033f06677dac391ee50998b31b9b3187161496037a9a485443001aa/sdss_clu-2.4.2-py3-none-any.whl", hash = "sha256:9479b93557dd97199bccdbedcd5eb482b2d3c962252120a5d956c974118c2493", size = 142547 },
+    { url = "https://files.pythonhosted.org/packages/67/7a/daf4f92ce1a6f5a4d47648a6660c223177ae8b869ad6818c60b9a7961362/sdss_clu-2.4.3-py3-none-any.whl", hash = "sha256:ca6c1ecc668a42ae329f0c52216499290e9b08a14d42a25213c2eff514dd2bdd", size = 142558 },
 ]
 
 [[package]]
@@ -1689,7 +1689,7 @@ requires-dist = [
     { name = "lvmopstools", extras = ["ephemeris", "slack"], specifier = ">=0.5.2" },
     { name = "pymodbus", specifier = ">=3.6.0,<3.7" },
     { name = "pyserial-asyncio", specifier = ">=0.6" },
-    { name = "sdss-clu", specifier = ">=2.1.0" },
+    { name = "sdss-clu", specifier = ">=2.4.3" },
     { name = "sdsstools", specifier = ">=1.9.1" },
 ]
 

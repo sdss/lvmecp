@@ -12,7 +12,7 @@ requires-python = ">=3.11,<4"
 
 dependencies = [
     "sdsstools>=1.9.1",
-    "sdss-clu>=2.1.0",
+    "sdss-clu>=2.4.3",
     "click-default-group>=1.2.2",
     "pyserial-asyncio>=0.6",
     "pymodbus>=3.6.0,<3.7",
