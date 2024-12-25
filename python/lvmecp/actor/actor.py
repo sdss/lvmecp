@@ -120,12 +120,14 @@ class ECPActor(LVMActor):
             if self._engineering_mode:
                 pass
             elif self.plc.dome.is_daytime() and not is_closing:
-                self.write("w", text="Dome found open during daytime. Closing.")
-                await send_notification(
-                    "Dome found open during daytime. Closing.",
-                    level="warning",
-                )
-                await self.plc.dome.close()
+                try:
+                    self.write("w", text="Dome found open during daytime. Closing.")
+                    await send_notification(
+                        "Dome found open during daytime. Closing.",
+                        level="warning",
+                    )
+                finally:
+                    await self.plc.dome.close()
 
     async def engineering_mode(
         self,
