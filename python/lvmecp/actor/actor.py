@@ -101,6 +101,7 @@ class ECPActor(LVMActor):
     async def stop(self, **kwargs):
         """Stops the actor."""
 
+        self._emit_status_task = await cancel_task(self._emit_status_task)
         await super().stop(**kwargs)
         self.running = False
 
