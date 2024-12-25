@@ -15,19 +15,6 @@ from lvmopstools.actor import ErrorCodesBase, LVMActor
 
 from clu.tools import ActorHandler
 from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
-from sdsstools.utils import cancel_task
 
 from lvmecp import __version__, log
 from lvmecp.actor.commands import parser
@@ -67,12 +54,6 @@ class ECPActor(LVMActor):
         if plc is None:
             plc_config = plc_config or self.config
             self.plc = PLC(config=plc_config, actor=self, start_modules=False)
-            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
-            self.plc = PLC(config=plc_config, actor=self)
-            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
-            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
-            self.plc = PLC(config=plc_config, actor=self)
-            self.plc = PLC(config=plc_config, actor=self, start_modules=False)
         else:
             self.plc = plc
 
@@ -80,12 +61,6 @@ class ECPActor(LVMActor):
 
         self._emit_status_task: asyncio.Task | None = None
 
-        self._emit_status_task: asyncio.Task | None = None
-
-        self.running: bool = False
-
-    async def start(self, **kwargs):
-        """Starts the actor."""
 
         await super().start(**kwargs)
         self.running = True
