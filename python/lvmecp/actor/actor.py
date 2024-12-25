@@ -176,6 +176,7 @@ class ECPActor(LVMActor):
     async def emit_heartbeat(self):
         """Emits a heartbeat to the PLC."""
 
+        self.log.debug("Emitting heartbeat to the PLC.")
         await self.plc.modbus["hb_set"].set(True)
 
     async def _check_internal(self):
