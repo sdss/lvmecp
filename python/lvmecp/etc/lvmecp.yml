@@ -175,6 +175,7 @@ safety:
 dome:
   daytime_allowed: false
   daytime_tolerance: 600
+  anti_flap_tolerance: [3, 600]
 
 hvac:
   host: 10.8.38.49
