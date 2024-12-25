@@ -2,6 +2,10 @@
 
 ## Next version
 
+### 🚀 New
+
+* [#29](https://vscode.dev/github/sdss/lvmecp/pull/29) Add a new engineering mode that can be used to bypass the heartbeat and to allow the dome to open during daytime.
+
 ### ✨ Improved
 
 * Add reporting of roll-off error state and allow resetting on error.
