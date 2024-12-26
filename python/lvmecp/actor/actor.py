@@ -71,6 +71,8 @@ class ECPActor(LVMActor):
         self._engineering_mode: bool = False
         self._engineering_mode_task: asyncio.Task | None = None
 
+        self._last_heartbeat: float | None = None
+
         self.running: bool = False
 
     async def start(self, **kwargs):
@@ -178,6 +180,8 @@ class ECPActor(LVMActor):
 
         self.log.debug("Emitting heartbeat to the PLC.")
         await self.plc.modbus["hb_set"].set(True)
+
+        self._last_heartbeat = time.time()
 
     async def _check_internal(self):
         return await super()._check_internal()

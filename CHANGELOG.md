@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Report last time the heartbeat was set in the PLC in the `status` command.
+
+
 ## 1.0.1 - December 26, 2024
 
 ### ⚙️ Engineering
