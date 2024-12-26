@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
+from datetime import datetime, timezone
 
 from typing import Any, Callable, Coroutine
 
 
-__all__ = ["loop_coro", "cancel_tasks_by_name"]
+__all__ = ["loop_coro", "cancel_tasks_by_name", "timestamp_to_iso"]
 
 
 def loop_coro(
@@ -46,3 +47,16 @@ async def cancel_tasks_by_name(name: str):
         task.cancel()
         with suppress(asyncio.CancelledError):
             await task
+
+
+def timestamp_to_iso(ts: float | None, timespec: str = "seconds") -> str | None:
+    """Converts a timestamp to an ISO string."""
+
+    if ts is None:
+        return None
+
+    return (
+        datetime.fromtimestamp(ts, timezone.utc)
+        .isoformat(timespec=timespec)
+        .replace("+00:00", "Z")
+    )

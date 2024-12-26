@@ -26,7 +26,10 @@
     "last_heartbeat_set": {
       "oneOf": [{ "type": "number" }, { "type": "null" }]
     },
-    "engineering_mode": { "type": "boolean" }
+    "engineering_mode_enabled": { "type": "boolean" },
+    "engineering_mode_timeout": {
+      "oneOf": [{ "type": "string" }, { "type": "null" }]
+    }
   },
   "additionalProperties": true
 }

@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING
 
 import click
 
+from lvmecp.tools import timestamp_to_iso
+
 from . import parser
 
 
@@ -55,4 +57,10 @@ async def disable(command: ECPCommand):
 async def status(command: ECPCommand):
     """Returns the status of the engineering mode."""
 
-    return command.finish(engineering_mode=command.actor.is_engineering_mode_enabled())
+    enabled = command.actor.is_engineering_mode_enabled()
+    timeout = command.actor._engineering_mode_timeout
+
+    return command.finish(
+        engineering_mode_enabled=enabled,
+        engineering_mode_timeout=timestamp_to_iso(timeout),
+    )

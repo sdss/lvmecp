@@ -163,12 +163,13 @@ class ECPActor(LVMActor):
         """
 
         started_at: float = time.time()
-        timeout = timeout or self._engineering_mode_timeout
+        if timeout is not None:
+            self._engineering_mode_timeout = timeout
 
         while True:
             await self.emit_heartbeat()
 
-            if time.time() - started_at > timeout:
+            if time.time() - started_at > self._engineering_mode_timeout:
                 self.write("w", text="Engineering mode timed out and was disabled.")
                 await self.engineering_mode(False)
                 return
