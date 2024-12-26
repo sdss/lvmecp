@@ -14,6 +14,8 @@ from typing import TYPE_CHECKING
 
 import click
 
+from lvmecp.tools import timestamp_to_iso
+
 from . import parser
 
 
@@ -46,6 +48,6 @@ async def status(command: ECPCommand, no_registers: bool = False):
         o2_percent_spectrograph=plc.safety.o2_level_spectrograph,
     )
 
-    command.info(last_heartbeat_set=command.actor._last_heartbeat)
+    command.info(last_heartbeat_set=timestamp_to_iso(command.actor._last_heartbeat))
 
     return command.finish()
