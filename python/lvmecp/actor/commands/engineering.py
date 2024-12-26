@@ -58,9 +58,18 @@ async def status(command: ECPCommand):
     """Returns the status of the engineering mode."""
 
     enabled = command.actor.is_engineering_mode_enabled()
-    timeout = command.actor._engineering_mode_timeout
+    started_at = command.actor._engineering_mode_started_at
+    duration = command.actor._engineering_mode_duration
+
+    if duration is None or started_at is None:
+        ends_at = None
+    else:
+        ends_at = started_at + duration
 
     return command.finish(
-        engineering_mode_enabled=enabled,
-        engineering_mode_timeout=timestamp_to_iso(timeout),
+        engineering_mode={
+            "enabled": enabled,
+            "started_at": timestamp_to_iso(started_at),
+            "ends_at": timestamp_to_iso(ends_at),
+        }
     )

@@ -317,6 +317,9 @@ hvac:
       address: 12
       mode: coil
 
+engineering_mode:
+  default_duration: 300
+
 actor:
   name: lvmecp
   host: localhost

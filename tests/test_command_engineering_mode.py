@@ -24,7 +24,7 @@ async def test_command_engineering_mode_status(actor: ECPActor):
     await cmd
 
     assert cmd.status.did_succeed
-    assert cmd.replies.get("engineering_mode_enabled") is False
+    assert cmd.replies.get("engineering_mode")["enabled"] is False
 
 
 async def test_command_engineering_mode_enable(actor: ECPActor, mocker: MockerFixture):

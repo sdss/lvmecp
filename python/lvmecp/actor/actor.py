@@ -31,9 +31,6 @@ __all__ = ["ECPActor"]
 class ECPActor(LVMActor):
     """Enclosure actor."""
 
-    _engineering_mode_hearbeat_interval: float = 5
-    _engineering_mode_timeout: float = 30
-
     parser = parser
 
     def __init__(
@@ -69,6 +66,9 @@ class ECPActor(LVMActor):
         self._monitor_dome_task: asyncio.Task | None = None
 
         self._engineering_mode: bool = False
+        self._engineering_mode_hearbeat_interval: float = 5
+        self._engineering_mode_started_at: float | None = None
+        self._engineering_mode_duration: float | None = None
         self._engineering_mode_task: asyncio.Task | None = None
 
         self._last_heartbeat: float | None = None
@@ -162,14 +162,19 @@ class ECPActor(LVMActor):
 
         """
 
-        started_at: float = time.time()
-        if timeout is not None:
-            self._engineering_mode_timeout = timeout
+        eng_mode_config = self.config.get("engineering_mode", {})
+        default_duration = eng_mode_config.get("default_duration", 300)
+
+        self._engineering_mode_started_at = time.time()
+        self._engineering_mode_duration = timeout or default_duration
+        assert self._engineering_mode_duration is not None
 
         while True:
             await self.emit_heartbeat()
 
-            if time.time() - started_at > self._engineering_mode_timeout:
+            elapsed = time.time() - self._engineering_mode_started_at
+
+            if elapsed > self._engineering_mode_duration:
                 self.write("w", text="Engineering mode timed out and was disabled.")
                 await self.engineering_mode(False)
                 return

@@ -26,9 +26,18 @@
     "last_heartbeat_set": {
       "oneOf": [{ "type": "number" }, { "type": "null" }]
     },
-    "engineering_mode_enabled": { "type": "boolean" },
-    "engineering_mode_timeout": {
-      "oneOf": [{ "type": "string" }, { "type": "null" }]
+    "engineering_mode": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "started_at": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "ends_at": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        }
+      },
+      "required": ["enabled", "started_at", "ends_at"]
     }
   },
   "additionalProperties": true
