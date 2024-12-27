@@ -1,11 +1,13 @@
 # Changelog
 
-## Next version
+## 1.0.2 - December 27, 2024
 
 ### ✨ Improved
 
 * Report last time the heartbeat was set in the PLC in the `status` command.
 * Report timeout of the engineering mode.
+* Report ``last_heartbeat_set` as an ISO string.
+
 
 ## 1.0.1 - December 26, 2024
 
