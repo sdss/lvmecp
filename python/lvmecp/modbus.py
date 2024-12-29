@@ -418,6 +418,7 @@ class Modbus(dict[str, ModbusRegister]):
         """Writes a value to a register."""
 
         if isinstance(register, int):
+            found: bool = False
             for name, reg in self.items():
                 if reg.address == register:
                     register = name

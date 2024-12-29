@@ -13,7 +13,10 @@ import os
 from contextlib import suppress
 from copy import deepcopy
 
+from typing import cast
+
 import pytest
+from pymodbus.datastore import ModbusSlaveContext
 
 from clu.testing import setup_test_actor
 
@@ -35,6 +38,13 @@ async def simulator():
     with suppress(asyncio.CancelledError):
         simulator_task.cancel()
         await simulator_task
+
+
+@pytest.fixture()
+def context(simulator: Simulator) -> ModbusSlaveContext:
+    assert simulator.context
+
+    return cast(ModbusSlaveContext, simulator.context[0])
 
 
 @pytest.fixture()

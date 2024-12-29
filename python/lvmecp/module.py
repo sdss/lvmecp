@@ -114,6 +114,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         except Exception as err:
             log.warning(f"{self.name}: failed updating status: {err}")
             new_status = self.flag(self.flag.__unknown__) if self.flag else None
+            extra_info = {}
 
         # Only notify if the status has changed.
         if (new_status != self.status and not extra_info) or force_output:

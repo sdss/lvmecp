@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from lvmecp.modbus import ModbusRegister
 
 
-def get_register(command: ECPCommand, address_or_name: str):
+def get_register(command: ECPCommand, address_or_name: str, register_type: str | None):
     """Returns a register from an address or name."""
 
     plc = command.actor.plc
@@ -30,6 +30,11 @@ def get_register(command: ECPCommand, address_or_name: str):
     register: ModbusRegister | None = None
     try:
         address = int(address_or_name)  # type: ignore
+
+        if isinstance(address, int) and not register_type:
+            command.fail("When passing an address, --register-type must be specified.")
+            return False
+
         for _, reg in plc.modbus.items():
             if reg.address == address:
                 register = reg
@@ -38,7 +43,7 @@ def get_register(command: ECPCommand, address_or_name: str):
         register = plc.modbus.get(address_or_name)
 
     if register is None:
-        command.fail(f"Register {address!r} not found.")
+        command.fail(f"Register {address_or_name!r} not found.")
         return False
 
     return register
@@ -53,10 +58,16 @@ def modbus():
 
 @modbus.command()
 @click.argument("address", metavar="ADDRESS|NAME")
-async def read(command: ECPCommand, address: str):
+@click.option(
+    "--register-type",
+    type=click.Choice(["coil", "holding_register"]),
+    default=None,
+    help="The type of register to read. Required if an address is passed.",
+)
+async def read(command: ECPCommand, address: str, register_type: str | None = None):
     """Reads a Modbus register."""
 
-    if not (register := get_register(command, address)):
+    if not (register := get_register(command, address, register_type)):
         return False
 
     value = await register.read(use_cache=False)
@@ -73,10 +84,21 @@ async def read(command: ECPCommand, address: str):
 @modbus.command()
 @click.argument("address", metavar="ADDRESS|NAME")
 @click.argument("value", type=int)
-async def write(command: ECPCommand, address: str, value: int):
+@click.option(
+    "--register-type",
+    type=click.Choice(["coil", "holding_register"]),
+    default=None,
+    help="The type of register to read. Required if an address is passed.",
+)
+async def write(
+    command: ECPCommand,
+    address: str,
+    value: int,
+    register_type: str | None = None,
+):
     """Writes a value to a Modbus register."""
 
-    if not (register := get_register(command, address)):
+    if not (register := get_register(command, address, register_type)):
         return False
 
     name = register.name
@@ -85,14 +107,14 @@ async def write(command: ECPCommand, address: str, value: int):
         return command.fail(f"Register {name!r} is read-only.")
 
     if register.mode == "coil":
-        try:
-            value = bool(int(value))
-        except Exception:
-            return command.fail(f"Invalid value for coil register {name!r}: {value!r}")
-        else:
-            value = int(value)
+        value = bool(int(value))
+    else:
+        value = int(value)
 
-    await register.write(value)
+    try:
+        await register.write(value)
+    except Exception as err:
+        return command.fail(f"Error writing to register {name!r}: {err!r}")
 
     await asyncio.sleep(0.5)
     new_value = await register.read(use_cache=False)

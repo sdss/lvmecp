@@ -498,6 +498,12 @@ simulator:
         register: e_status
         action: reset
         reset_trigger: true
+    dome_error_reset:
+      on_value: 1
+      then:
+        register: dome_error
+        action: reset
+        reset_trigger: true
 
 engineering_mode:
   default_duration: 300
@@ -512,7 +518,7 @@ dome:
   full_open_mm: 9480
 
 actor:
-  name: lvmecp-dev
+  name: lvmecp
   host: localhost
   port: 5672
   log_dir: /data/logs/lvmecp

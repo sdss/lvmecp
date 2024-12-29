@@ -189,8 +189,8 @@ class DomeController(PLCModule[DomeStatus]):
     async def reset(self):
         """Resets the roll-off error state."""
 
-        await self.modbus["rolloff_error_reset"].write(True)
-        await asyncio.sleep(1)
+        await self.modbus["dome_error_reset"].write(True)
+        await asyncio.sleep(0.5)
 
     def is_allowed(self):
         """Returns whether the dome is allowed to move."""

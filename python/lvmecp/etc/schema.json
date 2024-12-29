@@ -18,9 +18,9 @@
         }
       }
     },
-    "lights": {
-      "type": "string"
-    },
+    "lights": { "type": "string" },
+    "lights_labels": { "type": "string" },
+    "dome_percent_open": { "type": "number" },
     "o2_percent_utilities": { "type": "number" },
     "o2_percent_spectrograph": { "type": "number" },
     "heartbeat_ack": {
@@ -57,5 +57,5 @@
       "required": ["enabled", "started_at", "ends_at"]
     }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }
