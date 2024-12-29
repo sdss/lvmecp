@@ -51,7 +51,7 @@ async def actor(simulator: Simulator, mocker):
 
     _actor = ECPActor.from_config(ecp_config)
 
-    mocker.patch.object(_actor.plc.hvac.modbus, "get_all", return_value={})
+    mocker.patch.object(_actor.plc.hvac.modbus, "read_all", return_value={})
 
     _actor = await setup_test_actor(_actor)  # type: ignore
     _actor.connection.connection = mocker.MagicMock(spec={"is_closed": False})

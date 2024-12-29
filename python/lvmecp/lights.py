@@ -43,7 +43,7 @@ class LightsController(PLCModule):
     flag = LightStatus
     interval = 30.0
 
-    async def _update_internal(self, use_cache: bool = True):
+    async def _update_internal(self, use_cache: bool = True, **kwargs):
         """Update status."""
 
         assert self.flag is not None

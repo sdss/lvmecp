@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 async def test_command_heartbeat(actor: ECPActor, mocker: MockerFixture):
-    hb_set_mock = mocker.patch.object(actor.plc.modbus["hb_set"], "set")
+    hb_set_mock = mocker.patch.object(actor.plc.modbus["hb_set"], "write")
 
     cmd = await actor.invoke_mock_command("heartbeat")
     await cmd
@@ -29,7 +29,7 @@ async def test_command_heartbeat(actor: ECPActor, mocker: MockerFixture):
 
 
 async def test_command_heartbeat_fails(actor: ECPActor, mocker: MockerFixture):
-    mocker.patch.object(actor.plc.modbus["hb_set"], "set", side_effect=Exception)
+    mocker.patch.object(actor.plc.modbus["hb_set"], "write", side_effect=Exception)
 
     cmd = await actor.invoke_mock_command("heartbeat")
     await cmd

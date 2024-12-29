@@ -436,6 +436,69 @@ hvac:
       mode: coil
       readonly: true
 
+simulator:
+  host: 127.0.0.1
+  port: 5020
+  overrides:
+    door_locked: true
+    door_closed: true
+    dome_closed: true
+  events:
+    ur_new:
+      on_value: 1
+      then:
+        register: ur_status
+        action: toggle
+        reset_trigger: true
+    cr_new:
+      on_value: 1
+      then:
+        register: cr_status
+        action: toggle
+        reset_trigger: true
+    sr_new:
+      on_value: 1
+      then:
+        register: sr_status
+        action: toggle
+        reset_trigger: true
+    uma_new:
+      on_value: 1
+      then:
+        register: uma_status
+        action: toggle
+        reset_trigger: true
+    tb_new:
+      on_value: 1
+      then:
+        register: tb_status
+        action: toggle
+        reset_trigger: true
+    tr_new:
+      on_value: 1
+      then:
+        register: tr_status
+        action: toggle
+        reset_trigger: true
+    hb_set:
+      on_value: 1
+      then:
+        register: hb_ack
+        action: set
+        reset_trigger: true
+    e_stop:
+      on_value: 1
+      then:
+        register: e_status
+        action: set
+        reset_trigger: true
+    e_relay_reset:
+      on_value: 1
+      then:
+        register: e_status
+        action: reset
+        reset_trigger: true
+
 engineering_mode:
   default_duration: 300
 

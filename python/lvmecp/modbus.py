@@ -319,7 +319,8 @@ class Modbus(dict[str, ModbusRegister]):
         """Returns a dictionary with all the registers and sets the cache."""
 
         if use_cache:
-            oldest_cache = min(self.register_cache._cache_time.values())
+            cache_times = self.register_cache._cache_time.values()
+            oldest_cache = min(cache_times) if len(cache_times) > 0 else 0
             if time() - oldest_cache < self.cache_timeout:
                 return self.register_cache.freeze()
 
