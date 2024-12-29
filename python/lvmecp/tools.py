@@ -9,10 +9,11 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from contextlib import suppress
 from datetime import datetime, timezone
 
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Coroutine, Literal
 
 
 __all__ = ["loop_coro", "cancel_tasks_by_name", "timestamp_to_iso"]
@@ -60,3 +61,50 @@ def timestamp_to_iso(ts: float | None, timespec: str = "seconds") -> str | None:
         .isoformat(timespec=timespec)
         .replace("+00:00", "Z")
     )
+
+
+class TimedCacheDict(dict):
+    """A dictionary that caches values for a certain amount of time.
+
+    Parameters
+    ----------
+    timeout
+        The timeout in seconds for the cache.
+    mode
+        The mode for the cache. If ``delete``, the key will be deleted
+        after the timeout. If ``null``, the value will be set to ``None``.
+
+    """
+
+    def __init__(self, timeout: float, mode: Literal["delete", "null"] = "delete"):
+        self.timeout = timeout
+        self.mode = mode
+
+        self._cache_time: dict[str, float] = {}
+
+        super().__init__()
+
+    def freeze(self):
+        """Returns a non-cached version of the dictionary."""
+
+        return dict(self)
+
+    def __getitem__(self, key: str):
+        try:
+            if time.time() - self._cache_time[key] > self.timeout:
+                if self.mode == "delete":
+                    del self[key]
+                else:
+                    self[key] = None
+        except KeyError:
+            pass
+
+        return super().__getitem__(key)
+
+    def __setitem__(self, key: str, value):
+        self._cache_time[key] = time.time()
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key: str):
+        del self._cache_time[key]
+        super().__delitem__(key)

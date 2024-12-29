@@ -43,7 +43,7 @@ class LightsController(PLCModule):
     flag = LightStatus
     interval = 30.0
 
-    async def _update_internal(self, use_cache: bool = True):
+    async def _update_internal(self, use_cache: bool = True, **kwargs):
         """Update status."""
 
         assert self.flag is not None
@@ -123,7 +123,7 @@ class LightsController(PLCModule):
         code = self.get_code(light)
 
         log.debug(f"Toggling light {code}.")
-        await self.modbus[f"{code}_new"].set(True)
+        await self.modbus[f"{code}_new"].write(True)
 
         await asyncio.sleep(0.5)
         await self.update(use_cache=False)

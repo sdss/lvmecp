@@ -74,7 +74,12 @@ async def close(command: ECPCommand, force=False):
 async def status(command: ECPCommand):
     """Returns the status of the dome."""
 
-    status = await command.actor.plc.dome.update(use_cache=False)
+    status = await command.actor.plc.dome.update(
+        use_cache=False,
+        force_output=True,
+        command=command,
+    )
+
     if status is None:
         return command.fail("Failed retrieving dome status.")
 
@@ -84,7 +89,7 @@ async def status(command: ECPCommand):
     if status & DomeStatus.POSITION_UNKNOWN:
         command.warning("Dome position is unknown!!!")
 
-    return command.finish(dome_open=bool(status & DomeStatus.OPEN))
+    return command.finish()
 
 
 @dome.command()
@@ -101,9 +106,7 @@ async def stop(command: ECPCommand):
 async def reset(command: ECPCommand, force=False):
     """Resets dome error state."""
 
-    try:
-        await command.actor.plc.dome.reset()
-    except DomeError as err:
-        return command.fail(err)
+    command.warning("Resetting dome error state.")
+    await command.actor.plc.dome.reset()
 
     return command.finish()

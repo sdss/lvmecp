@@ -60,8 +60,6 @@ class ECPActor(LVMActor):
         else:
             self.plc = plc
 
-        self.semaphore = asyncio.Semaphore(5)
-
         self._emit_status_task: asyncio.Task | None = None
         self._monitor_dome_task: asyncio.Task | None = None
 
@@ -71,8 +69,6 @@ class ECPActor(LVMActor):
         self._engineering_mode_duration: float | None = None
         self._engineering_mode_task: asyncio.Task | None = None
 
-        self._last_heartbeat: float | None = None
-
         self.running: bool = False
 
     async def start(self, **kwargs):
@@ -80,6 +76,8 @@ class ECPActor(LVMActor):
 
         await super().start(**kwargs)
         self.running = True
+
+        await self.plc.read_all_registers(use_cache=False)
 
         # Start PLC modules now that the actor is running. This prevents the modules
         # trying to broadcast messages before the actor is ready.
@@ -185,9 +183,7 @@ class ECPActor(LVMActor):
         """Emits a heartbeat to the PLC."""
 
         self.log.debug("Emitting heartbeat to the PLC.")
-        await self.plc.modbus["hb_set"].set(True)
-
-        self._last_heartbeat = time.time()
+        await self.plc.modbus["hb_set"].write(True)
 
     async def _check_internal(self):
         return await super()._check_internal()

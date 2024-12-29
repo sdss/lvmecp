@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* [#32](https://github.com/sdss/lvmecp/pull/32) Major refactor of the `Modbus` and `ModbusRegister` classes. The main change is that the performance has been greatly improved, with `Modbus.get_all()` going from taking ~0.6 seconds to under 0.1. The register and coil blocks are now read completely, in chunks as large as the device will accept, as opposed to before, when we would read each variable with one read command (although the connection was not closed in between). Note that several methods and variables have been renamed; see the PR for details.
+
+
 ## 1.0.2 - December 27, 2024
 
 ### ✨ Improved

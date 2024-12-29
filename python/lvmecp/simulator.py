@@ -9,10 +9,9 @@
 from __future__ import annotations
 
 import asyncio
-from contextlib import suppress
 from copy import deepcopy
 
-from typing import ClassVar, cast
+from typing import Any, cast
 
 from pymodbus.datastore import (
     ModbusServerContext,
@@ -20,6 +19,8 @@ from pymodbus.datastore import (
     ModbusSparseDataBlock,
 )
 from pymodbus.server import ServerAsyncStop, StartAsyncTcpServer
+
+from sdsstools.utils import cancel_task
 
 from lvmecp import config
 
@@ -30,24 +31,21 @@ __all__ = ["Simulator", "plc_simulator"]
 class Simulator:
     """A modbus simulator for a PLC controller."""
 
-    OVERRIDES: ClassVar[dict[str, int]] = {}
-
     def __init__(
         self,
         registers: dict,
-        address: str = "127.0.0.1",
+        host: str = "127.0.0.1",
         port: int = 5020,
-        overrides={},
+        overrides: dict[str, int | bool] = {},
+        events: dict[str, dict[str, Any]] = {},
     ):
-        self.address = address
+        self.host = host
         self.port = port
 
         self.registers = deepcopy(registers)
 
-        self.overrides = Simulator.OVERRIDES.copy()
-        self.overrides.update(overrides)
-
-        self.current_values: dict[str, list[int]] = {}
+        self.overrides = overrides
+        self.events = events
 
         self.context: ModbusServerContext | None = None
         self.slave_context: ModbusSlaveContext
@@ -58,10 +56,10 @@ class Simulator:
         self.__task: asyncio.Task | None = None
 
     def reset(self):
-        di = {}
-        co = {}
-        hr = {}
-        ir = {}
+        di = {address: 0 for address in range(0, 1024)}
+        co = {address: 0 for address in range(0, 1024)}
+        hr = {address: 0 for address in range(0, 1024)}
+        ir = {address: 0 for address in range(0, 1024)}
 
         for register in self.registers:
             mode = self.registers[register].get("mode", "coil")
@@ -79,13 +77,6 @@ class Simulator:
             else:
                 raise ValueError(f"Invalid mode {mode!r} for register {register!r}.")
 
-            code = 1 if mode == "coil" else 3
-            self.current_values[register.lower()] = [
-                address,
-                code,
-                value,
-            ]
-
         self.slave_context = ModbusSlaveContext(
             di=ModbusSparseDataBlock(di),
             co=ModbusSparseDataBlock(co),
@@ -102,69 +93,97 @@ class Simulator:
 
         self.__task = asyncio.create_task(self._monitor_context(monitor_interval))
 
-        await StartAsyncTcpServer(
-            self.context,
-            address=(self.address, self.port),
-        )
+        await StartAsyncTcpServer(self.context, address=(self.host, self.port))
 
     async def stop(self):
         """Stops the simulator."""
 
         await ServerAsyncStop()
 
-        if self.__task:
-            self.__task.cancel()
-            with suppress(asyncio.CancelledError):
-                await self.__task
-
-        self.__task = None
+        self.__task = await cancel_task(self.__task)
 
     def __del__(self):
         if self.__task:
             self.__task.cancel()
 
+    def get_register_data(self, register: str):
+        """Returns the data for a register."""
+
+        register_data = self.registers[register]
+
+        address = register_data["address"]
+        mode = register_data["mode"]
+
+        if mode == "coil":
+            code = 1
+        elif mode == "holding_register":
+            code = 3
+        else:
+            raise ValueError(f"Invalid mode {mode!r} for register {register!r}.")
+
+        return {
+            "name": register,
+            "address": address,
+            "mode": mode,
+            "code": code,
+            "value": int(self.slave_context.getValues(code, address, 1)[0]),
+        }
+
     async def _monitor_context(self, interval: float):
         """Monitor the context."""
-
-        async def set_value(register: str, new_value: int, delay: float = 0):
-            if delay > 0:
-                await asyncio.sleep(delay)
-
-            address, code, current_value = self.current_values[register]
-
-            context.setValues(code, address, [new_value])
-            self.current_values[register][2] = new_value
 
         assert self.context
         context = cast(ModbusSlaveContext, self.context[0])
 
         while True:
-            for register in self.current_values:
-                address, code, current_value = self.current_values[register]
-                new_value = int(context.getValues(code, address, count=1)[0])
-
-                if new_value == current_value:
+            for trigger_register, event_data in self.events.items():
+                on_value: int | bool | None = event_data.get("on_value", None)
+                if on_value is None:
                     continue
 
-                self.current_values[register][2] = new_value
+                trigger_data = self.get_register_data(trigger_register)
 
-                if register.endswith("_new"):
-                    # For lights. When we change the value of the XX_new
-                    # register the light is switched and XX_status changes value.
-                    status_name = register.replace("_new", "_status")
-                    asyncio.create_task(set_value(status_name, new_value, 0.0))
+                if trigger_data["value"] != on_value:
+                    continue
 
-                elif register == "e_stop":
-                    if new_value == 1:
-                        asyncio.create_task(set_value("e_status", 1, 0.0))
-                        asyncio.create_task(set_value("e_reset", 0, 0.0))
+                then = event_data["then"]
 
-                elif register == "e_reset":
-                    if new_value == 1:
-                        asyncio.create_task(set_value("e_status", 0, 0.0))
-                        asyncio.create_task(set_value("e_stop", 0, 0.0))
+                then_register_data = self.get_register_data(then["register"])
+                if then["action"] == "toggle":
+                    context.setValues(
+                        then_register_data["code"],
+                        then_register_data["address"],
+                        [not then_register_data["value"]],
+                    )
+                elif then["action"] == "set":
+                    context.setValues(
+                        then_register_data["code"],
+                        then_register_data["address"],
+                        [1],
+                    )
+                elif then["action"] == "reset":
+                    context.setValues(
+                        then_register_data["code"],
+                        then_register_data["address"],
+                        [0],
+                    )
+                else:
+                    continue
+
+                if then.get("reset_trigger", True):
+                    context.setValues(
+                        trigger_data["code"],
+                        trigger_data["address"],
+                        [0],
+                    )
 
             await asyncio.sleep(interval)
 
 
-plc_simulator = Simulator(config["modbus"]["registers"])
+plc_simulator = Simulator(
+    config["modbus"]["registers"],
+    host=config["simulator"]["host"],
+    port=config["simulator"]["port"],
+    overrides=config["simulator"]["overrides"],
+    events=config["simulator"]["events"],
+)
