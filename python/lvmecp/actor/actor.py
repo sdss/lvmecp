@@ -9,18 +9,15 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 import time
 
 from lvmopstools.actor import ErrorCodesBase, LVMActor
 from lvmopstools.notifications import send_notification
 
-from clu.tools import ActorHandler
 from sdsstools.utils import cancel_task
 
 from lvmecp import __version__, log
 from lvmecp.actor.commands import parser
-from lvmecp.exceptions import ECPWarning
 from lvmecp.maskbits import DomeStatus
 from lvmecp.plc import PLC
 
@@ -45,14 +42,8 @@ class ECPActor(LVMActor):
 
         super().__init__(*args, **kwargs)
 
-        self.actor_handler = ActorHandler(
-            self,
-            level=logging.WARNING,
-            filter_warnings=[ECPWarning],
-        )
-        log.addHandler(self.actor_handler)
-        if log.warnings_logger:
-            log.warnings_logger.addHandler(self.actor_handler)
+        if self.log.log_filename and self.log.fh:
+            log.addHandler(self.log.fh)
 
         if plc is None:
             plc_config = plc_config or self.config

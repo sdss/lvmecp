@@ -247,6 +247,11 @@ class Modbus(dict[str, ModbusRegister]):
         for name, register in registers.items():
             setattr(self, name, register)
 
+        log.debug(
+            f"Modbus connection to {self.host}:{self.port} initialised "
+            f"with cache timeout {self.cache_timeout} seconds."
+        )
+
     async def connect(self):
         """Connects to the client."""
 
