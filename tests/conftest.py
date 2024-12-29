@@ -16,6 +16,7 @@ from copy import deepcopy
 from typing import cast
 
 import pytest
+import pytest_mock
 from pymodbus.datastore import ModbusSlaveContext
 
 from clu.testing import setup_test_actor
@@ -23,6 +24,7 @@ from clu.testing import setup_test_actor
 import lvmecp
 from lvmecp import config
 from lvmecp.actor import ECPActor
+from lvmecp.modbus import Modbus
 from lvmecp.simulator import Simulator, plc_simulator
 
 
@@ -48,7 +50,7 @@ def context(simulator: Simulator) -> ModbusSlaveContext:
 
 
 @pytest.fixture()
-async def actor(simulator: Simulator, mocker):
+def test_config():
     ecp_config = deepcopy(config)
 
     del ecp_config["actor"]["log_dir"]
@@ -59,7 +61,23 @@ async def actor(simulator: Simulator, mocker):
     schema_path = ecp_config["actor"]["schema"]
     ecp_config["actor"]["schema"] = os.path.dirname(lvmecp.__file__) + "/" + schema_path
 
-    _actor = ECPActor.from_config(ecp_config)
+    yield ecp_config
+
+
+@pytest.fixture()
+async def modbus(simulator: Simulator, test_config: dict):
+    _modbus = Modbus(test_config["modbus"])
+
+    yield _modbus
+
+
+@pytest.fixture()
+async def actor(
+    simulator: Simulator,
+    mocker: pytest_mock.MockerFixture,
+    test_config: dict,
+):
+    _actor = ECPActor.from_config(test_config)
 
     mocker.patch.object(_actor.plc.hvac.modbus, "read_all", return_value={})
 

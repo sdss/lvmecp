@@ -47,7 +47,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         modbus: Modbus | None = None,
         interval: float | None = None,
         start: bool = True,
-        notifier: Callable[[int, str], Callable | Coroutine] | None = None,
+        notifier: Callable[[int, str, dict], Callable | Coroutine] | None = None,
     ):
         self.name = name
         self.plc = plc
@@ -159,5 +159,6 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
                 self.notifier,
                 status.value,
                 str(status),
+                extra_keywords,
                 **kwargs,
             )

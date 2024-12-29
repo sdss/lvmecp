@@ -101,7 +101,7 @@ class ModbusRegister:
                 slave=self.modbus.slave,
             )
 
-        if resp.function_code > 0x80:
+        if resp.isError():
             raise ValueError(
                 f"Invalid response for element "
                 f"{self.name!r}: 0x{resp.function_code:02X}."
@@ -164,34 +164,26 @@ class ModbusRegister:
         if self.readonly:
             raise ECPError(f"Register {self.name!r} is read-only.")
 
+        if self.mode == "coil":
+            func = self.client.write_coil
+        elif self.mode == "holding_register":
+            func = self.client.write_register
+        elif self.mode == "discrete_input" or self.mode == "input_register":
+            raise ValueError(f"Block of mode {self.mode!r} is read-only.")
+        else:
+            raise ValueError(f"Invalid block mode {self.mode!r}.")
+
         # Always open the connection.
         async with self.modbus:
-            if self.mode == "coil":
-                func = self.client.write_coil
-            elif self.mode == "holding_register":
-                func = self.client.write_register
-            elif self.mode == "discrete_input" or self.mode == "input_register":
-                raise ValueError(f"Block of mode {self.mode!r} is read-only.")
+            resp = await func(self.address, value)  # type: ignore
+
+            if resp.isError():
+                raise ECPError(
+                    f"Invalid response for element "
+                    f"{self.name!r}: 0x{resp.function_code:02X}."
+                )
             else:
-                raise ValueError(f"Invalid block mode {self.mode!r}.")
-
-            try:
-                if self.client.connected:
-                    resp = await func(self.address, value)  # type: ignore
-                else:
-                    async with self.modbus:
-                        resp = await func(self.address, value)  # type: ignore
-
-                if resp.function_code > 0x80:
-                    raise ECPError(
-                        f"Invalid response for element "
-                        f"{self.name!r}: 0x{resp.function_code:02X}."
-                    )
-                else:
-                    self.modbus.register_cache[self.name] = value
-
-            except Exception as err:
-                raise ECPError(f"Failed setting {self.name!r}: {err}")
+                self.modbus.register_cache[self.name] = value
 
 
 class Modbus(dict[str, ModbusRegister]):
@@ -232,9 +224,9 @@ class Modbus(dict[str, ModbusRegister]):
         # Modbus client.
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
 
-        # Semaphore to allow up to 5 concurrent connections.
-        self.semaphore = asyncio.Semaphore(1)
-        self._semaphore_release_task: asyncio.Task | None = None
+        # Lock to allow up to 5 concurrent connections.
+        self.lock = asyncio.Lock()
+        self._lock_release_task: asyncio.Task | None = None
 
         # Create the internal dictionary of registers
         registers = {
@@ -259,7 +251,7 @@ class Modbus(dict[str, ModbusRegister]):
         """Connects to the client."""
 
         try:
-            await asyncio.wait_for(self.semaphore.acquire(), CONNECTION_TIMEOUT)
+            await asyncio.wait_for(self.lock.acquire(), CONNECTION_TIMEOUT)
         except asyncio.TimeoutError:
             raise RuntimeError("Timed out waiting for lock to be released.")
 
@@ -276,15 +268,15 @@ class Modbus(dict[str, ModbusRegister]):
         except Exception as err:
             raise ConnectionError(f"Failed connecting to server at {hp}: {err}.")
         finally:
-            if not did_connect:
-                self.semaphore.release()
+            if not did_connect and self.lock.locked():
+                self.lock.release()
 
         log.debug(f"Connected to {hp}.")
 
         # Schedule a task to release the lock after 5 seconds. This is a safeguard
         # in case something fails and the connection is never closed and the lock
         # not released.
-        self._semaphore_release_task = asyncio.create_task(self.unlock_on_timeout())
+        self._lock_release_task = asyncio.create_task(self.unlock_on_timeout())
 
     async def disconnect(self):
         """Disconnects the client."""
@@ -295,9 +287,10 @@ class Modbus(dict[str, ModbusRegister]):
                 log.debug(f"Disonnected from {self.host}:{self.port}.")
 
         finally:
-            self.semaphore.release()
+            if self.lock.locked():
+                self.lock.release()
 
-            await cancel_task(self._semaphore_release_task)
+            await cancel_task(self._lock_release_task)
 
     async def __aenter__(self):
         """Initialises the connection to the server."""
@@ -313,7 +306,7 @@ class Modbus(dict[str, ModbusRegister]):
         """Removes the lock after an amount of time."""
 
         await asyncio.sleep(CONNECTION_TIMEOUT)
-        self.semaphore.release()
+        await self.disconnect()
 
     async def read_all(self, use_cache: bool = True) -> dict[str, int | bool]:
         """Returns a dictionary with all the registers and sets the cache."""
@@ -414,19 +407,16 @@ class Modbus(dict[str, ModbusRegister]):
 
         return group_registers
 
-    async def write_register(self, register: str | int, value: int | bool):
+    async def read_register(self, register: str, use_cache: bool = True) -> int | bool:
+        """Reads a register."""
+
+        if register not in self:
+            raise ValueError(f"Register {register!r} not found.")
+
+        return await self[register].read(use_cache=use_cache)
+
+    async def write_register(self, register: str, value: int | bool):
         """Writes a value to a register."""
-
-        if isinstance(register, int):
-            found: bool = False
-            for name, reg in self.items():
-                if reg.address == register:
-                    register = name
-                    found = True
-                    break
-
-            if not found:
-                raise ValueError(f"Register with address {register!r} not found.")
 
         assert isinstance(register, str)
 
