@@ -23,6 +23,9 @@ from lvmecp.maskbits import DomeStatus
 from lvmecp.module import PLCModule
 
 
+MOVE_CHECK_INTERVAL: float = 0.5
+
+
 class DomeController(PLCModule[DomeStatus]):
     """Controller for the rolling dome."""
 
@@ -125,17 +128,17 @@ class DomeController(PLCModule[DomeStatus]):
         log.debug("Setting motor_direction.")
         await self.modbus["motor_direction"].write(open)
 
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.1)
 
         log.debug("Setting drive_enabled.")
         await self.modbus["drive_enabled"].write(True)
 
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.1)
 
         last_enabled: float = 0.0
         while True:
             # Still moving.
-            await asyncio.sleep(2)
+            await asyncio.sleep(MOVE_CHECK_INTERVAL)
 
             drive_enabled = await self.modbus["drive_enabled"].read(use_cache=False)
 
