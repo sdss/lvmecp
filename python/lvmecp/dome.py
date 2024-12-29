@@ -13,6 +13,7 @@ import warnings
 from time import time
 from types import SimpleNamespace
 
+import numpy
 from astropy.time import Time
 from lvmopstools.ephemeris import get_ephemeris_summary
 
@@ -42,10 +43,9 @@ class DomeController(PLCModule[DomeStatus]):
         assert self.flag
         new_status = self.flag(0)
 
-        if dome_status.drive_state:
-            new_status |= self.flag.DRIVE_AVAILABLE
-        else:
-            new_status |= self.flag.NODRIVE
+        # The variable that would determine if the drive is available is not
+        # does not exist anymore, so we assume it is.
+        new_status |= self.flag.DRIVE_AVAILABLE
 
         if dome_status.drive_enabled:
             new_status |= self.flag.DRIVE_ENABLED
@@ -57,12 +57,6 @@ class DomeController(PLCModule[DomeStatus]):
             else:
                 new_status |= self.flag.MOTOR_CLOSING
 
-        if dome_status.drive_brake:
-            new_status |= self.flag.BRAKE_ENABLED
-
-        # if dome_status.overcurrent:
-        #     new_status |= self.flag.OVERCURRENT
-
         if dome_status.dome_open is True:
             new_status |= self.flag.OPEN
         elif dome_status.dome_closed is True:
@@ -73,12 +67,24 @@ class DomeController(PLCModule[DomeStatus]):
         if new_status.value == 0:
             new_status = self.flag(self.flag.__unknown__)
 
-        return new_status
+        if dome_status.dome_open:
+            percent_open = 1
+        elif dome_status.dome_closed:
+            percent_open = 0
+        else:
+            full_open = config["dome.full_open_mm"]
+            percent_open = numpy.clip(dome_status.dome_position / full_open, 0, 1)
+
+        extra_info = {
+            "dome_percent_open": round(float(percent_open) * 100, 1),
+        }
+
+        return new_status, extra_info
 
     async def set_direction(self, open: bool):
         """Sets the motor direction (`True` means open, `False` close)."""
 
-        await self.modbus["drive_direction"].set(open)
+        await self.modbus["drive_direction"].write(open)
         await self.update(use_cache=False)
 
     async def _move(self, open: bool, force: bool = False):
@@ -117,12 +123,12 @@ class DomeController(PLCModule[DomeStatus]):
                 warnings.warn("Dome already at position, but forcing.", ECPWarning)
 
         log.debug("Setting motor_direction.")
-        await self.modbus["motor_direction"].set(open)
+        await self.modbus["motor_direction"].write(open)
 
         await asyncio.sleep(0.5)
 
         log.debug("Setting drive_enabled.")
-        await self.modbus["drive_enabled"].set(True)
+        await self.modbus["drive_enabled"].write(True)
 
         await asyncio.sleep(0.5)
 
@@ -131,8 +137,10 @@ class DomeController(PLCModule[DomeStatus]):
             # Still moving.
             await asyncio.sleep(2)
 
-            drive_enabled = await self.modbus["drive_enabled"].get()
-            move_done = await self.modbus["dome_open" if open else "dome_closed"].get()
+            drive_enabled = await self.modbus["drive_enabled"].read(use_cache=False)
+
+            move_done_register = self.modbus["dome_open" if open else "dome_closed"]
+            move_done = await move_done_register.read(use_cache=False)
 
             if drive_enabled:
                 last_enabled = time()
@@ -174,14 +182,14 @@ class DomeController(PLCModule[DomeStatus]):
         if not drive_enabled:
             return
 
-        await self.plc.modbus["drive_enabled"].set(False)
+        await self.plc.modbus["drive_enabled"].write(False)
 
         await self.update(use_cache=False)
 
     async def reset(self):
         """Resets the roll-off error state."""
 
-        await self.modbus["rolloff_error_reset"].set(1)
+        await self.modbus["rolloff_error_reset"].write(True)
         await asyncio.sleep(1)
 
     def is_allowed(self):

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from lvmecp.hvac import HVACController
 from lvmecp.modbus import Modbus
@@ -32,15 +32,23 @@ def create_actor_notifier(
     use_hex: bool = True,
     labels_suffix="_labels",
     level="d",
+    allow_broadcasts: bool = False,
 ):
     """Generate a notifier function for a keyword."""
 
-    async def notifier(value: int, labels: str, command: Command | None = None):
+    async def notifier(
+        value: int,
+        labels: str,
+        extra_keywords: dict[str, Any] = {},
+        command: Command | None = None,
+    ):
         message = {
             keyword: value if use_hex is False else hex(value),
             f"{keyword}{labels_suffix}": labels,
         }
-        if command is None and actor:
+        message.update(extra_keywords)
+
+        if command is None and actor and allow_broadcasts:
             # Allow for 3 seconds for broadcast. This is needed because the PLC
             # starts before the actor and for the first message the exchange is
             # not yet available.
@@ -114,7 +122,9 @@ class PLC:
     async def read_all_registers(self, use_cache: bool = True):
         """Reads all the connected registers and returns a dictionary."""
 
-        registers = await self.modbus.get_all(use_cache=use_cache)
-        registers.update(await self.hvac_modbus.get_all(use_cache=use_cache))
+        registers_plc, registers_hvac = await asyncio.gather(
+            self.modbus.read_all(use_cache=use_cache),
+            self.hvac_modbus.read_all(use_cache=use_cache),
+        )
 
-        return registers
+        return registers_plc | registers_hvac

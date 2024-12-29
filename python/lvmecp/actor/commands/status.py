@@ -26,19 +26,27 @@ if TYPE_CHECKING:
 
 @parser.command()
 @click.option("--no-registers", is_flag=True, help="Does not output registers.")
-async def status(command: ECPCommand, no_registers: bool = False):
+@click.option("--no-cache", is_flag=True, help="Ignores the internal cache.")
+async def status(
+    command: ECPCommand,
+    no_registers: bool = False,
+    no_cache: bool = False,
+):
     """Returns the enclosure status."""
 
     plc = command.actor.plc
 
     if no_registers is False:
-        async with command.actor.semaphore:
-            command.info(registers=(await plc.read_all_registers(use_cache=False)))
+        command.info(registers=(await plc.read_all_registers(use_cache=not no_cache)))
 
     modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
     await asyncio.gather(
         *[
-            module.update(force_output=True, command=command, use_cache=True)
+            module.update(
+                force_output=True,
+                command=command,
+                use_cache=True,
+            )
             for module in modules
         ]
     )
@@ -48,6 +56,6 @@ async def status(command: ECPCommand, no_registers: bool = False):
         o2_percent_spectrograph=plc.safety.o2_level_spectrograph,
     )
 
-    command.info(last_heartbeat_set=timestamp_to_iso(command.actor._last_heartbeat))
+    command.info(heartbeat_ack=timestamp_to_iso(plc.safety.last_heartbeat_ack))
 
     return command.finish()

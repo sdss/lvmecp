@@ -123,7 +123,7 @@ class LightsController(PLCModule):
         code = self.get_code(light)
 
         log.debug(f"Toggling light {code}.")
-        await self.modbus[f"{code}_new"].set(True)
+        await self.modbus[f"{code}_new"].write(True)
 
         await asyncio.sleep(0.5)
         await self.update(use_cache=False)

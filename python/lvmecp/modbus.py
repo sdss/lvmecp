@@ -12,8 +12,9 @@ import asyncio
 import pathlib
 from time import time
 
-from typing import cast
+from typing import Literal, Sequence
 
+from lvmopstools.retrier import Retrier
 from pymodbus.client.tcp import AsyncModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
@@ -24,10 +25,15 @@ from sdsstools.utils import cancel_task
 from lvmecp import config as lvmecp_config
 from lvmecp import log
 from lvmecp.exceptions import ECPError
+from lvmecp.tools import TimedCacheDict
 
 
 MAX_RETRIES = 3
-TIMEOUT = 10.0
+MAX_COUNT_HR = 100
+CONNECTION_TIMEOUT = 10.0
+
+
+RegisterModes = Literal["coil", "holding_regiser", "discrete_input", "input_register"]
 
 
 class ModbusRegister:
@@ -47,6 +53,8 @@ class ModbusRegister:
         or ``input_register``.
     group
         A grouping key for registers.
+    readonly
+        Whether the register is read-only.
 
     """
 
@@ -55,10 +63,11 @@ class ModbusRegister:
         modbus: Modbus,
         name: str,
         address: int,
-        mode: str = "coil",
+        mode: RegisterModes = "coil",
         count: int = 1,
         group: str | None = None,
         decoder: str | None = None,
+        readonly: bool = True,
     ):
         self.modbus = modbus
         self.client = modbus.client
@@ -69,17 +78,10 @@ class ModbusRegister:
         self.count = count
         self.group = group
         self.decoder = decoder
+        self.readonly = readonly
 
-        self._last_value: int | float = 0
-        self._last_seen: float = 0
-
-    async def _get_internal(self, use_cache: bool = True):
+    async def _read_internal(self):
         """Return the value of the modbus register."""
-
-        cache_timeout = self.modbus.cache_timeout
-        last_seen_interval = time() - self._last_seen
-        if use_cache and last_seen_interval < cache_timeout:
-            return self._last_value
 
         if self.mode == "coil":
             func = self.client.read_coils
@@ -92,19 +94,12 @@ class ModbusRegister:
         else:
             raise ValueError(f"Invalid block mode {self.mode!r}.")
 
-        if self.client.connected:
+        async with self.modbus:
             resp = await func(
                 self.address,
                 count=self.count,
                 slave=self.modbus.slave,
-            )  # type: ignore
-        else:
-            async with self.modbus:
-                resp = await func(
-                    self.address,
-                    count=self.count,
-                    slave=self.modbus.slave,
-                )  # type: ignore
+            )
 
         if resp.function_code > 0x80:
             raise ValueError(
@@ -119,87 +114,84 @@ class ModbusRegister:
             registers = resp.registers
             value = registers[0 : self.count] if self.count > 1 else registers[0]
 
-            if self.decoder is not None:
-                if self.decoder == "float_32bit":
-                    bin_payload = BinaryPayloadDecoder.fromRegisters(
-                        value,
-                        byteorder=Endian.BIG,
-                        wordorder=Endian.LITTLE,
-                    )
-                    value = round(bin_payload.decode_32bit_float(), 3)
-                else:
-                    raise ValueError(f"Unknown decoder {self.decoder}")
+        value = self.decode(value)
 
         if not isinstance(value, (int, float)):
             raise ValueError(f"Invalid type for {self.name!r} response.")
 
-        self._last_value = value
-        self._last_seen = time()
+        return value
+
+    def decode(self, value: int | bool | list[int | bool]):
+        """Decodes the raw value from the register."""
+
+        if self.decoder is not None:
+            if self.decoder == "float_32bit":
+                bin_payload = BinaryPayloadDecoder.fromRegisters(
+                    value,
+                    byteorder=Endian.BIG,
+                    wordorder=Endian.LITTLE,
+                )
+                value = round(bin_payload.decode_32bit_float(), 3)
+            else:
+                raise ValueError(f"Unknown decoder {self.decoder}")
 
         return value
 
-    async def get(self, open_connection: bool = True, use_cache: bool = True):
-        """Return the value of the modbus register. Implements retry."""
+    @Retrier(max_attempts=MAX_RETRIES, delay=0.5, max_delay=2.0)
+    async def read(self, use_cache: bool = True):
+        """Return the value of the modbus register.
 
-        for ntries in range(1, MAX_RETRIES + 1):
-            # If we need to open the connection, use the Modbus context
-            # and call ourselves recursively with open_connection=False
-            # (at that point it will be open).
-            if open_connection:
-                await self.modbus.connect()
+        Parameters
+        ----------
+        use_cache
+            Whether to use the cache to retrieve the value. If the cache is not
+            available, or the value is not in the cache, the register will be read.
+            This function does not set the cache after reading the register.
 
-            if not self.modbus.client or not self.modbus.client.connected:
-                raise ConnectionError("Not connected to modbus server.")
+        """
 
-            try:
-                return await self._get_internal(use_cache=use_cache)
-            except Exception:
-                if ntries >= MAX_RETRIES:
-                    raise
+        if use_cache:
+            cache = self.modbus.register_cache
+            if self.name in cache and (value := cache[self.name]) is not None:
+                return value
 
-                await asyncio.sleep(0.5)
-            finally:
-                if open_connection:
-                    await self.modbus.disconnect()
+        return await self._read_internal()
 
-    async def set(self, value: int | bool):
+    @Retrier(max_attempts=MAX_RETRIES, delay=0.5, max_delay=2.0)
+    async def write(self, value: int | bool):
         """Sets the value of the register."""
 
-        for ntries in range(1, MAX_RETRIES + 1):
-            # Always open the connection.
-            async with self.modbus:
-                if self.mode == "coil":
-                    func = self.client.write_coil
-                elif self.mode == "holding_register":
-                    func = self.client.write_register
-                elif self.mode == "discrete_input" or self.mode == "input_register":
-                    raise ValueError(f"Block of mode {self.mode!r} is read-only.")
+        if self.readonly:
+            raise ECPError(f"Register {self.name!r} is read-only.")
+
+        # Always open the connection.
+        async with self.modbus:
+            if self.mode == "coil":
+                func = self.client.write_coil
+            elif self.mode == "holding_register":
+                func = self.client.write_register
+            elif self.mode == "discrete_input" or self.mode == "input_register":
+                raise ValueError(f"Block of mode {self.mode!r} is read-only.")
+            else:
+                raise ValueError(f"Invalid block mode {self.mode!r}.")
+
+            try:
+                if self.client.connected:
+                    resp = await func(self.address, value)  # type: ignore
                 else:
-                    raise ValueError(f"Invalid block mode {self.mode!r}.")
-
-                try:
-                    if self.client.connected:
+                    async with self.modbus:
                         resp = await func(self.address, value)  # type: ignore
-                    else:
-                        async with self.modbus:
-                            resp = await func(self.address, value)  # type: ignore
 
-                    if resp.function_code > 0x80:
-                        raise ECPError(
-                            f"Invalid response for element "
-                            f"{self.name!r}: 0x{resp.function_code:02X}."
-                        )
-                    else:
-                        self._last_value = int(value)
-                        self._last_seen = time()
+                if resp.function_code > 0x80:
+                    raise ECPError(
+                        f"Invalid response for element "
+                        f"{self.name!r}: 0x{resp.function_code:02X}."
+                    )
+                else:
+                    self.modbus.register_cache[self.name] = value
 
-                        return
-
-                except Exception as err:
-                    if ntries >= MAX_RETRIES:
-                        raise ECPError(f"Failed setting {self.name!r}: {err}")
-
-                await asyncio.sleep(0.5)
+            except Exception as err:
+                raise ECPError(f"Failed setting {self.name!r}: {err}")
 
 
 class Modbus(dict[str, ModbusRegister]):
@@ -232,40 +224,42 @@ class Modbus(dict[str, ModbusRegister]):
         self.port = self.config["port"]
         self.slave = self.config.get("slave", 0)
 
-        # Cache results so that very close calls to get_all() don't need to
-        # open a connection and read the registers.
-        self.cache_timeout = self.config.get("cache_timeout", 0.5)
-        self._register_cache: dict[str, int | float | None] = {}
-        self._register_last_seen: float = 0
+        # Cache results so that very close calls to get_all()
+        # don't need to open a connection and read the registers.
+        self.cache_timeout = self.config.get("cache_timeout", 1)
+        self.register_cache = TimedCacheDict(self.cache_timeout, mode="null")
 
+        # Modbus client.
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
 
-        self.lock = asyncio.Lock()
-        self._lock_release_task: asyncio.Task | None = None
+        # Semaphore to allow up to 5 concurrent connections.
+        self.semaphore = asyncio.Semaphore(1)
+        self._semaphore_release_task: asyncio.Task | None = None
 
-        register_data = self.config["registers"]
+        # Create the internal dictionary of registers
         registers = {
             name: ModbusRegister(
                 self,
                 name,
-                elem["address"],
-                mode=elem.get("mode", "coil"),
-                group=elem.get("group", None),
-                count=elem.get("count", 1),
-                decoder=elem.get("decoder", None),
+                register["address"],
+                mode=register.get("mode", "coil"),
+                group=register.get("group", None),
+                count=register.get("count", 1),
+                decoder=register.get("decoder", None),
+                readonly=register.get("readonly", True),
             )
-            for name, elem in register_data.items()
+            for name, register in self.config["registers"].items()
         }
 
         dict.__init__(self, registers)
-        for name, elem in registers.items():
-            setattr(self, name, elem)
+        for name, register in registers.items():
+            setattr(self, name, register)
 
     async def connect(self):
         """Connects to the client."""
 
         try:
-            await asyncio.wait_for(self.lock.acquire(), TIMEOUT)
+            await asyncio.wait_for(self.semaphore.acquire(), CONNECTION_TIMEOUT)
         except asyncio.TimeoutError:
             raise RuntimeError("Timed out waiting for lock to be released.")
 
@@ -282,15 +276,15 @@ class Modbus(dict[str, ModbusRegister]):
         except Exception as err:
             raise ConnectionError(f"Failed connecting to server at {hp}: {err}.")
         finally:
-            if not did_connect and self.lock.locked():
-                self.lock.release()
+            if not did_connect:
+                self.semaphore.release()
 
         log.debug(f"Connected to {hp}.")
 
         # Schedule a task to release the lock after 5 seconds. This is a safeguard
         # in case something fails and the connection is never closed and the lock
         # not released.
-        self._lock_release_task = asyncio.create_task(self.unlock_on_timeout())
+        self._semaphore_release_task = asyncio.create_task(self.unlock_on_timeout())
 
     async def disconnect(self):
         """Disconnects the client."""
@@ -301,10 +295,9 @@ class Modbus(dict[str, ModbusRegister]):
                 log.debug(f"Disonnected from {self.host}:{self.port}.")
 
         finally:
-            if self.lock.locked():
-                self.lock.release()
+            self.semaphore.release()
 
-            await cancel_task(self._lock_release_task)
+            await cancel_task(self._semaphore_release_task)
 
     async def __aenter__(self):
         """Initialises the connection to the server."""
@@ -319,50 +312,97 @@ class Modbus(dict[str, ModbusRegister]):
     async def unlock_on_timeout(self):
         """Removes the lock after an amount of time."""
 
-        await asyncio.sleep(TIMEOUT)
-        if self.lock.locked():
-            self.lock.release()
+        await asyncio.sleep(CONNECTION_TIMEOUT)
+        self.semaphore.release()
 
-    async def get_all(self, use_cache: bool = True):
-        """Returns a dictionary with all the registers."""
+    async def read_all(self, use_cache: bool = True) -> dict[str, int | bool]:
+        """Returns a dictionary with all the registers and sets the cache."""
 
-        if use_cache and time() - self._register_last_seen < self.cache_timeout:
-            if None not in self._register_cache.values():
-                return self._register_cache
+        if use_cache:
+            oldest_cache = min(self.register_cache._cache_time.values())
+            if time() - oldest_cache < self.cache_timeout:
+                return self.register_cache.freeze()
 
-        names = results = []
-
+        # With this PLC it is more efficient to read the entire coil and
+        # holding register blocks in one go, and then parse the results, as
+        # opposed to reading each register individually.
         async with self:
-            names = [name for name in self]
-            tasks = [
-                elem.get(open_connection=False, use_cache=False)
-                for elem in self.values()
-            ]
+            for mode in ["coil", "holding_register"]:
+                mode_count = max(
+                    register.address + register.count
+                    for register in self.values()
+                    if register.mode == mode
+                )
 
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+                if mode == "coil":
+                    func = self.client.read_coils
+                elif mode == "holding_register":
+                    func = self.client.read_holding_registers
+                else:
+                    raise ValueError(f"Invalid mode {mode!r}.")
 
-        if any([isinstance(result, Exception) for result in results]):
-            for ii, result in enumerate(results):
-                if isinstance(result, Exception):
-                    log.warning(f"Failed retrieving value for {names[ii]!r}")
-                    results[ii] = None
+                data: list[int | bool] = []
 
-        registers = cast(
-            dict[str, int | float | None],
-            {names[ii]: results[ii] for ii in range(len(names))},
-        )
+                if mode == "coil":
+                    # For coils we can read the entire block.
+                    resp = await func(0, count=1023, slave=self.slave)
 
-        self._register_cache = registers
-        self._register_last_seen = time()
+                    if resp.isError():
+                        raise ValueError(
+                            f"Invalid response for block {mode!r}: "
+                            f"0x{resp.function_code:02X}."
+                        )
+
+                    data += resp.bits
+
+                else:
+                    # For holding registers we are limited to reading MAX_COUNT_HR
+                    # at once. We iterate to get all the data.
+                    n_reads = mode_count // MAX_COUNT_HR + 1
+
+                    for nn in range(n_reads):
+                        resp = await func(
+                            nn * MAX_COUNT_HR,
+                            count=MAX_COUNT_HR,
+                            slave=self.slave,
+                        )
+
+                        if resp.isError():
+                            raise ValueError(
+                                f"Invalid response for block {mode!r}: "
+                                f"0x{resp.function_code:02X}."
+                            )
+
+                        data += resp.registers
+
+                for name, register in self.items():
+                    if register.mode != mode:
+                        continue
+
+                    value = data[register.address : register.address + register.count]
+                    value = register.decode(value)
+
+                    if isinstance(value, Sequence) and len(value) == 1:
+                        value = value[0]
+
+                    self.register_cache[name] = value
+
+        registers = self.register_cache.freeze()
+
+        # Just to double check that none of the values have expired, we loop over the
+        # dictionary and if necessary we read the register again.
+        for name, value in registers.items():
+            if value is None:
+                registers[name] = await self[name].read(use_cache=False)
 
         return registers
 
     async def read_group(self, group: str, use_cache: bool = True):
         """Returns a dictionary of all read registers that match a ``group``."""
 
-        registers = await self.get_all(use_cache=use_cache)
+        registers = await self.read_all(use_cache=use_cache)
 
-        group_registers = {}
+        group_registers: dict[str, int | bool] = {}
         for name in self:
             register = self[name]
             if register.group is not None and register.group == group:
@@ -372,3 +412,23 @@ class Modbus(dict[str, ModbusRegister]):
                 group_registers[name] = registers[name]
 
         return group_registers
+
+    async def write_register(self, register: str | int, value: int | bool):
+        """Writes a value to a register."""
+
+        if isinstance(register, int):
+            for name, reg in self.items():
+                if reg.address == register:
+                    register = name
+                    found = True
+                    break
+
+            if not found:
+                raise ValueError(f"Register with address {register!r} not found.")
+
+        assert isinstance(register, str)
+
+        if register not in self:
+            raise ValueError(f"Register {register!r} not found.")
+
+        await self[register].write(value)

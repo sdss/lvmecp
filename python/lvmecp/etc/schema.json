@@ -23,8 +23,23 @@
     },
     "o2_percent_utilities": { "type": "number" },
     "o2_percent_spectrograph": { "type": "number" },
-    "last_heartbeat_set": {
+    "heartbeat_ack": {
       "oneOf": [{ "type": "string" }, { "type": "null" }]
+    },
+    "register": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "address": { "type": "number" },
+        "value": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "number" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["name", "value"]
     },
     "engineering_mode": {
       "type": "object",
@@ -35,7 +50,9 @@
         },
         "ends_at": {
           "oneOf": [{ "type": "string" }, { "type": "null" }]
-        }
+        },
+        "software_override": { "type": "boolean" },
+        "hardware_override": { "type": "boolean" }
       },
       "required": ["enabled", "started_at", "ends_at"]
     }

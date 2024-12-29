@@ -11,7 +11,16 @@ from __future__ import annotations
 import abc
 import asyncio
 
-from typing import TYPE_CHECKING, Callable, Coroutine, Generic, Type, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Generic,
+    Sequence,
+    Type,
+    TypeVar,
+)
 
 from lvmecp import log
 from lvmecp.tools import cancel_tasks_by_name
@@ -80,7 +89,10 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
             await asyncio.sleep(self._interval)
 
     @abc.abstractmethod
-    async def _update_internal(self, **kwargs) -> Flag_co:
+    async def _update_internal(
+        self,
+        **kwargs,
+    ) -> Flag_co | tuple[Flag_co, dict[str, Any]]:
         """Determines the new module flag status."""
 
         pass
@@ -94,14 +106,22 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
         """Refreshes the module status."""
 
         try:
-            new_status = await self._update_internal(use_cache=use_cache)
+            internal_output = await self._update_internal(use_cache=use_cache)
+            if isinstance(internal_output, Sequence):
+                new_status, extra_info = internal_output
+            else:
+                new_status, extra_info = internal_output, {}
         except Exception as err:
             log.warning(f"{self.name}: failed updating status: {err}")
             new_status = self.flag(self.flag.__unknown__) if self.flag else None
 
         # Only notify if the status has changed.
-        if new_status != self.status or force_output:
-            await self.notify_status(new_status, **notifier_kwargs)
+        if (new_status != self.status and not extra_info) or force_output:
+            await self.notify_status(
+                new_status,
+                extra_keywords=extra_info,
+                **notifier_kwargs,
+            )
 
         self.status = new_status
 
@@ -110,6 +130,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
     async def notify_status(
         self,
         status: Flag_co | None = None,
+        extra_keywords: dict[str, Any] = {},
         wait: bool = False,
         **kwargs,
     ):
@@ -123,7 +144,7 @@ class PLCModule(abc.ABC, Generic[Flag_co]):
             return
 
         if asyncio.iscoroutinefunction(self.notifier):
-            coro = self.notifier(status.value, str(status), **kwargs)
+            coro = self.notifier(status.value, str(status), extra_keywords, **kwargs)
             if wait:
                 await coro
             else:
