@@ -159,7 +159,7 @@ modbus:
       group: dome
       readonly: true
     dome_speed:
-      address: 150
+      address: 151
       mode: holding_register
       group: dome
       readonly: true
@@ -243,6 +243,11 @@ modbus:
       mode: coil
       readonly: true
       group: safety
+    rain_sensor_count:
+      address: 699
+      mode: holding_register
+      readonly: true
+      group: safety
     rain_sensor_countdown:
       address: 700
       mode: holding_register
@@ -258,15 +263,6 @@ modbus:
       mode: coil
       readonly: false
       group: engineering_mode
-
-safety:
-  override_local_mode: False
-  o2_threshold: 19.5
-
-dome:
-  daytime_allowed: false
-  daytime_tolerance: 600
-  anti_flap_tolerance: [3, 600]
 
 hvac:
   host: 10.8.38.49
@@ -443,8 +439,17 @@ hvac:
 engineering_mode:
   default_duration: 300
 
+safety:
+  o2_threshold: 19.5
+
+dome:
+  daytime_allowed: false
+  daytime_tolerance: 600
+  anti_flap_tolerance: [3, 600]
+  full_open_mm: 9480
+
 actor:
-  name: lvmecp
+  name: lvmecp-dev
   host: localhost
   port: 5672
   log_dir: /data/logs/lvmecp
