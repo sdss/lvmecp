@@ -14,6 +14,8 @@ from pytest_mock import MockerFixture
 
 
 if TYPE_CHECKING:
+    from pymodbus.datastore import ModbusSlaveContext
+
     from lvmecp.actor import ECPActor
 
 
@@ -86,3 +88,18 @@ async def test_modbus_write_register_fails(actor: ECPActor, mocker: MockerFixtur
 
     assert write_cmd.status.did_fail
     assert "cannot write" in write_cmd.replies.get("error")
+
+
+async def test_modbus_write_unknown_register(
+    context: ModbusSlaveContext,
+    actor: ECPActor,
+):
+    cmd = await actor.invoke_mock_command(
+        "modbus write --register-type coil --allow-unknown 999 1"
+    )
+    await cmd
+
+    assert cmd.status.did_succeed
+
+    register = cmd.replies.get("register")
+    assert register == {"name": "coil_999", "address": 999, "value": True}

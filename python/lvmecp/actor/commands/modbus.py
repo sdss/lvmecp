@@ -10,24 +10,33 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import click
+
+from lvmecp.modbus import ModbusRegister
 
 from . import parser
 
 
 if TYPE_CHECKING:
     from lvmecp.actor import ECPCommand
-    from lvmecp.modbus import ModbusRegister
+    from lvmecp.modbus import RegisterModes
 
 
-def get_register(command: ECPCommand, address_or_name: str, register_type: str | None):
+def get_register(
+    command: ECPCommand,
+    address_or_name: str,
+    register_type: RegisterModes | None = None,
+    allow_unknown: bool = False,
+) -> ModbusRegister | Literal[False]:
     """Returns a register from an address or name."""
 
     plc = command.actor.plc
 
     register: ModbusRegister | None = None
+    address: int | None = None
+
     try:
         address = int(address_or_name)  # type: ignore
 
@@ -41,8 +50,19 @@ def get_register(command: ECPCommand, address_or_name: str, register_type: str |
                 break
     except ValueError:
         register = plc.modbus.get(address_or_name)
+        address = register.address if register else None
 
     if register is None:
+        if allow_unknown and address is not None and register_type:
+            return ModbusRegister(
+                command.actor.plc.modbus,
+                name=f"{register_type}_{address}",
+                address=address,
+                mode=register_type,
+                count=1,
+                readonly=False,
+            )
+
         command.fail(f"Register {address_or_name!r} not found.")
         return False
 
@@ -64,10 +84,27 @@ def modbus():
     default=None,
     help="The type of register to read. Required if an address is passed.",
 )
-async def read(command: ECPCommand, address: str, register_type: str | None = None):
+@click.option(
+    "--allow-unknown",
+    is_flag=True,
+    help="Allow unknown registers. Requires specifying an address.",
+)
+async def read(
+    command: ECPCommand,
+    address: str,
+    register_type: Literal["coil", "holding_register"] | None = None,
+    allow_unknown: bool = False,
+):
     """Reads a Modbus register."""
 
-    if not (register := get_register(command, address, register_type)):
+    if not (
+        register := get_register(
+            command,
+            address,
+            register_type=register_type,
+            allow_unknown=allow_unknown,
+        )
+    ):
         return False
 
     value = await register.read(use_cache=False)
@@ -90,15 +127,28 @@ async def read(command: ECPCommand, address: str, register_type: str | None = No
     default=None,
     help="The type of register to read. Required if an address is passed.",
 )
+@click.option(
+    "--allow-unknown",
+    is_flag=True,
+    help="Allow unknown registers. Requires specifying an address.",
+)
 async def write(
     command: ECPCommand,
     address: str,
     value: int,
-    register_type: str | None = None,
+    register_type: Literal["coil", "holding_register"] | None = None,
+    allow_unknown: bool = False,
 ):
     """Writes a value to a Modbus register."""
 
-    if not (register := get_register(command, address, register_type)):
+    if not (
+        register := get_register(
+            command,
+            address,
+            register_type=register_type,
+            allow_unknown=allow_unknown,
+        )
+    ):
         return False
 
     name = register.name

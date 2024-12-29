@@ -33,7 +33,7 @@ MAX_COUNT_HR = 100
 CONNECTION_TIMEOUT = 10.0
 
 
-RegisterModes = Literal["coil", "holding_regiser", "discrete_input", "input_register"]
+RegisterModes = Literal["coil", "holding_register", "discrete_input", "input_register"]
 
 
 class ModbusRegister:
