@@ -34,12 +34,13 @@ async def get_eng_mode_status(actor: ECPActor) -> dict:
         ends_at = started_at + duration
 
     return {
-            "enabled": enabled,
-            "started_at": timestamp_to_iso(started_at),
-            "ends_at": timestamp_to_iso(ends_at),
-            "software_override": registers["engineering_mode_software"],
-            "hardware_override": registers["engineering_mode_hardware"],
-        }
+        "enabled": enabled,
+        "started_at": timestamp_to_iso(started_at),
+        "ends_at": timestamp_to_iso(ends_at),
+        "software_override": registers["engineering_mode_software"],
+        "hardware_override": registers["engineering_mode_hardware"],
+    }
+
 
 @parser.group(name="engineering-mode")
 def engineering_mode():
