@@ -1,6 +1,6 @@
 [project]
 name = "sdss-lvmecp"
-version = "1.1.0"
+version = "1.1.1a0"
 description = "A library and actor to communicate with an SDSS-V LVM Enclosure"
 authors = [
     { name = "José Sánchez-Gallego", email = "gallegoj@uw.edu" },
