@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 from typing import TYPE_CHECKING
 
 import click
@@ -78,6 +80,7 @@ async def enable(
     modbus = command.actor.plc.modbus
 
     await command.actor.engineering_mode(True, timeout=timeout)
+    await asyncio.sleep(0.5)  # Allow time for the e-mode task to run.
 
     if hardware_override:
         await modbus.write_register("engineering_mode_hardware_remote", True)
