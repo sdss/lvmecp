@@ -55,6 +55,7 @@ class ECPActor(LVMActor):
         self._monitor_dome_task: asyncio.Task | None = None
 
         self._engineering_mode: bool = False
+        self._engineering_mode_hearbeat_interval: float = 5
         self._engineering_mode_started_at: float | None = None
         self._engineering_mode_duration: float | None = None
         self._engineering_mode_task: asyncio.Task | None = None
@@ -177,7 +178,7 @@ class ECPActor(LVMActor):
                 await self.engineering_mode(False)
                 return
 
-            await asyncio.sleep(5)
+            await asyncio.sleep(self._engineering_mode_hearbeat_interval)
 
     async def emit_heartbeat(self):
         """Emits a heartbeat to the PLC."""
