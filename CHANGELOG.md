@@ -9,6 +9,7 @@
 ### ✨ Improved
 
 * Added PLC engineering mode status bits to the configuration file.
+* If the dome is moving when commanded to open/close, the movement will be stopped before actually open or close.
 
 
 ## 1.1.0 - January 1, 2025

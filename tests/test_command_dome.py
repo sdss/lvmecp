@@ -171,10 +171,15 @@ async def test_command_dome_close_overcurrent(
     context.setValues(1, modbus["dome_open"].address, [1])
     context.setValues(1, modbus["dome_closed"].address, [0])
 
+    mocker.patch.object(
+        actor.plc.dome,
+        "_wait_until_movement_done",
+        wraps=close_with_delay,
+    )
+
     cmd = await actor.invoke_mock_command("dome close --overcurrent")
 
     await asyncio.sleep(0.1)
-    asyncio.create_task(close_with_delay())
 
     await cmd
     assert cmd.status.did_succeed
@@ -294,3 +299,60 @@ async def test_dome_not_allowed(actor: ECPActor, mocker: MockerFixture):
 
     with pytest.raises(DomeError, match="Dome is not allowed to open."):
         await actor.plc.dome.open()
+
+
+async def test_dome_open_already_opening(
+    actor: ECPActor,
+    mocker: MockerFixture,
+    caplog: pytest.LogCaptureFixture,
+    context: ModbusSlaveContext,
+):
+    # If the dome is already opening and we command it again to open it will
+    # just wait for the movement to complete. So we check that there is a call
+    # to _wait_until_movement_done()
+
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
+    wait_done_mock = mocker.patch.object(
+        actor.plc.dome,
+        "_wait_until_movement_done",
+        return_value=True,
+    )
+
+    modbus = actor.plc.modbus
+    context.setValues(1, modbus["dome_open"].address, [0])
+    context.setValues(1, modbus["dome_closed"].address, [0])
+    context.setValues(1, modbus["drive_enabled"].address, [1])
+    context.setValues(1, modbus["motor_direction"].address, [1])
+
+    cmd = await actor.invoke_mock_command("dome open")
+    await cmd
+
+    wait_done_mock.assert_called()
+    assert "Dome is already moving in the commanded direction" in caplog.text
+
+
+async def test_dome_close_while_opening(
+    actor: ECPActor,
+    mocker: MockerFixture,
+    caplog: pytest.LogCaptureFixture,
+    context: ModbusSlaveContext,
+):
+    # If we command the dome to close while it's opening, it will stop the movement
+    # wait a few seconds and then close the dome. Here we check that stop() is
+    # called and then have it raise an error to avoid having to wait and setting
+    # additional side effects.
+
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
+    stop_mock = mocker.patch.object(actor.plc.dome, "stop", side_effect=RuntimeError)
+
+    modbus = actor.plc.modbus
+    context.setValues(1, modbus["dome_open"].address, [0])
+    context.setValues(1, modbus["dome_closed"].address, [0])
+    context.setValues(1, modbus["drive_enabled"].address, [1])
+    context.setValues(1, modbus["motor_direction"].address, [1])
+
+    cmd = await actor.invoke_mock_command("dome close")
+    await cmd
+
+    stop_mock.assert_called()
+    assert "Stopping the dome before moving to the commanded position" in caplog.text

@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import asyncio
-import warnings
 from time import time
 from types import SimpleNamespace
 
@@ -20,7 +19,7 @@ from astropy.time import Time
 from lvmopstools.ephemeris import get_ephemeris_summary
 
 from lvmecp import config, log
-from lvmecp.exceptions import DomeError, ECPWarning
+from lvmecp.exceptions import DomeError
 from lvmecp.maskbits import DomeStatus
 from lvmecp.module import PLCModule
 
@@ -56,8 +55,6 @@ class DomeController(PLCModule[DomeStatus]):
 
         if dome_status.drive_enabled:
             new_status |= self.flag.DRIVE_ENABLED
-
-        if dome_status.drive_enabled:
             new_status |= self.flag.MOVING
             if dome_status.motor_direction:
                 new_status |= self.flag.MOTOR_OPENING
@@ -118,10 +115,22 @@ class DomeController(PLCModule[DomeStatus]):
         if self.status & self.flag.NODRIVE:
             raise DomeError("Dome drive is not available.")
 
-        # TODO: in the future this may not be an error and we may
-        # want to override the direction of the move.
-        if self.status & self.flag.MOVING:
-            raise DomeError("Dome is moving.")
+        if self.status & self.flag.DRIVE_ENABLED:
+            # Dome is moving.
+
+            opening = bool(self.status & self.flag.MOTOR_OPENING)
+            closing = bool(self.status & self.flag.MOTOR_CLOSING)
+
+            # If the dome is moving ing the right direction, do nothing.
+            if (open and opening) or (not open and closing):
+                log.info("Dome is already moving in the commanded direction.")
+                await self._wait_until_movement_done()
+                return
+
+            # Otherwise we stop the move and wait a bit for things to clear.
+            log.warning("Stopping the dome before moving to the commanded position.")
+            await self.stop()
+            await asyncio.sleep(5)
 
         already_at_position = False
         if (self.status & self.flag.OPEN) and open:
@@ -129,13 +138,12 @@ class DomeController(PLCModule[DomeStatus]):
         elif (self.status & self.flag.CLOSED) and not open:
             already_at_position = True
         else:
-            warnings.warn("Dome in unknown or intermediate position.", ECPWarning)
+            log.warning("Dome in unknown or intermediate position.")
 
         if already_at_position:
             if force is False:
                 return
-            else:
-                warnings.warn("Dome already at position, but forcing.", ECPWarning)
+            log.warning("Dome already at position but forcing.")
 
         if mode == "normal":
             log.debug("Setting drive mode to normal.")
@@ -154,10 +162,25 @@ class DomeController(PLCModule[DomeStatus]):
 
         await asyncio.sleep(0.1)
 
+        # Wait until the dome finishes to move, with a timeout.
+        await self._wait_until_movement_done()
+
+        # Reset drive_mode_overcurrent.
+        await self.modbus["drive_mode_overcurrent"].write(0)
+
+        await self.update(use_cache=False)
+
+    async def _wait_until_movement_done(self, timeout: float = 300):
+        """Blocks until the dome has finished moving."""
+
+        elapsed: float = 0.0
         last_enabled: float = 0.0
         while True:
-            # Still moving.
             await asyncio.sleep(MOVE_CHECK_INTERVAL)
+            elapsed += MOVE_CHECK_INTERVAL
+
+            if elapsed >= timeout:
+                raise DomeError("Timeout waiting for dome to finish moving.")
 
             drive_enabled = await self.modbus["drive_enabled"].read(use_cache=False)
 
@@ -175,11 +198,6 @@ class DomeController(PLCModule[DomeStatus]):
             # stopped.
             if not drive_enabled and (time() - last_enabled) > 5:
                 raise DomeError("Dome drive has been disabled.")
-
-        # Reset drive_mode_overcurrent.
-        await self.modbus["drive_mode_overcurrent"].write(0)
-
-        await self.update(use_cache=False)
 
     async def open(self, force: bool = False):
         """Open the dome."""
