@@ -139,10 +139,10 @@ class DomeController(PLCModule[DomeStatus]):
 
         if mode == "normal":
             log.debug("Setting drive mode to normal.")
-            await self.modbus["drive_mode_override"].write(0)
+            await self.modbus["drive_mode_overcurrent"].write(0)
         elif mode == "overcurrent":
             log.debug("Setting drive mode to overcurrent.")
-            await self.modbus["drive_mode_override"].write(1)
+            await self.modbus["drive_mode_overcurrent"].write(1)
 
         log.debug("Setting motor_direction.")
         await self.modbus["motor_direction"].write(open)
@@ -176,8 +176,8 @@ class DomeController(PLCModule[DomeStatus]):
             if not drive_enabled and (time() - last_enabled) > 5:
                 raise DomeError("Dome drive has been disabled.")
 
-        # Reset drive_mode_override.
-        await self.modbus["drive_mode_override"].write(0)
+        # Reset drive_mode_overcurrent.
+        await self.modbus["drive_mode_overcurrent"].write(0)
 
         await self.update(use_cache=False)
 

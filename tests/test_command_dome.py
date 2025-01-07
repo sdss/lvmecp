@@ -157,9 +157,9 @@ async def test_command_dome_close_overcurrent(
     async def close_with_delay():
         await asyncio.sleep(0.3)
 
-        # drive_mode_override should be 1 (overcurrent) after we
+        # drive_mode_overcurrent should be 1 (overcurrent) after we
         # call _move but before the move completes.
-        assert context.getValues(1, modbus["drive_mode_override"].address)[0] == 1
+        assert context.getValues(1, modbus["drive_mode_overcurrent"].address)[0] == 1
 
         context.setValues(1, modbus["dome_open"].address, [0])
         context.setValues(1, modbus["dome_closed"].address, [1])
@@ -177,11 +177,10 @@ async def test_command_dome_close_overcurrent(
     asyncio.create_task(close_with_delay())
 
     await cmd
-
     assert cmd.status.did_succeed
 
-    # drive_mode_override should have been reset to 0 after the closure.
-    assert context.getValues(1, modbus["drive_mode_override"].address)[0] == 0
+    # drive_mode_overload should have been reset to 0 after the closure.
+    assert context.getValues(1, modbus["drive_mode_overcurrent"].address)[0] == 0
 
 
 async def test_command_dome_daytime(actor: ECPActor, mocker: MockerFixture):
