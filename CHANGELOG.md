@@ -5,6 +5,7 @@
 ### 🚀 New
 
 * [#33](https://github.com/sdss/lvmecp/pull/33) Add a mode to close the dome using only drive overcurrent to determine when the movement has completed.
+* [#34](https://github.com/sdss/lvmecp/pull/34) Implement emergency stop command, resetting e-stops, and prevent dome from opening if safety flags are active.
 
 ### ✨ Improved
 
