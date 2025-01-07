@@ -184,6 +184,10 @@ class ModbusRegister:
                 )
             else:
                 self.modbus.register_cache[self.name] = value
+                log.debug(
+                    f"Written value {value} to register {self.name!r} "
+                    f"({self.mode}-{self.address})."
+                )
 
 
 class Modbus(dict[str, ModbusRegister]):
@@ -261,7 +265,6 @@ class Modbus(dict[str, ModbusRegister]):
             raise RuntimeError("Timed out waiting for lock to be released.")
 
         hp = f"{self.host}:{self.port}"
-        log.debug(f"Trying to connect to modbus server on {hp}")
 
         did_connect: bool = False
 
@@ -276,8 +279,6 @@ class Modbus(dict[str, ModbusRegister]):
             if not did_connect and self.lock.locked():
                 self.lock.release()
 
-        log.debug(f"Connected to {hp}.")
-
         # Schedule a task to release the lock after 5 seconds. This is a safeguard
         # in case something fails and the connection is never closed and the lock
         # not released.
@@ -289,7 +290,6 @@ class Modbus(dict[str, ModbusRegister]):
         try:
             if self.client:
                 self.client.close()
-                log.debug(f"Disonnected from {self.host}:{self.port}.")
 
         finally:
             if self.lock.locked():
