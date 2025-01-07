@@ -127,7 +127,7 @@ class DomeController(PLCModule[DomeStatus]):
             # If the dome is moving ing the right direction, do nothing.
             if (open and opening) or (not open and closing):
                 log.info("Dome is already moving in the commanded direction.")
-                await self._wait_until_movement_done()
+                await self._wait_until_movement_done(open)
                 return
 
             # Otherwise we stop the move and wait a bit for things to clear.
@@ -165,14 +165,14 @@ class DomeController(PLCModule[DomeStatus]):
         await asyncio.sleep(0.1)
 
         # Wait until the dome finishes to move, with a timeout.
-        await self._wait_until_movement_done()
+        await self._wait_until_movement_done(open)
 
         # Reset drive_mode_overcurrent.
         await self.modbus["drive_mode_overcurrent"].write(0)
 
         await self.update(use_cache=False)
 
-    async def _wait_until_movement_done(self, timeout: float = 300):
+    async def _wait_until_movement_done(self, open: bool, timeout: float = 300):
         """Blocks until the dome has finished moving."""
 
         elapsed: float = 0.0

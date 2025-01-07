@@ -154,7 +154,7 @@ async def test_command_dome_close_overcurrent(
 ):
     modbus = actor.plc.modbus
 
-    async def close_with_delay():
+    async def close_with_delay(*_):
         await asyncio.sleep(0.3)
 
         # drive_mode_overcurrent should be 1 (overcurrent) after we
