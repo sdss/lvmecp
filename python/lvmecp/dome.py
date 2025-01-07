@@ -243,7 +243,7 @@ class DomeController(PLCModule[DomeStatus]):
 
         if await self.plc.safety.engineering_mode_active():
             if actor := self.plc._actor:
-                actor.write("w", text="Engineering mode active.")
+                actor.write("w", text="Engineering mode active. Skipping dome checks.")
             return True
 
         if not config["dome.daytime_allowed"] and self.is_daytime():
