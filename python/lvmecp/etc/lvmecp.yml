@@ -524,7 +524,7 @@ simulator:
         reset_trigger: true
 
 engineering_mode:
-  default_duration: 300
+  default_duration: 1800
 
 safety:
   o2_threshold: 19.5
