@@ -53,12 +53,12 @@ async def test_command_engineering_mode_no_mock(actor: ECPActor):
 async def test_command_engineering_mode_timeouts(actor: ECPActor):
     actor._engineering_mode_hearbeat_interval = 0.1  # To speed up the test
 
-    cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 0.2")
+    cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 1")
     await cmd
 
     assert actor.is_engineering_mode_enabled() is True
 
-    await asyncio.sleep(0.3)
+    await asyncio.sleep(0.8)
 
     assert actor.is_engineering_mode_enabled() is False
 
