@@ -258,15 +258,25 @@ modbus:
       mode: holding_register
       readonly: true
       group: safety
-    engineering_mode_hardware:
+    engineering_mode_hardware_remote:
       address: 899
       mode: coil
       readonly: false
       group: engineering_mode
-    engineering_mode_software:
+    engineering_mode_software_remote:
       address: 900
       mode: coil
       readonly: false
+      group: engineering_mode
+    engineering_mode_hardware_status:
+      address: 901
+      mode: coil
+      readonly: true
+      group: engineering_mode
+    engineering_mode_software_status:
+      address: 902
+      mode: coil
+      readonly: true
       group: engineering_mode
 
 hvac:

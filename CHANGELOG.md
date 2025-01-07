@@ -6,6 +6,11 @@
 
 * [#33](https://github.com/sdss/lvmecp/pull/33) Add a mode to close the dome using only drive overcurrent to determine when the movement has completed.
 
+### ✨ Improved
+
+* Added PLC engineering mode status bits to the configuration file.
+
+
 ## 1.1.0 - January 1, 2025
 
 ### ✨ Improved

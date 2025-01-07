@@ -51,8 +51,8 @@
         "ends_at": {
           "oneOf": [{ "type": "string" }, { "type": "null" }]
         },
-        "software_override": { "type": "boolean" },
-        "hardware_override": { "type": "boolean" }
+        "plc_software_override": { "type": "boolean" },
+        "plc_hardware_override": { "type": "boolean" }
       },
       "required": ["enabled", "started_at", "ends_at"]
     }
