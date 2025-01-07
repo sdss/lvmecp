@@ -133,7 +133,6 @@ class DomeController(PLCModule[DomeStatus]):
             # Otherwise we stop the move and wait a bit for things to clear.
             log.warning("Stopping the dome before moving to the commanded position.")
             await self.stop()
-            await asyncio.sleep(5)
 
         already_at_position = False
         if (self.status & self.flag.OPEN) and open:
@@ -229,6 +228,7 @@ class DomeController(PLCModule[DomeStatus]):
             return
 
         await self.plc.modbus["drive_enabled"].write(False)
+        await asyncio.sleep(5)
 
         await self.update(use_cache=False)
 
