@@ -152,22 +152,24 @@ async def test_command_dome_close_overcurrent(
     context: ModbusSlaveContext,
     mocker: MockerFixture,
 ):
+    modbus = actor.plc.modbus
+
     async def close_with_delay():
         await asyncio.sleep(0.3)
 
-        # drive_mode should be 1 (overcurrent) after we call _move but before the
-        # move completes.
-        assert context.getValues(1, actor.plc.modbus["drive_mode"].address)[0] == 1
+        # drive_mode_override should be 1 (overcurrent) after we
+        # call _move but before the move completes.
+        assert context.getValues(1, modbus["drive_mode_override"].address)[0] == 1
 
-        context.setValues(1, actor.plc.modbus["dome_open"].address, [0])
-        context.setValues(1, actor.plc.modbus["dome_closed"].address, [1])
-        context.setValues(1, actor.plc.modbus["drive_enabled"].address, [0])
+        context.setValues(1, modbus["dome_open"].address, [0])
+        context.setValues(1, modbus["dome_closed"].address, [1])
+        context.setValues(1, modbus["drive_enabled"].address, [0])
 
     mocker.patch.object(lvmecp.dome, "MOVE_CHECK_INTERVAL", 0.1)
 
     # Simulate open dome.
-    context.setValues(1, actor.plc.modbus["dome_open"].address, [1])
-    context.setValues(1, actor.plc.modbus["dome_closed"].address, [0])
+    context.setValues(1, modbus["dome_open"].address, [1])
+    context.setValues(1, modbus["dome_closed"].address, [0])
 
     cmd = await actor.invoke_mock_command("dome close --overcurrent")
 
@@ -178,8 +180,8 @@ async def test_command_dome_close_overcurrent(
 
     assert cmd.status.did_succeed
 
-    # drive_mode should have been reset to 0 after the closure.
-    assert context.getValues(1, actor.plc.modbus["drive_mode"].address)[0] == 0
+    # drive_mode_override should have been reset to 0 after the closure.
+    assert context.getValues(1, modbus["drive_mode_override"].address)[0] == 0
 
 
 async def test_command_dome_daytime(actor: ECPActor, mocker: MockerFixture):

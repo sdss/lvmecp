@@ -93,7 +93,7 @@ modbus:
       group: lights
       mode: coil
       readonly: true
-    drive_mode:
+    drive_mode_override:
       address: 98
       group: dome
       mode: coil
