@@ -1,5 +1,11 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* [#33](https://github.com/sdss/lvmecp/pull/33) Add a mode to close the dome using only drive overcurrent to determine when the movement has completed.
+
 ## 1.1.0 - January 1, 2025
 
 ### ✨ Improved
