@@ -139,6 +139,9 @@ class ECPActor(LVMActor):
             self._engineering_mode_task = asyncio.create_task(
                 self._run_eng_mode(timeout)
             )
+        else:
+            self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
+            self._engineering_mode_started_at = None
 
         self._engineering_mode = enable
 

@@ -12,6 +12,10 @@
 * Added PLC engineering mode status bits to the configuration file.
 * If the dome is moving when commanded to open/close, the movement will be stopped before actually open or close.
 
+### 🔧 Fixed
+
+* Fixed setting and resetting of the start time for the engineering mode.
+
 
 ## 1.1.0 - January 1, 2025
 

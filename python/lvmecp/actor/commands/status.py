@@ -17,6 +17,7 @@ import click
 from lvmecp.tools import timestamp_to_iso
 
 from . import parser
+from .engineering import get_eng_mode_status
 
 
 if TYPE_CHECKING:
@@ -56,6 +57,7 @@ async def status(
         o2_percent_spectrograph=plc.safety.o2_level_spectrograph,
     )
 
+    command.info(engineering_mode=await get_eng_mode_status(command.actor))
     command.info(heartbeat_ack=timestamp_to_iso(plc.safety.last_heartbeat_ack))
 
     return command.finish()
