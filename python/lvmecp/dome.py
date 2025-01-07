@@ -20,7 +20,7 @@ from lvmopstools.ephemeris import get_ephemeris_summary
 
 from lvmecp import config, log
 from lvmecp.exceptions import DomeError
-from lvmecp.maskbits import DomeStatus
+from lvmecp.maskbits import DomeStatus, SafetyStatus
 from lvmecp.module import PLCModule
 
 
@@ -102,8 +102,8 @@ class DomeController(PLCModule[DomeStatus]):
         if not (await self.plc.safety.is_remote()):
             raise DomeError("Cannot move dome while in local mode.")
 
-        if not self.plc.safety.status or self.plc.safety.status.value != 0:
-            raise DomeError("Cannot operate dome with safety alerts.")
+        if not self.plc.safety.status or self.plc.safety.status & SafetyStatus.E_STOP:
+            raise DomeError("E-stops are pressed.")
 
         if mode == "overcurrent" and open:
             raise DomeError("Cannot open dome in overcurrent mode.")
