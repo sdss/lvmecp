@@ -34,7 +34,7 @@ def dome():
 
 @dome.command()
 @click.option("--force", is_flag=True, help="Force dome opening.")
-async def open(command: ECPCommand, force=False):
+async def open(command: ECPCommand, force: bool = False):
     """Opens the dome."""
 
     command.info("Opening dome.")
@@ -53,13 +53,21 @@ async def open(command: ECPCommand, force=False):
 
 @dome.command()
 @click.option("--force", is_flag=True, help="Force dome closing.")
-async def close(command: ECPCommand, force=False):
+@click.option(
+    "--overcurrent",
+    is_flag=True,
+    help="Close the dome using the overcurrent mode.",
+)
+async def close(command: ECPCommand, force: bool = False, overcurrent: bool = False):
     """Closes the dome."""
 
     command.info("Closing dome.")
 
     try:
-        await command.actor.plc.dome.close(force=force)
+        await command.actor.plc.dome.close(
+            force=force,
+            mode="overcurrent" if overcurrent else "normal",
+        )
     except DomeError as err:
         return command.fail(f"Dome failed to close with error: {err}")
 

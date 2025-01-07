@@ -13,6 +13,8 @@ import warnings
 from time import time
 from types import SimpleNamespace
 
+from typing import Literal
+
 import numpy
 from astropy.time import Time
 from lvmopstools.ephemeris import get_ephemeris_summary
@@ -24,6 +26,8 @@ from lvmecp.module import PLCModule
 
 
 MOVE_CHECK_INTERVAL: float = 0.5
+
+DRIVE_MODE_TYPE = Literal["normal", "overcurrent"]
 
 
 class DomeController(PLCModule[DomeStatus]):
@@ -90,11 +94,19 @@ class DomeController(PLCModule[DomeStatus]):
         await self.modbus["drive_direction"].write(open)
         await self.update(use_cache=False)
 
-    async def _move(self, open: bool, force: bool = False):
+    async def _move(
+        self,
+        open: bool,
+        force: bool = False,
+        mode: DRIVE_MODE_TYPE = "normal",
+    ):
         """Moves the dome to open/close position."""
 
         if not (await self.plc.safety.is_remote()):
             raise DomeError("Cannot move dome while in local mode.")
+
+        if mode == "overcurrent" and open:
+            raise DomeError("Cannot open dome in overcurrent mode.")
 
         await self.update(use_cache=False)
 
@@ -124,6 +136,13 @@ class DomeController(PLCModule[DomeStatus]):
                 return
             else:
                 warnings.warn("Dome already at position, but forcing.", ECPWarning)
+
+        if mode == "normal":
+            log.debug("Setting drive mode to normal.")
+            await self.modbus["drive_mode"].write(0)
+        elif mode == "overcurrent":
+            log.debug("Setting drive mode to overcurrent.")
+            await self.modbus["drive_mode"].write(1)
 
         log.debug("Setting motor_direction.")
         await self.modbus["motor_direction"].write(open)
@@ -157,6 +176,9 @@ class DomeController(PLCModule[DomeStatus]):
             if not drive_enabled and (time() - last_enabled) > 5:
                 raise DomeError("Dome drive has been disabled.")
 
+        # Reset drive_mode.
+        await self.modbus["drive_mode"].write(0)
+
         await self.update(use_cache=False)
 
     async def open(self, force: bool = False):
@@ -169,10 +191,10 @@ class DomeController(PLCModule[DomeStatus]):
 
         await self._move(True, force=force)
 
-    async def close(self, force: bool = False):
+    async def close(self, force: bool = False, mode: DRIVE_MODE_TYPE = "normal"):
         """Close the dome."""
 
-        await self._move(False, force=force)
+        await self._move(False, force=force, mode=mode)
 
     async def stop(self):
         """Stops the dome."""

@@ -93,6 +93,11 @@ modbus:
       group: lights
       mode: coil
       readonly: true
+    drive_mode:
+      address: 98
+      group: dome
+      mode: coil
+      readonly: false
     drive_enabled:
       address: 99
       group: dome
