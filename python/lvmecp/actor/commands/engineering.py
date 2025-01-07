@@ -26,7 +26,7 @@ async def get_eng_mode_status(actor: ECPActor) -> dict:
     started_at = actor._engineering_mode_started_at
     duration = actor._engineering_mode_duration
 
-    registers = await actor.plc.read_all_registers(use_cache=True)
+    registers = await actor.plc.read_all_registers(use_cache=False)
 
     if duration is None or started_at is None:
         ends_at = None
