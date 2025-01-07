@@ -106,3 +106,12 @@ async def status(command: ECPCommand):
     """Returns the status of the engineering mode."""
 
     return command.finish(engineering_mode=await get_eng_mode_status(command.actor))
+
+
+@engineering_mode.command()
+async def reset_e_stops(command: ECPCommand):
+    """Resets the e-stop relays."""
+
+    await command.actor.plc.safety.reset_e_stops()
+
+    return command.finish()

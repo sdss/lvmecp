@@ -93,3 +93,13 @@ class SafetyController(PLCModule[SafetyStatus]):
         assert self.status is not None and self.flag is not None
 
         return not (self.status & self.flag.LOCAL)
+
+    async def emergency_stop(self):
+        """Triggers an emergency stop."""
+
+        await self.plc.modbus["e_stop"].write(True)
+
+    async def reset_e_stops(self):
+        """Resets the E-stop relays."""
+
+        await self.plc.modbus["e_relay_reset"].write(True)
