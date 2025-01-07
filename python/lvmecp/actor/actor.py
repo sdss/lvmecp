@@ -117,8 +117,13 @@ class ECPActor(LVMActor):
                         "Dome found open during daytime. Closing.",
                         level="warning",
                     )
+                except Exception as err:
+                    log.error(f"Failed notifying about daytime dome closure: {err}")
                 finally:
-                    await self.plc.dome.close()
+                    try:
+                        await self.plc.dome.close()
+                    except Exception as err:
+                        self.write("e", error=f"Failed closing dome: {err}")
 
     async def engineering_mode(
         self,
