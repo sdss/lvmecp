@@ -75,12 +75,14 @@ async def enable(
 ):
     """Enables the engineering mode."""
 
+    modbus = command.actor.plc.modbus
+
     await command.actor.engineering_mode(True, timeout=timeout)
 
     if hardware_override:
-        await command.actor.plc.modbus.write_register("engineering_mode_hardware", True)
+        await modbus.write_register("engineering_mode_hardware_remote", True)
     if software_override:
-        await command.actor.plc.modbus.write_register("engineering_mode_software", True)
+        await modbus.write_register("engineering_mode_software_remote", True)
 
     return command.finish(engineering_mode=await get_eng_mode_status(command.actor))
 
@@ -89,10 +91,12 @@ async def enable(
 async def disable(command: ECPCommand):
     """Disables the engineering mode."""
 
+    modbus = command.actor.plc.modbus
+
     await command.actor.engineering_mode(False)
 
-    await command.actor.plc.modbus.write_register("engineering_mode_hardware", False)
-    await command.actor.plc.modbus.write_register("engineering_mode_software", False)
+    await modbus.write_register("engineering_mode_hardware_remote", False)
+    await modbus.write_register("engineering_mode_software_remote", False)
 
     return command.finish(engineering_mode=await get_eng_mode_status(command.actor))
 
