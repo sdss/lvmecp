@@ -244,7 +244,7 @@ class DomeController(PLCModule[DomeStatus]):
         if self.plc._actor and self.plc._actor._engineering_mode:
             self.plc._actor.write(
                 "w",
-                text="Skipping dome tests due to engineering mode.",
+                text="Skipping dome checks due to engineering mode.",
             )
             return True
 
