@@ -371,3 +371,21 @@ async def test_dome_open_with_safety_alerts(
 
     assert cmd.status.did_fail
     assert "E-stops are pressed" in cmd.replies.get("error")
+
+
+async def test_dome_open_during_daytime_plc_override(
+    actor: ECPActor, context: ModbusSlaveContext, mocker: MockerFixture
+):
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
+    move_patch = mocker.patch.object(actor.plc.dome, "_move")
+
+    context.setValues(
+        1,
+        actor.plc.modbus["engineering_mode_hardware_status"].address,
+        [1],
+    )
+
+    cmd = await actor.invoke_mock_command("dome open")
+    await cmd
+
+    move_patch.assert_called()

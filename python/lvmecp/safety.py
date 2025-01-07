@@ -94,6 +94,30 @@ class SafetyController(PLCModule[SafetyStatus]):
 
         return not (self.status & self.flag.LOCAL)
 
+    async def engineering_mode_active(self, include_plc_overrides: bool = True):
+        """Returns :obj:`True` if engineering mode is active.
+        With ``include_plc_overrides=True``, the function will return
+        :obj:`True` if the lvmecp engineering mode is active or the PLC
+        software or hardware overrides are active.
+
+        """
+
+        if self.plc._actor is not None and self.plc._actor._engineering_mode:
+            return True
+
+        if include_plc_overrides is False:
+            return False
+
+        await self.update(use_cache=False)
+
+        plc_hw = await self.plc.modbus.read_register("engineering_mode_hardware_status")
+        plc_sw = await self.plc.modbus.read_register("engineering_mode_software_status")
+
+        if plc_hw or plc_sw:
+            return True
+
+        return False
+
     async def emergency_stop(self):
         """Triggers an emergency stop."""
 

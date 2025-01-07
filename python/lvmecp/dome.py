@@ -207,7 +207,7 @@ class DomeController(PLCModule[DomeStatus]):
 
         self._open_attempt_times.append(time())
 
-        if not self.is_allowed():
+        if not await self.is_allowed():
             raise DomeError("Dome is not allowed to open.")
 
         await self._move(True, force=force)
@@ -238,14 +238,12 @@ class DomeController(PLCModule[DomeStatus]):
         await self.modbus["dome_error_reset"].write(True)
         await asyncio.sleep(0.5)
 
-    def is_allowed(self):
+    async def is_allowed(self):
         """Returns whether the dome is allowed to move."""
 
-        if self.plc._actor and self.plc._actor._engineering_mode:
-            self.plc._actor.write(
-                "w",
-                text="Skipping dome checks due to engineering mode.",
-            )
+        if await self.plc.safety.engineering_mode_active():
+            if actor := self.plc._actor:
+                actor.write("w", text="Engineering mode active.")
             return True
 
         if not config["dome.daytime_allowed"] and self.is_daytime():
