@@ -108,7 +108,9 @@ class ECPActor(LVMActor):
             closing_flags = DomeStatus.MOTOR_CLOSING | DomeStatus.CLOSED
             is_closing = self.plc.dome.status and (self.plc.dome.status & closing_flags)
 
-            if self._engineering_mode:
+            # Check engineering mode. This includes the PLC overrides.
+            eng_mode = await self.plc.safety.engineering_mode_active()
+            if eng_mode:
                 pass
             elif self.plc.dome.is_daytime() and not is_closing:
                 try:
