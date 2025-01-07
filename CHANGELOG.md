@@ -12,6 +12,7 @@
 * Added PLC engineering mode status bits to the configuration file.
 * If the dome is moving when commanded to open/close, the movement will be stopped before actually open or close.
 * Daytime check for dome opening will be ignored if the PLC hardware or software overrides are active.
+* Improved the logging of Modbus messages.
 
 ### 🔧 Fixed
 
