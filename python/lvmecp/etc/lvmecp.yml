@@ -459,6 +459,8 @@ simulator:
     door_locked: true
     door_closed: true
     dome_closed: true
+    oxygen_read_utilities_room: 200
+    oxygen_read_spectrograph_room: 200
   events:
     ur_new:
       on_value: 1

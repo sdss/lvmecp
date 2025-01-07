@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
+    from pymodbus.datastore import ModbusSlaveContext
     from pytest_mock import MockerFixture
 
     from lvmecp.actor import ECPActor
@@ -60,3 +61,17 @@ async def test_command_engineering_mode_timeouts(actor: ECPActor):
     await asyncio.sleep(0.3)
 
     assert actor.is_engineering_mode_enabled() is False
+
+
+async def test_command_engineering_mode_reset_e_stops(
+    actor: ECPActor,
+    context: ModbusSlaveContext,
+):
+    context.setValues(1, actor.plc.modbus["e_status"].address, [1])
+
+    cmd = await actor.invoke_mock_command("engineering-mode reset-e-stops")
+    await cmd
+
+    await asyncio.sleep(0.1)
+
+    assert context.getValues(1, actor.plc.modbus["e_status"].address, 1)[0] == 0

@@ -356,3 +356,18 @@ async def test_dome_close_while_opening(
 
     stop_mock.assert_called()
     assert "Stopping the dome before moving to the commanded position" in caplog.text
+
+
+async def test_dome_open_with_safety_alerts(
+    actor: ECPActor,
+    context: ModbusSlaveContext,
+    mocker: MockerFixture,
+):
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
+    context.setValues(1, actor.plc.modbus["e_status"].address, [1])
+
+    cmd = await actor.invoke_mock_command("dome open")
+    await cmd
+
+    assert cmd.status.did_fail
+    assert "E-stops are pressed" in cmd.replies.get("error")
