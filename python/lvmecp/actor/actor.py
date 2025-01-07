@@ -169,7 +169,7 @@ class ECPActor(LVMActor):
         assert self._engineering_mode_duration is not None
 
         while True:
-            await self.emit_heartbeat()
+            # await self.emit_heartbeat()
 
             elapsed = time.time() - self._engineering_mode_started_at
 
