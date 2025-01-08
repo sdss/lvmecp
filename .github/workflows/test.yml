@@ -40,7 +40,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          uv pip install pytest pytest-mock pytest-asyncio pytest-cov coverage
+          uv pip install pytest pytest-mock pytest-asyncio pytest-cov coverage pytest-timeout
           uv run pytest
 
       - name: Upload coverage to Codecov

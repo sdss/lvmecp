@@ -48,6 +48,7 @@ dev = [
     "sphinx-autobuild>=2021.3.14",
     "sphinx-copybutton>=0.3.3",
     "sphinx-click>=3.0.1",
+    "pytest-timeout>=2.3.1",
 ]
 
 [tool.ruff]
@@ -74,6 +75,7 @@ sdss = ["sdsstools", "clu"]
 addopts = "--cov lvmecp --cov-report xml --cov-report html --cov-report term"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+timeout = 10
 
 [tool.coverage.run]
 branch = true
