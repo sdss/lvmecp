@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Clear the anti-flap lock in `lvmecp dome reset`.
+
+
 ## 1.2.0 - January 7, 2025
 
 ### 🚀 New

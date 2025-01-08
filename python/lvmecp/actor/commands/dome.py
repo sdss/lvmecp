@@ -112,9 +112,12 @@ async def stop(command: ECPCommand):
 
 @dome.command()
 async def reset(command: ECPCommand, force=False):
-    """Resets dome error state."""
+    """Resets dome error state and anti-flap count."""
 
     command.warning("Resetting dome error state.")
     await command.actor.plc.dome.reset()
+
+    # Clear previous open attempts, which removes the anti-flap lock.
+    command.actor.plc.dome._open_attempt_times.clear()
 
     return command.finish()
