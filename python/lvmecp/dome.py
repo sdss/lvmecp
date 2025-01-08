@@ -25,6 +25,7 @@ from lvmecp.module import PLCModule
 
 
 MOVE_CHECK_INTERVAL: float = 0.5
+AFTER_STOP_DELAY: float = 5
 
 DRIVE_MODE_TYPE = Literal["normal", "overcurrent"]
 
@@ -50,8 +51,11 @@ class DomeController(PLCModule[DomeStatus]):
         new_status = self.flag(0)
 
         # The variable that would determine if the drive is available is not
-        # does not exist anymore, so we assume it is.
+        # does not exist any more, so we assume it is.
         new_status |= self.flag.DRIVE_AVAILABLE
+
+        if dome_status.dome_error or dome_status.drive_status1 > 0:
+            new_status |= self.flag.DRIVE_ERROR
 
         if dome_status.drive_enabled:
             new_status |= self.flag.DRIVE_ENABLED
@@ -99,16 +103,19 @@ class DomeController(PLCModule[DomeStatus]):
     ):
         """Moves the dome to open/close position."""
 
+        if mode == "overcurrent" and open:
+            raise DomeError("Cannot open dome in overcurrent mode.")
+
+        await self.update(use_cache=False)
+        await self.plc.safety.update(use_cache=False)
+
+        # Check safety flags.
+
         if not (await self.plc.safety.is_remote()):
             raise DomeError("Cannot move dome while in local mode.")
 
         if not self.plc.safety.status or self.plc.safety.status & SafetyStatus.E_STOP:
             raise DomeError("E-stops are pressed.")
-
-        if mode == "overcurrent" and open:
-            raise DomeError("Cannot open dome in overcurrent mode.")
-
-        await self.update(use_cache=False)
 
         assert self.status is not None and self.flag is not None
 
@@ -117,6 +124,13 @@ class DomeController(PLCModule[DomeStatus]):
 
         if self.status & self.flag.NODRIVE:
             raise DomeError("Dome drive is not available.")
+
+        # Check drive errors.
+        if self.status & self.flag.DRIVE_ERROR:
+            raise DomeError(
+                "Dome drive is in error state. Please check "
+                "the drive and reset the error state if appropriate."
+            )
 
         if self.status & self.flag.DRIVE_ENABLED:
             # Dome is moving.
@@ -228,7 +242,7 @@ class DomeController(PLCModule[DomeStatus]):
             return
 
         await self.plc.modbus["drive_enabled"].write(False)
-        await asyncio.sleep(5)
+        await asyncio.sleep(AFTER_STOP_DELAY)
 
         await self.update(use_cache=False)
 

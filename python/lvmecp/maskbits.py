@@ -78,7 +78,7 @@ class DomeStatus(Maskbit):
     SE_LIMIT = 0x800
     SW_LIMIT = 0x1000
     OVERCURRENT = 0x2000
-    ERROR = 0x4000
+    DRIVE_ERROR = 0x4000
     DRIVE_AVAILABLE = 0x8000
     NODRIVE = 0x10000
     UNKNOWN = 0x100000

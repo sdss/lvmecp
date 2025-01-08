@@ -73,7 +73,8 @@ async def test_command_dome_position_unknown(
     assert text == "Dome position is unknown!!!"
 
 
-async def test_command_dome_stop(actor: ECPActor):
+async def test_command_dome_stop(actor: ECPActor, mocker: MockerFixture):
+    mocker.patch("lvmecp.dome.AFTER_STOP_DELAY", 0.1)
     await actor.plc.modbus["drive_enabled"].write(1)
 
     cmd = await actor.invoke_mock_command("dome stop")
@@ -374,7 +375,9 @@ async def test_dome_open_with_safety_alerts(
 
 
 async def test_dome_open_during_daytime_plc_override(
-    actor: ECPActor, context: ModbusSlaveContext, mocker: MockerFixture
+    actor: ECPActor,
+    context: ModbusSlaveContext,
+    mocker: MockerFixture,
 ):
     mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
     move_patch = mocker.patch.object(actor.plc.dome, "_move")
@@ -389,3 +392,27 @@ async def test_dome_open_during_daytime_plc_override(
     await cmd
 
     move_patch.assert_called()
+
+
+async def test_dome_dome_error(
+    actor: ECPActor,
+    context: ModbusSlaveContext,
+    mocker: MockerFixture,
+):
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
+    context.setValues(1, actor.plc.modbus["dome_error"].address, [1])
+
+    with pytest.raises(DomeError, match="Dome drive is in error state"):
+        await actor.plc.dome.open()
+
+
+async def test_dome_drive_error(
+    actor: ECPActor,
+    context: ModbusSlaveContext,
+    mocker: MockerFixture,
+):
+    mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
+    context.setValues(3, actor.plc.modbus["drive_status1"].address, [5])
+
+    with pytest.raises(DomeError, match="Dome drive is in error state"):
+        await actor.plc.dome.open()
