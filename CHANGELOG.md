@@ -5,6 +5,12 @@
 ### ✨ Improved
 
 * Clear the anti-flap lock in `lvmecp dome reset`.
+* Check if the drive is in error state before moving the dome.
+* Renamed registers `dome_status[1|2]` to `drive_status[1|2]`.
+
+### ⚙️ Engineering
+
+* Use `pytest-timeout`.
 
 
 ## 1.2.0 - January 7, 2025
