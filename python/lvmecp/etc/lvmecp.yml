@@ -168,12 +168,12 @@ modbus:
       mode: holding_register
       group: dome
       readonly: true
-    dome_status1:
+    drive_status1:
       address: 410
       mode: holding_register
       group: dome
       readonly: true
-    dome_status2:
+    drive_status2:
       address: 411
       mode: holding_register
       group: dome
