@@ -86,6 +86,7 @@ async def status(command: ECPCommand):
         use_cache=False,
         force_output=True,
         command=command,
+        wait=True,
     )
 
     if status is None:

@@ -8,6 +8,10 @@
 * Check if the drive is in error state before moving the dome.
 * Renamed registers `dome_status[1|2]` to `drive_status[1|2]`.
 
+### 🔧 Fixed
+
+* Wait for status to be output in `lvmecp dome status` before finishing the command.
+
 ### ⚙️ Engineering
 
 * Use `pytest-timeout`.
