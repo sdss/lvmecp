@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Output the dome status keywords after a dome movement command.
+
+
 ## 1.2.1 - January 9, 2025
 
 ### ✨ Improved
