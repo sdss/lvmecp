@@ -1662,7 +1662,7 @@ wheels = [
 
 [[package]]
 name = "sdss-lvmecp"
-version = "1.2.2a0"
+version = "1.2.3a0"
 source = { editable = "." }
 dependencies = [
     { name = "click-default-group" },
