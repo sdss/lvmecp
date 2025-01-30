@@ -100,7 +100,8 @@ async def test_command_dome_open_mock(actor: ECPActor, mocker: MockerFixture):
     mocker.patch.object(actor.plc.dome, "is_daytime", return_value=False)
     mocker.patch.object(actor.plc.dome, "_move", return_value=True)
 
-    mocker.patch.object(actor.plc.dome, "status", return_value=DomeStatus.OPEN)
+    mocker.patch.object(actor.plc.dome, "update")
+    mocker.patch.object(actor.plc.dome, "status", DomeStatus.OPEN)
 
     cmd = await actor.invoke_mock_command("dome open")
     await cmd
@@ -213,6 +214,7 @@ async def test_command_dome_daytime_allowed(actor: ECPActor, mocker: MockerFixtu
     mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
     mocker.patch.object(actor.plc.dome, "_move", return_value=True)
 
+    mocker.patch.object(actor.plc.dome, "update")
     mocker.patch.object(actor.plc.dome, "status", return_value=DomeStatus.OPEN)
 
     cmd = await actor.invoke_mock_command("dome open")
@@ -226,6 +228,7 @@ async def test_command_dome_daytime_eng_mode(actor: ECPActor, mocker: MockerFixt
     mocker.patch.object(actor.plc.dome, "_move", return_value=True)
     mocker.patch.object(actor, "_engineering_mode", return_value=True)
 
+    mocker.patch.object(actor.plc.dome, "update")
     mocker.patch.object(actor.plc.dome, "status", return_value=DomeStatus.OPEN)
 
     cmd = await actor.invoke_mock_command("dome open")
@@ -384,7 +387,7 @@ async def test_dome_open_during_daytime_plc_override(
 
     context.setValues(
         1,
-        actor.plc.modbus["engineering_mode_hardware_status"].address,
+        actor.plc.modbus["bypass_hardware_status"].address,
         [1],
     )
 
