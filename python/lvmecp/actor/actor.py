@@ -53,6 +53,7 @@ class ECPActor(LVMActor):
 
         self._emit_status_task: asyncio.Task | None = None
         self._monitor_dome_task: asyncio.Task | None = None
+        self._monitor_internet_task: asyncio.Task | None = None
 
         self._engineering_mode: bool = False
         self._engineering_mode_hearbeat_interval: float = 5
@@ -76,6 +77,7 @@ class ECPActor(LVMActor):
 
         self._emit_status_task = asyncio.create_task(self.emit_status())
         self._monitor_dome_task = asyncio.create_task(self.monitor_dome())
+        self._monitor_internet_task = asyncio.create_task(self.monitor_internet())
 
         return self
 
@@ -84,6 +86,7 @@ class ECPActor(LVMActor):
 
         self._emit_status_task = await cancel_task(self._emit_status_task)
         self._monitor_dome_task = await cancel_task(self._monitor_dome_task)
+        self._monitor_internet_task = await cancel_task(self._monitor_internet_task)
 
         self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
 
@@ -98,6 +101,30 @@ class ECPActor(LVMActor):
         while True:
             await self.send_command(self.name, "status", internal=True)
             await asyncio.sleep(delay)
+
+    async def monitor_internet(self, delay: float = 30.0):
+        """Monitors the internet connection and set the PLC variable."""
+
+        while True:
+            await asyncio.sleep(delay)
+
+            try:
+                beat_cmd = await self.send_command(
+                    "lvmbeat",
+                    "status",
+                    internal=True,
+                    time_limit=5,
+                )
+                network = beat_cmd.replies.get("network")
+
+                if not network.get("internet", True) or not network.get("lco", True):
+                    # No internet or LCO connection
+                    await self.plc.modbus["network_failure"].write(True)
+                else:
+                    await self.plc.modbus["network_failure"].write(False)
+
+            except Exception as err:
+                log.error(f"Failed determining network status: {err}")
 
     async def monitor_dome(self, delay: float = 30.0):
         """Monitors the dome and closes during daytime."""

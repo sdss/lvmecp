@@ -2,6 +2,10 @@
 
 ## Next version
 
+### 🚀 New
+
+* Set the MC602 (`network_failure`) coil to 1 if the internet or LCO networks are down.
+
 ### 🏷️ Changed
 
 * Renamed `override` to `bypass` in the engineering mode keywords and commands to match the labelling in the PLC.

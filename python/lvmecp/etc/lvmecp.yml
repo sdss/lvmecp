@@ -228,6 +228,11 @@ modbus:
       mode: holding_register
       group: safety
       readonly: true
+    network_failure:
+      address: 602
+      mode: coil
+      readonly: false
+      group: safety
     hb_set:
       address: 599
       mode: coil
