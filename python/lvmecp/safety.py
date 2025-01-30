@@ -110,8 +110,8 @@ class SafetyController(PLCModule[SafetyStatus]):
 
         await self.update(use_cache=False)
 
-        plc_hw = await self.plc.modbus.read_register("engineering_mode_hardware_status")
-        plc_sw = await self.plc.modbus.read_register("engineering_mode_software_status")
+        plc_hw = await self.plc.modbus.read_register("bypass_hardware_status")
+        plc_sw = await self.plc.modbus.read_register("bypass_software_status")
 
         if plc_hw or plc_sw:
             return True

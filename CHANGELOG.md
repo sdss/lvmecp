@@ -1,5 +1,13 @@
 # Changelog
 
+## Next version
+
+### 🏷️ Changed
+
+* Renamed `override` to `bypass` in the engineering mode keywords and commands to match the labelling in the PLC.
+* Output whether the engineering bypass is local or remote.
+
+
 ## 1.2.2 - January 24, 2025
 
 ### ✨ Improved

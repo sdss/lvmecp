@@ -51,8 +51,16 @@
         "ends_at": {
           "oneOf": [{ "type": "string" }, { "type": "null" }]
         },
-        "plc_software_override": { "type": "boolean" },
-        "plc_hardware_override": { "type": "boolean" }
+        "plc_software_bypass": { "type": "boolean" },
+        "plc_hardware_bypass": { "type": "boolean" },
+        "plc_software_bypass_mode": {
+          "type": "string",
+          "enum": ["none", "local", "remote"]
+        },
+        "plc_hardware_bypass_mode": {
+          "type": "string",
+          "enum": ["none", "local", "remote"]
+        }
       },
       "required": ["enabled", "started_at", "ends_at"]
     }
