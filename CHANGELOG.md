@@ -8,6 +8,7 @@
 * Output whether the engineering bypass is local or remote.
 * Changed the default engineering mode duration to 12 hours.
 
+
 ## 1.2.2 - January 24, 2025
 
 ### ✨ Improved
