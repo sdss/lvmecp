@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from lvmecp.tools import timestamp_to_iso
+from lvmecp.tools import redis_client, timestamp_to_iso
 
 from . import parser
 
@@ -87,6 +87,7 @@ async def enable(
 ):
     """Enables the engineering mode."""
 
+    actor = command.actor
     modbus = command.actor.plc.modbus
 
     await command.actor.eng_mode(True, timeout=timeout)
@@ -96,6 +97,18 @@ async def enable(
         await modbus.write_register("bypass_hardware_remote", True)
     if software_bypass:
         await modbus.write_register("bypass_software_remote", True)
+
+    try:
+        # Safe the engineering mode data to Redis so that we can recover it
+        # if the actor restarts.
+        async with redis_client() as redis:
+            await redis.set("lvmecp.eng_mode", 1)
+            await redis.set("lvmecp.eng_mode_started_at", actor._eng_mode_started_at)
+            await redis.set("lvmecp.eng_mode_duration", actor._eng_mode_duration)
+            await redis.set("lvmecp.bypass_hardware_remote", int(hardware_bypass))
+            await redis.set("lvmecp.bypass_software_remote", int(software_bypass))
+    except Exception as err:
+        command.error(f"Failed saving engineering mode to Redis: {err}")
 
     return command.finish(engineering_mode=await get_eng_mode_status(command.actor))
 
@@ -110,6 +123,18 @@ async def disable(command: ECPCommand):
 
     await modbus.write_register("bypass_hardware_remote", False)
     await modbus.write_register("bypass_software_remote", False)
+
+    try:
+        # Safe the engineering mode data to Redis so that we can recover it
+        # if the actor restarts.
+        async with redis_client() as redis:
+            await redis.set("lvmecp.eng_mode", 0)
+            await redis.set("lvmecp.eng_mode_started_at", 0)
+            await redis.set("lvmecp.eng_mode_duration", 0)
+            await redis.set("lvmecp.bypass_hardware_remote", 0)
+            await redis.set("lvmecp.bypass_software_remote", 0)
+    except Exception as err:
+        command.error(f"Failed saving engineering mode to Redis: {err}")
 
     return command.finish(engineering_mode=await get_eng_mode_status(command.actor))
 

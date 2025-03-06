@@ -61,7 +61,7 @@ async def cancel_tasks_by_name(name: str):
 def timestamp_to_iso(ts: float | None, timespec: str = "seconds") -> str | None:
     """Converts a timestamp to an ISO string."""
 
-    if ts is None:
+    if ts is None or ts == 0:
         return None
 
     return (

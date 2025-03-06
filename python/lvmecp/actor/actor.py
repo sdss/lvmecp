@@ -58,8 +58,8 @@ class ECPActor(LVMActor):
 
         self._eng_mode: bool = False
         self._eng_mode_hearbeat_interval: float = 5
-        self._eng_mode_started_at: float | None = None
-        self._eng_mode_duration: float | None = None
+        self._eng_mode_started_at: float = 0
+        self._eng_mode_duration: float = 0
         self._eng_mode_task: asyncio.Task | None = None
 
         self.running: bool = False
@@ -170,25 +170,11 @@ class ECPActor(LVMActor):
             self._eng_mode_task = asyncio.create_task(self._run_eng_mode(timeout))
         else:
             self._eng_mode_task = await cancel_task(self._eng_mode_task)
-            self._eng_mode_started_at = None
+            self._eng_mode_started_at = 0
+            self._eng_mode_duration = 0
 
         self._eng_mode = enable
 
-        try:
-            # Safe the engineering mode data to Redis so that we can recover it
-            # if the actor restarts.
-            async with redis_client() as redis:
-                await redis.set("lvmecp.eng_mode", int(enable))
-                await redis.set(
-                    "lvmecp.eng_mode_started_at",
-                    self._eng_mode_started_at or 0.0,
-                )
-                await redis.set(
-                    "lvmecp.eng_mode_duration",
-                    self._eng_mode_duration or 0.0,
-                )
-        except Exception as err:
-            log.error(f"Failed saving engineering mode to Redis: {err}")
 
     def is_eng_mode_enabled(self):
         """Returns whether engineering mode is enabled."""
@@ -210,7 +196,6 @@ class ECPActor(LVMActor):
         self._eng_mode = True
         self._eng_mode_started_at = time.time()
         self._eng_mode_duration = timeout or default_duration
-        assert self._eng_mode_duration is not None
 
         while True:
             if not self._eng_mode:
@@ -236,6 +221,8 @@ class ECPActor(LVMActor):
             eng_mode = await redis.get("lvmecp.eng_mode")
             eng_mode_started_at = await redis.get("lvmecp.eng_mode_started_at")
             eng_mode_duration = await redis.get("lvmecp.eng_mode_duration")
+            eng_mode_hw_bypass = await redis.get("lvmecp.bypass_hardware_remote")
+            eng_mode_sw_bypass = await redis.get("lvmecp.bypass_software_remote")
 
         if eng_mode is not None:
             self._eng_mode = bool(int(eng_mode))
@@ -252,6 +239,11 @@ class ECPActor(LVMActor):
                 return
 
             self._eng_mode = False
+
+            modbus = self.plc.modbus
+            await modbus.write_register("bypass_hardware_remote", eng_mode_hw_bypass)
+            await modbus.write_register("bypass_software_remote", eng_mode_sw_bypass)
+
 
     async def emit_heartbeat(self):
         """Emits a heartbeat to the PLC."""
