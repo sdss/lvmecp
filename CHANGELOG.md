@@ -5,6 +5,7 @@
 ### ✨ Improved
 
 * Store engineering mode information in Redis so it can be restored when the actor restarts.
+* Change `engineering-mode enable --timeout` to use hours and increase the allowed maximum value.
 
 
 ## 1.3.0 - January 30, 2025

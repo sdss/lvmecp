@@ -65,8 +65,8 @@ def engineering_mode():
 @click.option(
     "--timeout",
     "-t",
-    type=click.FloatRange(min=0.1, max=86400),
-    help="Timeout for the engineering mode. "
+    type=click.FloatRange(min=0.1, max=300),
+    help="Timeout for the engineering mode, in hours. "
     "If not passed, the default timeout is used.",
 )
 @click.option(
@@ -89,6 +89,9 @@ async def enable(
 
     actor = command.actor
     modbus = command.actor.plc.modbus
+
+    if timeout is not None:
+        timeout = timeout * 3600
 
     await command.actor.eng_mode(True, timeout=timeout)
     await asyncio.sleep(0.5)  # Allow time for the e-mode task to run.
