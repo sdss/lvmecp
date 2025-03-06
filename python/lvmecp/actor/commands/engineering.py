@@ -24,9 +24,9 @@ if TYPE_CHECKING:
 
 
 async def get_eng_mode_status(actor: ECPActor) -> dict:
-    enabled = actor.is_engineering_mode_enabled()
-    started_at = actor._engineering_mode_started_at
-    duration = actor._engineering_mode_duration
+    enabled = actor.is_eng_mode_enabled()
+    started_at = actor._eng_mode_started_at
+    duration = actor._eng_mode_duration
 
     registers = await actor.plc.read_all_registers(use_cache=False)
 
@@ -89,7 +89,7 @@ async def enable(
 
     modbus = command.actor.plc.modbus
 
-    await command.actor.engineering_mode(True, timeout=timeout)
+    await command.actor.eng_mode(True, timeout=timeout)
     await asyncio.sleep(0.5)  # Allow time for the e-mode task to run.
 
     if hardware_bypass:
@@ -106,7 +106,7 @@ async def disable(command: ECPCommand):
 
     modbus = command.actor.plc.modbus
 
-    await command.actor.engineering_mode(False)
+    await command.actor.eng_mode(False)
 
     await modbus.write_register("bypass_hardware_remote", False)
     await modbus.write_register("bypass_software_remote", False)

@@ -56,11 +56,11 @@ class ECPActor(LVMActor):
         self._monitor_dome_task: asyncio.Task | None = None
         self._monitor_internet_task: asyncio.Task | None = None
 
-        self._engineering_mode: bool = False
-        self._engineering_mode_hearbeat_interval: float = 5
-        self._engineering_mode_started_at: float | None = None
-        self._engineering_mode_duration: float | None = None
-        self._engineering_mode_task: asyncio.Task | None = None
+        self._eng_mode: bool = False
+        self._eng_mode_hearbeat_interval: float = 5
+        self._eng_mode_started_at: float | None = None
+        self._eng_mode_duration: float | None = None
+        self._eng_mode_task: asyncio.Task | None = None
 
         self.running: bool = False
 
@@ -81,7 +81,7 @@ class ECPActor(LVMActor):
         self._monitor_internet_task = asyncio.create_task(self.monitor_internet())
 
         try:
-            await self._restore_engineering_mode()
+            await self._restore_eng_mode()
         except Exception as err:
             log.error(f"Failed restoring engineering mode: {err}")
 
@@ -94,7 +94,7 @@ class ECPActor(LVMActor):
         self._monitor_dome_task = await cancel_task(self._monitor_dome_task)
         self._monitor_internet_task = await cancel_task(self._monitor_internet_task)
 
-        self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
+        self._eng_mode_task = await cancel_task(self._eng_mode_task)
 
         await super().stop(**kwargs)
         self.running = False
@@ -160,46 +160,40 @@ class ECPActor(LVMActor):
                     except Exception as err:
                         self.write("e", error=f"Failed closing dome: {err}")
 
-    async def engineering_mode(
-        self,
-        enable: bool,
-        timeout: float | None = None,
-    ):
+    async def eng_mode(self, enable: bool, timeout: float | None = None):
         """Sets or returns the engineering mode."""
 
         # Kill current task if it exists.
-        self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
+        self._eng_mode_task = await cancel_task(self._eng_mode_task)
 
         if enable:
-            self._engineering_mode_task = asyncio.create_task(
-                self._run_eng_mode(timeout)
-            )
+            self._eng_mode_task = asyncio.create_task(self._run_eng_mode(timeout))
         else:
-            self._engineering_mode_task = await cancel_task(self._engineering_mode_task)
-            self._engineering_mode_started_at = None
+            self._eng_mode_task = await cancel_task(self._eng_mode_task)
+            self._eng_mode_started_at = None
 
-        self._engineering_mode = enable
+        self._eng_mode = enable
 
         try:
             # Safe the engineering mode data to Redis so that we can recover it
             # if the actor restarts.
             async with redis_client() as redis:
-                await redis.set("lvmecp.emode", int(enable))
+                await redis.set("lvmecp.eng_mode", int(enable))
                 await redis.set(
-                    "lvmecp.emode_started_at",
-                    self._engineering_mode_started_at or 0.0,
+                    "lvmecp.eng_mode_started_at",
+                    self._eng_mode_started_at or 0.0,
                 )
                 await redis.set(
-                    "lvmecp.emode_duration",
-                    self._engineering_mode_duration or 0.0,
+                    "lvmecp.eng_mode_duration",
+                    self._eng_mode_duration or 0.0,
                 )
         except Exception as err:
             log.error(f"Failed saving engineering mode to Redis: {err}")
 
-    def is_engineering_mode_enabled(self):
+    def is_eng_mode_enabled(self):
         """Returns whether engineering mode is enabled."""
 
-        return self._engineering_mode
+        return self._eng_mode
 
     async def _run_eng_mode(self, timeout: float | None = None):
         """Runs the engineering mode.
@@ -213,53 +207,51 @@ class ECPActor(LVMActor):
         eng_mode_config = self.config.get("engineering_mode", {})
         default_duration = eng_mode_config.get("default_duration", 300)
 
-        self._engineering_mode = True
-        self._engineering_mode_started_at = time.time()
-        self._engineering_mode_duration = timeout or default_duration
-        assert self._engineering_mode_duration is not None
+        self._eng_mode = True
+        self._eng_mode_started_at = time.time()
+        self._eng_mode_duration = timeout or default_duration
+        assert self._eng_mode_duration is not None
 
         while True:
-            if not self._engineering_mode:
-                await self.engineering_mode(False)
+            if not self._eng_mode:
+                await self.eng_mode(False)
                 return
 
             await self.emit_heartbeat()
 
-            elapsed = time.time() - self._engineering_mode_started_at
+            elapsed = time.time() - self._eng_mode_started_at
 
-            if elapsed > self._engineering_mode_duration:
+            if elapsed > self._eng_mode_duration:
                 self.write("w", text="Engineering mode timed out and was disabled.")
-                await self.engineering_mode(False)
+                await self.eng_mode(False)
                 return
 
-            await asyncio.sleep(self._engineering_mode_hearbeat_interval)
+            await asyncio.sleep(self._eng_mode_hearbeat_interval)
 
-    async def _restore_engineering_mode(self):
+    async def _restore_eng_mode(self):
         """Restores the engineering mode from Redis."""
 
         # Get data from Redis.
         async with redis_client() as redis:
-            emode = await redis.get("lvmecp.emode")
-            emode_started_at = await redis.get("lvmecp.emode_started_at")
-            emode_duration = await redis.get("lvmecp.emode_duration")
+            eng_mode = await redis.get("lvmecp.eng_mode")
+            eng_mode_started_at = await redis.get("lvmecp.eng_mode_started_at")
+            eng_mode_duration = await redis.get("lvmecp.eng_mode_duration")
 
-        if emode is not None:
-            self._engineering_mode = bool(int(emode))
+        if eng_mode is not None:
+            self._eng_mode = bool(int(eng_mode))
 
-            if emode and emode_started_at is not None and emode_duration is not None:
+            if eng_mode and eng_mode_started_at and eng_mode_duration:
                 now = time.time()
-                end_time = float(emode_started_at) + float(emode_duration)
+                end_time = float(eng_mode_started_at) + float(eng_mode_duration)
                 duration = end_time - now
                 if duration < 0:
-                    self._engineering_mode = False
+                    self._eng_mode = False
                     return
 
-                self._engineering_mode_task = asyncio.create_task(
-                    self._run_eng_mode(duration)
-                )
+                self._eng_mode_task = asyncio.create_task(self._run_eng_mode(duration))
                 return
 
-            self._engineering_mode = False
+            self._eng_mode = False
 
     async def emit_heartbeat(self):
         """Emits a heartbeat to the PLC."""

@@ -102,7 +102,7 @@ class SafetyController(PLCModule[SafetyStatus]):
 
         """
 
-        if self.plc._actor is not None and self.plc._actor._engineering_mode:
+        if self.plc._actor is not None and self.plc._actor._eng_mode:
             return True
 
         if include_plc_bypasses is False:

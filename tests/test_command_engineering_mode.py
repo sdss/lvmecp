@@ -29,7 +29,7 @@ async def test_command_engineering_mode_status(actor: ECPActor):
 
 
 async def test_command_engineering_mode_enable(actor: ECPActor, mocker: MockerFixture):
-    eng_mode_mock = mocker.patch.object(actor, "engineering_mode")
+    eng_mode_mock = mocker.patch.object(actor, "eng_mode")
 
     cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 10")
     await cmd
@@ -42,25 +42,25 @@ async def test_command_engineering_mode_no_mock(actor: ECPActor):
     cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 10")
     await cmd
 
-    assert actor.is_engineering_mode_enabled() is True
+    assert actor.is_eng_mode_enabled() is True
 
     cmd = await actor.invoke_mock_command("engineering-mode disable")
     await cmd
 
-    assert actor.is_engineering_mode_enabled() is False
+    assert actor.is_eng_mode_enabled() is False
 
 
 async def test_command_engineering_mode_timeouts(actor: ECPActor):
-    actor._engineering_mode_hearbeat_interval = 0.1  # To speed up the test
+    actor._eng_mode_hearbeat_interval = 0.1  # To speed up the test
 
     cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 1")
     await cmd
 
-    assert actor.is_engineering_mode_enabled() is True
+    assert actor.is_eng_mode_enabled() is True
 
     await asyncio.sleep(0.8)
 
-    assert actor.is_engineering_mode_enabled() is False
+    assert actor.is_eng_mode_enabled() is False
 
 
 async def test_command_engineering_mode_reset_e_stops(

@@ -226,7 +226,7 @@ async def test_command_dome_daytime_allowed(actor: ECPActor, mocker: MockerFixtu
 async def test_command_dome_daytime_eng_mode(actor: ECPActor, mocker: MockerFixture):
     mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
     mocker.patch.object(actor.plc.dome, "_move", return_value=True)
-    mocker.patch.object(actor, "_engineering_mode", return_value=True)
+    mocker.patch.object(actor, "_eng_mode", return_value=True)
 
     mocker.patch.object(actor.plc.dome, "update")
     mocker.patch.object(actor.plc.dome, "status", return_value=DomeStatus.OPEN)
@@ -268,7 +268,7 @@ async def test_actor_daytime_task_closed(actor: ECPActor, mocker: MockerFixture)
 
 async def test_actor_daytime_task_eng_mode(actor: ECPActor, mocker: MockerFixture):
     mocker.patch.object(actor.plc.dome, "is_daytime", return_value=True)
-    mocker.patch.object(actor, "_engineering_mode", return_value=True)
+    mocker.patch.object(actor, "_eng_mode", return_value=True)
     mocker.patch.object(lvmecp.actor.actor, "send_notification")
 
     dome_close_mock = mocker.patch.object(actor.plc.dome, "close")
