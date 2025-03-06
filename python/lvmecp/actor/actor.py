@@ -175,7 +175,6 @@ class ECPActor(LVMActor):
 
         self._eng_mode = enable
 
-
     def is_eng_mode_enabled(self):
         """Returns whether engineering mode is enabled."""
 
@@ -243,7 +242,6 @@ class ECPActor(LVMActor):
             modbus = self.plc.modbus
             await modbus.write_register("bypass_hardware_remote", eng_mode_hw_bypass)
             await modbus.write_register("bypass_software_remote", eng_mode_sw_bypass)
-
 
     async def emit_heartbeat(self):
         """Emits a heartbeat to the PLC."""
