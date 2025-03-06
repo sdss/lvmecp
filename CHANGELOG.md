@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Store engineering mode information in Redis so it can be restored when the actor restarts.
+
+
 ## 1.3.0 - January 30, 2025
 
 ### 🚀 New

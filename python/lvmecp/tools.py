@@ -10,13 +10,21 @@ from __future__ import annotations
 
 import asyncio
 import time
-from contextlib import suppress
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timezone
 
-from typing import Any, Callable, Coroutine, Literal
+from typing import Any, AsyncGenerator, Callable, Coroutine, Literal
+
+from redis import asyncio as aioredis
 
 
-__all__ = ["loop_coro", "cancel_tasks_by_name", "timestamp_to_iso"]
+__all__ = [
+    "loop_coro",
+    "cancel_tasks_by_name",
+    "timestamp_to_iso",
+    "TimedCacheDict",
+    "redis_client",
+]
 
 
 def loop_coro(
@@ -108,3 +116,14 @@ class TimedCacheDict(dict):
     def __delitem__(self, key: str):
         del self._cache_time[key]
         super().__delitem__(key)
+
+
+@asynccontextmanager
+async def redis_client() -> AsyncGenerator[aioredis.Redis, None]:
+    """Returns a Redis connection."""
+
+    client = aioredis.from_url("redis://localhost:6379/0", decode_responses=True)
+
+    yield client
+
+    await client.aclose()

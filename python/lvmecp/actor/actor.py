@@ -20,6 +20,7 @@ from lvmecp import __version__, log
 from lvmecp.actor.commands import parser
 from lvmecp.maskbits import DomeStatus
 from lvmecp.plc import PLC
+from lvmecp.tools import redis_client
 
 
 __all__ = ["ECPActor"]
@@ -78,6 +79,11 @@ class ECPActor(LVMActor):
         self._emit_status_task = asyncio.create_task(self.emit_status())
         self._monitor_dome_task = asyncio.create_task(self.monitor_dome())
         self._monitor_internet_task = asyncio.create_task(self.monitor_internet())
+
+        try:
+            await self._restore_engineering_mode()
+        except Exception as err:
+            log.error(f"Failed restoring engineering mode: {err}")
 
         return self
 
@@ -174,6 +180,22 @@ class ECPActor(LVMActor):
 
         self._engineering_mode = enable
 
+        try:
+            # Safe the engineering mode data to Redis so that we can recover it
+            # if the actor restarts.
+            async with redis_client() as redis:
+                await redis.set("lvmecp.emode", int(enable))
+                await redis.set(
+                    "lvmecp.emode_started_at",
+                    self._engineering_mode_started_at or 0.0,
+                )
+                await redis.set(
+                    "lvmecp.emode_duration",
+                    self._engineering_mode_duration or 0.0,
+                )
+        except Exception as err:
+            log.error(f"Failed saving engineering mode to Redis: {err}")
+
     def is_engineering_mode_enabled(self):
         """Returns whether engineering mode is enabled."""
 
@@ -191,11 +213,16 @@ class ECPActor(LVMActor):
         eng_mode_config = self.config.get("engineering_mode", {})
         default_duration = eng_mode_config.get("default_duration", 300)
 
+        self._engineering_mode = True
         self._engineering_mode_started_at = time.time()
         self._engineering_mode_duration = timeout or default_duration
         assert self._engineering_mode_duration is not None
 
         while True:
+            if not self._engineering_mode:
+                await self.engineering_mode(False)
+                return
+
             await self.emit_heartbeat()
 
             elapsed = time.time() - self._engineering_mode_started_at
@@ -206,6 +233,33 @@ class ECPActor(LVMActor):
                 return
 
             await asyncio.sleep(self._engineering_mode_hearbeat_interval)
+
+    async def _restore_engineering_mode(self):
+        """Restores the engineering mode from Redis."""
+
+        # Get data from Redis.
+        async with redis_client() as redis:
+            emode = await redis.get("lvmecp.emode")
+            emode_started_at = await redis.get("lvmecp.emode_started_at")
+            emode_duration = await redis.get("lvmecp.emode_duration")
+
+        if emode is not None:
+            self._engineering_mode = bool(int(emode))
+
+            if emode and emode_started_at is not None and emode_duration is not None:
+                now = time.time()
+                end_time = float(emode_started_at) + float(emode_duration)
+                duration = end_time - now
+                if duration < 0:
+                    self._engineering_mode = False
+                    return
+
+                self._engineering_mode_task = asyncio.create_task(
+                    self._run_eng_mode(duration)
+                )
+                return
+
+            self._engineering_mode = False
 
     async def emit_heartbeat(self):
         """Emits a heartbeat to the PLC."""

@@ -17,6 +17,7 @@ dependencies = [
     "pyserial-asyncio>=0.6",
     "pymodbus>=3.6.0,<3.7",
     "lvmopstools[ephemeris,slack]>=0.5.2",
+    "redis[hiredis]>=5.2.1",
 ]
 
 [project.urls]
