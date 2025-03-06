@@ -35,7 +35,7 @@ async def test_command_engineering_mode_enable(actor: ECPActor, mocker: MockerFi
     await cmd
 
     assert cmd.status.did_succeed
-    eng_mode_mock.assert_called_once_with(True, timeout=10)
+    eng_mode_mock.assert_called_once_with(True, timeout=36000)
 
 
 async def test_command_engineering_mode_no_mock(actor: ECPActor):
@@ -53,7 +53,8 @@ async def test_command_engineering_mode_no_mock(actor: ECPActor):
 async def test_command_engineering_mode_timeouts(actor: ECPActor):
     actor._eng_mode_hearbeat_interval = 0.1  # To speed up the test
 
-    cmd = await actor.invoke_mock_command("engineering-mode enable --timeout 1")
+    one_s = 1 / 3600
+    cmd = await actor.invoke_mock_command(f"engineering-mode enable --timeout {one_s}")
     await cmd
 
     assert actor.is_eng_mode_enabled() is True

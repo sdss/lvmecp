@@ -65,7 +65,7 @@ def engineering_mode():
 @click.option(
     "--timeout",
     "-t",
-    type=click.FloatRange(min=0.1, max=300),
+    type=click.FloatRange(min=0, max=300),
     help="Timeout for the engineering mode, in hours. "
     "If not passed, the default timeout is used.",
 )
