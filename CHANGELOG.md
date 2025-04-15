@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Add LN2 e-stop registers.
+
+
 ## 1.3.1 - March 18, 2025
 
 ### ✨ Improved

@@ -72,6 +72,10 @@ class SafetyController(PLCModule[SafetyStatus]):
         if safety_status.e_status:
             new_status |= self.flag.E_STOP
 
+        # LN2 E-stop
+        if safety_status.e_stop_ln2:
+            new_status |= self.flag.E_STOP_LN2
+
         # Dome lockout and error
         if await self.plc.modbus["dome_lockout"].read():
             new_status |= self.flag.DOME_LOCKED

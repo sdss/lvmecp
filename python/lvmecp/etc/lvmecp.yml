@@ -33,6 +33,26 @@ modbus:
       group: safety
       mode: coil
       readonly: false
+    e_stop_ln2:
+      address: 19
+      group: safety
+      mode: coil
+      readonly: true
+    e_stop_ln2_button1:
+      address: 20
+      group: safety
+      mode: coil
+      readonly: true
+    e_stop_ln2_button2:
+      address: 21
+      group: safety
+      mode: coil
+      readonly: true
+    e_stop_ln2_button3:
+      address: 22
+      group: safety
+      mode: coil
+      readonly: true
     cr_new:
       address: 234
       group: lights

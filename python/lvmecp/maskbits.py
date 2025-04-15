@@ -57,6 +57,7 @@ class SafetyStatus(Maskbit):
     E_STOP = 0x2000
     DOME_LOCKED = 0x4000
     DOME_ERROR = 0x8000
+    E_STOP_LN2 = 0x10000
     UNKNOWN = 0x100000
 
 
