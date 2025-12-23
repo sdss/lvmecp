@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### 🚀 New
+
+* Allow to set override values for modbus registers via configuration.
+
+
 ## 1.3.2 - April 16, 2025
 
 ### 🚀 New

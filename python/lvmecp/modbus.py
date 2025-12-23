@@ -19,7 +19,7 @@ from pymodbus.client.tcp import AsyncModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
-from sdsstools import read_yaml_file
+from sdsstools import Configuration, read_yaml_file
 from sdsstools.utils import cancel_task
 
 from lvmecp import config as lvmecp_config
@@ -69,16 +69,16 @@ class ModbusRegister:
         decoder: str | None = None,
         readonly: bool = True,
     ):
-        self.modbus = modbus
-        self.client = modbus.client
+        self.modbus: Modbus = modbus
+        self.client: AsyncModbusTcpClient = modbus.client
 
-        self.name = name
-        self.address = address
-        self.mode = mode
-        self.count = count
-        self.group = group
-        self.decoder = decoder
-        self.readonly = readonly
+        self.name: str = name
+        self.address: int = address
+        self.mode: RegisterModes = mode
+        self.count: int = count
+        self.group: str | None = group
+        self.decoder: str | None = decoder
+        self.readonly: bool = readonly
 
     async def _read_internal(self):
         """Return the value of the modbus register."""
@@ -116,12 +116,21 @@ class ModbusRegister:
 
         value = self.decode(value)
 
+        # Apply any overrides from the configuration. The override value
+        # must include any decoding.
+        overrides = self.modbus.config["overrides"] or {}
+        if self.name in overrides:
+            value = overrides[self.name]
+
         if not isinstance(value, (int, float)):
             raise ValueError(f"Invalid type for {self.name!r} response.")
 
         return value
 
-    def decode(self, value: int | bool | list[int | bool]):
+    def decode(
+        self,
+        value: int | bool | list[int | bool],
+    ) -> int | bool | list[int | bool]:
         """Decodes the raw value from the register."""
 
         if self.decoder is not None:
@@ -208,7 +217,10 @@ class Modbus(dict[str, ModbusRegister]):
 
     def __init__(self, config: dict | pathlib.Path | str | None = None):
         if isinstance(config, (str, pathlib.Path)):
-            self.config = read_yaml_file(str(config))["modbus"]
+            self.config = read_yaml_file(
+                str(config),
+                return_class=Configuration,
+            )["modbus"]
         elif config is None:
             self.config = lvmecp_config["modbus"]
         elif isinstance(config, dict):
@@ -383,6 +395,12 @@ class Modbus(dict[str, ModbusRegister]):
 
                     if isinstance(value, Sequence) and len(value) == 1:
                         value = value[0]
+
+                    # Apply any overrides from the configuration. The override value
+                    # must include any decoding.
+                    overrides = self.config["overrides"] or {}
+                    if name in overrides:
+                        value = overrides[name]
 
                     self.register_cache[name] = value
 

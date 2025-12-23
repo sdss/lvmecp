@@ -303,6 +303,7 @@ modbus:
       mode: coil
       readonly: true
       group: engineering_mode
+  overrides:
 
 hvac:
   host: 10.8.38.49
@@ -476,6 +477,7 @@ hvac:
       address: 12
       mode: coil
       readonly: true
+  overrides:
 
 simulator:
   host: 127.0.0.1
