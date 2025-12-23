@@ -12,7 +12,7 @@ import asyncio
 import pathlib
 from time import time
 
-from typing import Literal, Sequence
+from typing import Any, Literal, Sequence
 
 from lvmopstools.retrier import Retrier
 from pymodbus.client.tcp import AsyncModbusTcpClient
@@ -114,13 +114,11 @@ class ModbusRegister:
             registers = resp.registers
             value = registers[0 : self.count] if self.count > 1 else registers[0]
 
-        value = self.decode(value)
+        # Apply any overrides from the configuration.
+        if self.name in self.modbus.overrides:
+            value = self.modbus.overrides[self.name]
 
-        # Apply any overrides from the configuration. The override value
-        # must include any decoding.
-        overrides = self.modbus.config["overrides"] or {}
-        if self.name in overrides:
-            value = overrides[self.name]
+        value = self.decode(value)
 
         if not isinstance(value, (int, float)):
             raise ValueError(f"Invalid type for {self.name!r} response.")
@@ -236,6 +234,9 @@ class Modbus(dict[str, ModbusRegister]):
         # don't need to open a connection and read the registers.
         self.cache_timeout = self.config.get("cache_timeout", 1)
         self.register_cache = TimedCacheDict(self.cache_timeout, mode="null")
+
+        # Register overrides
+        self.overrides: dict[str, Any] = self.config.get("overrides", {}) or {}
 
         # Modbus client.
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
@@ -391,16 +392,15 @@ class Modbus(dict[str, ModbusRegister]):
                         continue
 
                     value = data[register.address : register.address + register.count]
+
+                    # Apply any overrides from the configuration.
+                    if name in self.overrides:
+                        value = self.overrides[name]
+
                     value = register.decode(value)
 
                     if isinstance(value, Sequence) and len(value) == 1:
                         value = value[0]
-
-                    # Apply any overrides from the configuration. The override value
-                    # must include any decoding.
-                    overrides = self.config["overrides"] or {}
-                    if name in overrides:
-                        value = overrides[name]
 
                     self.register_cache[name] = value
 

@@ -28,16 +28,13 @@ async def test_command_modbus_read(actor: ECPActor):
 
 
 async def test_command_modbus_read_override(actor: ECPActor, mocker: MockerFixture):
-    mocker.patch.dict(
-        actor.plc.modbus.config,
-        {"overrides": {"oxygen_read_utilities_room": 25.0}},
-    )
+    mocker.patch.dict(actor.plc.modbus.overrides, {"oxygen_read_utilities_room": 250})
 
     read_cmd = await actor.invoke_mock_command("modbus read oxygen_read_utilities_room")
     await read_cmd
 
     assert read_cmd.status.did_succeed
-    assert read_cmd.replies.get("register")["value"] == 25.0
+    assert read_cmd.replies.get("register")["value"] == 250
 
 
 async def test_command_modbus_read_address(actor: ECPActor):
