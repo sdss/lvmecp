@@ -63,6 +63,12 @@
         }
       },
       "required": ["enabled", "started_at", "ends_at"]
+    },
+    "register_overrides": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "additionalProperties": false

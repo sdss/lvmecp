@@ -37,8 +37,15 @@ async def status(
 
     plc = command.actor.plc
 
+    overrides_plc = plc.modbus.overrides
+    overrides_hvac = plc.hvac.modbus.overrides
+    overrides = {**overrides_plc, **overrides_hvac}
+
     if no_registers is False:
-        command.info(registers=(await plc.read_all_registers(use_cache=not no_cache)))
+        command.info(
+            registers=(await plc.read_all_registers(use_cache=not no_cache)),
+            register_overrides=list(overrides.keys()),
+        )
 
     modules: list[PLCModule] = [plc.dome, plc.safety, plc.lights]
     await asyncio.gather(

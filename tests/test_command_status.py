@@ -21,3 +21,4 @@ async def test_command_status(actor: ECPActor):
 
     assert cmd.status.did_succeed
     assert isinstance(cmd.replies.get("registers"), dict)
+    assert cmd.replies.get("register_overrides") == []
